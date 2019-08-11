@@ -12,7 +12,7 @@ do
     parted -s "${DEVICE}" -- mklabel gpt
     parted -s "${DEVICE}" -- mkpart primary 4MiB 512MiB
     parted -s "${DEVICE}" -- set 1 esp on
-    parted -s "${DEVICE}" -- mkpart primary fat32 512MiB -1s
+    parted -s "${DEVICE}" -- mkpart primary fat32 512MiB 100%
 done
 
 mkfs.fat -F32 /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_130811402135-part1

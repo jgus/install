@@ -25,9 +25,9 @@ Include = /etc/pacman.d/mirrorlist
 EOF
 pacman -Syy
 
-pacstrap /target base base-devel intel-ucode grub nvidia nvidia-utils lib32-nvidia-utils xorg git openssh
+pacstrap /target base base-devel intel-ucode grub efibootmgr nvidia nvidia-utils lib32-nvidia-utils xorg git openssh
 
-genfstab /target >> /target/etc/fstab
+genfstab -U /target >> /target/etc/fstab
 
 arch-chroot /target /install/install-chroot.sh
 
