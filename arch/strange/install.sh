@@ -16,7 +16,7 @@ mount /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102402736-part1 /target/efi/3
 mkdir -p /target/install
 mount --bind "$(cd "$(dirname "$0")" ; pwd)" /target/install
 
-pacman -S --noconfirm pacman-contrib
+pacman -Sy --noconfirm pacman-contrib
 curl -s "https://www.archlinux.org/mirrorlist/?country=US&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
 cat <<EOF >>/etc/pacman.conf
 
