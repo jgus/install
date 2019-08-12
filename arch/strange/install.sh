@@ -25,7 +25,14 @@ Include = /etc/pacman.d/mirrorlist
 EOF
 pacman -Syy
 
-pacstrap /target base base-devel intel-ucode grub efibootmgr nvidia nvidia-utils nvidia-settings lib32-nvidia-utils xorg git openssh
+pacstrap /target \
+    base base-devel \
+    intel-ucode grub efibootmgr \
+    nvidia nvidia-utils nvidia-settings lib32-nvidia-utils \
+    git \
+    openssh \
+    xorg lightdm lightdm-gtk-greeter plasma-meta kde-applications-meta
+#    pulseaudio pavucontrol \
 
 genfstab -U /target >> /target/etc/fstab
 
