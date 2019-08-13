@@ -30,7 +30,7 @@ Include = /etc/pacman.d/mirrorlist
 EOF
 pacman -Syy
 
-pacstrap /target base linux-zen
+pacstrap /target base linux-zen linux-zen-headers dkms
 
 genfstab -U /target >> /target/etc/fstab
 

@@ -31,7 +31,7 @@ EOF
 pacman -Syu --noconfirm base-devel git zsh
 
 # Drivers
-pacman -S --noconfirm nvidia nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
+pacman -S --noconfirm nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
 
 # Initramfs
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
