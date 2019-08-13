@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
 
+mkdir -p /bootkey
+mount /dev/disk/by-label/BOOTKEY /bootkey
+
+vgremove -f system || true
+
 # System
 # ata-SanDisk_SDSSDX240GG25_130811402135
 # ata-SanDisk_SDSSDX240GG25_131102400461
@@ -9,16 +14,17 @@ set -e
 for s in 130811402135 131102400461 131102401287 131102402736
 do
     DEVICE="/dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_${s}"
+    pvremove -f "${DEVICE}" || true
     parted -s "${DEVICE}" -- mklabel gpt
     parted -s "${DEVICE}" -- mkpart primary 4MiB 512MiB
     parted -s "${DEVICE}" -- set 1 esp on
     parted -s "${DEVICE}" -- mkpart primary fat32 512MiB 100%
 done
 
-mkfs.fat -F32 /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_130811402135-part1 -n UEFI-BOOT-0
-mkfs.fat -F32 /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102400461-part1 -n UEFI-BOOT-1
-mkfs.fat -F32 /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102401287-part1 -n UEFI-BOOT-2
-mkfs.fat -F32 /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102402736-part1 -n UEFI-BOOT-3
+mkfs.fat -F32 /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_130811402135-part1 -n UEFI-0
+mkfs.fat -F32 /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102400461-part1 -n UEFI-1
+mkfs.fat -F32 /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102401287-part1 -n UEFI-2
+mkfs.fat -F32 /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102402736-part1 -n UEFI-3
 
 vgcreate system /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_130811402135-part2 /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102400461-part2 /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102401287-part2 /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102402736-part2
 
@@ -37,3 +43,4 @@ swapon /dev/system/swap
 # Bulk
 # ata-WDC_WD60EFRX-68MYMN1_WD-WX11DA4DJ3CN
 
+umount /bootkey

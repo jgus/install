@@ -5,14 +5,11 @@ mkdir -p /target
 mount /dev/system/z0 /target
 mkdir -p /target/boot
 mount /dev/system/boot /target/boot
-mkdir -p /target/efi/0
-mount /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_130811402135-part1 /target/efi/0
-mkdir -p /target/efi/1
-mount /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102400461-part1 /target/efi/1
-mkdir -p /target/efi/2
-mount /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102401287-part1 /target/efi/2
-mkdir -p /target/efi/3
-mount /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102402736-part1 /target/efi/3
+for i in 0 1 2 3
+do
+    mkdir -p "/target/efi/${i}"
+    mount "/dev/disk/by-label/UEFI-${i}" "/target/efi/${i}"
+done
 mkdir -p /target/install
 mount --bind "$(cd "$(dirname "$0")" ; pwd)" /target/install
 
