@@ -22,32 +22,42 @@ EOF
 # Network
 systemctl enable dhcpcd.service
 
-# Password
-cat <<EOF
-#####
-#
-# Please enter a root password:
-#
-#####
-EOF
-passwd
-
-# SSH
-echo "PasswordAuthentication no" >>/etc/ssh/sshd_config
-systemctl enable sshd.socket
-mkdir -p /root/.ssh
-curl https://github.com/jgus.keys >> /root/.ssh/authorized_keys
-chmod 400 /root/.ssh/authorized_keys
-
 # Packages
 cat <<EOF >>/etc/pacman.conf
 
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 EOF
-pacman -Syu --noconfirm
+pacman -Syu --noconfirm base-devel git zsh
+
+# Drivers
+pacman -S --noconfirm nvidia nvidia-utils nvidia-settings lib32-nvidia-utils
+
+# Initramfs
+sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
+sed -i 's/HOOKS=(\(.*\)block filesystems\(.*\))/HOOKS=(\1block lvm2 filesystems\2)/g' /etc/mkinitcpio.conf
+mkinitcpio -p linux
+
+# Bootloader
+pacman -S --noconfirm intel-ucode grub efibootmgr
+for  i in 3 2 1 0
+do
+    grub-install --target=x86_64-efi --efi-directory="/efi/${i}" --bootloader-id="GRUB-${i}"
+done
+sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 nvidia-drm.modeset=1"/g' /etc/default/grub
+sed -i 's/GRUB_PRELOAD_MODULES="\(.*\)"/GRUB_PRELOAD_MODULES="\1 lvm"/g' /etc/default/grub
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# SSH
+pacman -S --noconfirm openssh
+echo "PasswordAuthentication no" >>/etc/ssh/sshd_config
+systemctl enable sshd.socket
+mkdir -p /root/.ssh
+curl https://github.com/jgus.keys >> /root/.ssh/authorized_keys
+chmod 400 /root/.ssh/authorized_keys
 
 # Xorg
+pacman -S --noconfirm xorg
 #cp /usr/share/X11/xorg.conf.d/* /etc/X11/xorg.conf.d/
 #nvidia-xconfig
 cat <<EOF >/etc/X11/xorg.conf
@@ -105,23 +115,21 @@ EndSection
 EOF
 
 # LightDM
+pacman -S --noconfirm lightdm lightdm-gtk-greeter
 systemctl enable lightdm.service
 
-# Initramfs
-sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
-sed -i 's/HOOKS=(\(.*\)block filesystems\(.*\))/HOOKS=(\1block lvm2 filesystems\2)/g' /etc/mkinitcpio.conf
-mkinitcpio -p linux
+# KDE
+pacman -S --noconfirm plasma-meta kde-applications-meta xdg-user-dirs
 
-# Bootloader
-# for s in 130811402135 131102400461 131102401287 131102402736
-# do
-#     DEVICE=/dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_${s}
-#     grub-install --target=i386-pc "${DEVICE}"
-# done
-for  i in 3 2 1 0
-do
-    grub-install --target=x86_64-efi --efi-directory=/efi/${i} --bootloader-id=GRUB-${i}
-done
-sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 nvidia-drm.modeset=1"/g' /etc/default/grub
-sed -i 's/GRUB_PRELOAD_MODULES="\(.*\)"/GRUB_PRELOAD_MODULES="\1 lvm"/g' /etc/default/grub
-grub-mkconfig -o /boot/grub/grub.cfg
+# Applications
+pacman -S --noconfirm google-chrome vlc ffmpeg-full
+
+# Password
+cat <<EOF
+#####
+#
+# Please enter a root password:
+#
+#####
+EOF
+passwd
