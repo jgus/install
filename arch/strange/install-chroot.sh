@@ -121,8 +121,8 @@ systemctl enable lightdm.service
 # KDE
 pacman -S --noconfirm plasma-meta kde-applications-meta xdg-user-dirs
 
-# Applications
-pacman -S --noconfirm google-chrome vlc ffmpeg-full
+# # Applications
+# pacman -S --noconfirm google-chrome vlc ffmpeg-full
 
 # Password
 cat <<EOF
