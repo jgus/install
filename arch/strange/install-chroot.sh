@@ -133,3 +133,13 @@ cat <<EOF
 #####
 EOF
 passwd
+
+# TODO
+# Set default shell
+# add users
+# ZFS
+# Backup
+# Sync
+# Steam
+# Wine?
+# Multiseat

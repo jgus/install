@@ -1,9 +1,6 @@
 #!/bin/sh
 set -e
 
-mkdir -p /bootkey
-mount /dev/disk/by-label/BOOTKEY /bootkey
-
 vgremove -f system || true
 
 # System
@@ -35,12 +32,5 @@ lvcreate -Wy -L 210G -n z2 system /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_1311
 lvcreate -Wy -L 210G -n z3 system /dev/disk/by-id/ata-SanDisk_SDSSDX240GG25_131102402736-part2
 lvcreate -Wy -l 100%FREE -n swap -i 4 system
 
-mkfs.ext4 /dev/system/boot
-mkfs.ext4 /dev/system/z0
-mkswap /dev/system/swap
-swapon /dev/system/swap
-
 # Bulk
 # ata-WDC_WD60EFRX-68MYMN1_WD-WX11DA4DJ3CN
-
-umount /bootkey
