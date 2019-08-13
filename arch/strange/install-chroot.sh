@@ -31,12 +31,12 @@ EOF
 pacman -Syu --noconfirm base-devel git zsh
 
 # Drivers
-pacman -S --noconfirm nvidia nvidia-utils nvidia-settings lib32-nvidia-utils
+pacman -S --noconfirm nvidia nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
 
 # Initramfs
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
 sed -i 's/HOOKS=(\(.*\)block filesystems\(.*\))/HOOKS=(\1block lvm2 filesystems\2)/g' /etc/mkinitcpio.conf
-mkinitcpio -p linux
+mkinitcpio -p linux-zen
 
 # Bootloader
 pacman -S --noconfirm intel-ucode grub efibootmgr
