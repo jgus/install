@@ -45,6 +45,7 @@ sed -i 's/HOOKS=(\(.*\)block filesystems keyboard\(.*\))/HOOKS=(\1block lvm2 key
 mkinitcpio -p linux-zen
 
 # Bootloader
+export ZPOOL_VDEV_NAME_PATH=1
 pacman -S --needed --noconfirm intel-ucode grub efibootmgr
 for  i in 3 2 1 0
 do
@@ -140,7 +141,10 @@ cat <<EOF
 EOF
 passwd
 
+cp "$(cd "$(dirname "$0")" ; pwd)/first-boot.sh" /root/first-boot.sh
+
 # TODO
+# ZFS encryption
 # ZFS autostart
 # NVIDIA kernel hook
 # ZFS scrub

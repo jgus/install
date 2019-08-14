@@ -46,6 +46,8 @@ LABEL=UEFI-0        	/efi/0    	vfat      	rw,relatime,fmask=0022,dmask=0022,cod
 LABEL=UEFI-1        	/efi/1    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
 LABEL=UEFI-2        	/efi/2    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
 LABEL=UEFI-3        	/efi/3    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
+
+/dev/mapper/vg-swap 	none      	swap      	defaults  	0 0
 EOF
 
 cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
