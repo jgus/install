@@ -27,15 +27,21 @@ cat <<EOF >>/etc/pacman.conf
 
 [multilib]
 Include = /etc/pacman.d/mirrorlist
+
+[archzfs]
+Server = https://archzfs.com/\$repo/\$arch
 EOF
-pacman -Syu --needed --noconfirm base-devel git zsh
+pacman-key -r F75D9D76
+pacman-key --lsign-key F75D9D76
+pacman -Syy
+pacman -Su --needed --noconfirm base-devel git zsh
 
 # Drivers
 pacman -S --needed --noconfirm nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
 
 # Initramfs
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
-sed -i 's/HOOKS=(\(.*\)block filesystems\(.*\))/HOOKS=(\1block lvm2 filesystems\2)/g' /etc/mkinitcpio.conf
+sed -i 's/HOOKS=(\(.*\)block filesystems keyboard\(.*\))/HOOKS=(\1block lvm2 keyboard zfs filesystems\2)/g' /etc/mkinitcpio.conf
 mkinitcpio -p linux-zen
 
 # Bootloader

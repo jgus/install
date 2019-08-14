@@ -44,15 +44,15 @@ do
     echo "Formatting UEFI-${i}..."
     mkfs.fat -F32 "/dev/disk/by-id/${SYSTEM_DEVICES[$i]}-part1" -n UEFI-${i}
     echo "Creating LV boot${i}..."
-    lvcreate -Wy -L 512M -n boot${i} vg "${SYSTEM_PVS[$i]}"
+    yes | lvcreate -Wy -L 512M -n boot${i} vg "${SYSTEM_PVS[$i]}"
     echo "Creating LV z${i}..."
-    lvcreate -Wy -L 210G -n z${i} vg "${SYSTEM_PVS[$i]}"
+    yes | lvcreate -Wy -L 210G -n z${i} vg "${SYSTEM_PVS[$i]}"
     SYSTEM_BOOT_DEVS+=("/dev/vg/boot${i}")
     SYSTEM_Z_DEVS+=("/dev/vg/z${i}")
 done
 
 echo "Creating LV swap..."
-lvcreate -Wy -l 100%FREE -n swap -i "${#SYSTEM_DEVICES[@]}" vg
+yes | lvcreate -Wy -l 100%FREE -n swap -i "${#SYSTEM_DEVICES[@]}" vg
 mkswap /dev/vg/swap
 
 echo "Creating zpool boot..."
