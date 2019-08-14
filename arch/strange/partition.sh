@@ -13,7 +13,7 @@ for i in "${!SYSTEM_DEVICES[@]}"
 do
     pvremove -f "/dev/disk/by-id/${SYSTEM_DEVICES[$i]}"* || true
 done
-SYSTEM_PVS=""
+SYSTEM_PVS=()
 for i in "${!SYSTEM_DEVICES[@]}"
 do
     DEVICE="/dev/disk/by-id/${SYSTEM_DEVICES[$i]}"
@@ -21,18 +21,18 @@ do
     parted -s "${DEVICE}" -- mkpart primary 4MiB 512MiB
     parted -s "${DEVICE}" -- set 1 esp on
     parted -s "${DEVICE}" -- mkpart primary 512MiB 100%
-    SYSTEM_PVS="${SYSTEM_PVS} ${DEVICE}-part2"
+    SYSTEM_PVS+=("${DEVICE}-part2")
 done
-vgcreate vg "${SYSTEM_PVS}"
-SYSTEM_BOOT_DEVS=""
-SYSTEM_Z_DEVS=""
+vgcreate vg "${SYSTEM_PVS[@]}"
+SYSTEM_BOOT_DEVS=()
+SYSTEM_Z_DEVS=()
 for i in "${!SYSTEM_DEVICES[@]}"
 do
     mkfs.fat -F32 "/dev/disk/by-id/${SYSTEM_DEVICES[$i]}-part1" -n UEFI-${i}
-    lvcreate -Wy -L 512M -n boot${i} vg "/dev/disk/by-id/${SYSTEM_DEVICES[$i]}-part2"
-    lvcreate -Wy -L 210G -n z${i} vg "/dev/disk/by-id/${SYSTEM_DEVICES[$i]}-part2"
-    SYSTEM_BOOT_DEVS="${SYSTEM_BOOT_DEVS} boot${i}"
-    SYSTEM_Z_DEVS="${SYSTEM_Z_DEVS} z${i}"
+    lvcreate -Wy -L 512M -n boot${i} vg "${SYSTEM_PVS[$i]}"
+    lvcreate -Wy -L 210G -n z${i} vg "${SYSTEM_PVS[$i]}"
+    SYSTEM_BOOT_DEVS+=("boot${i}")
+    SYSTEM_Z_DEVS+=("z${i}")
 done
 
 lvcreate -Wy -l 100%FREE -n swap -i "${#SYSTEM_DEVICES[@]}" vg
@@ -60,14 +60,14 @@ zpool create \
     -O atime=off \
     -O compression=lz4 \
     -m none \
-    boot raidz "${SYSTEM_BOOT_DEVS}"
+    boot raidz "${SYSTEM_BOOT_DEVS[@]}"
 
 zpool create \
     -o ashift=12 \
     -O atime=off \
     -O compression=lz4 \
     -m none \
-    z raidz "${SYSTEM_Z_DEVS}"
+    z raidz "${SYSTEM_Z_DEVS[@]}"
 
 zfs unmount -a
 
