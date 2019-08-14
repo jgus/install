@@ -6,9 +6,6 @@ mount -o remount,size=8G /run/archiso/cowspace
 umount -R /target || true
 swapoff /dev/system/swap || true
 
-mkfs.ext4 /dev/system/boot
-mkfs.ext4 /dev/system/z0
-mkswap /dev/system/swap
 swapon /dev/system/swap
 
 mkdir -p /target

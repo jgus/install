@@ -8,6 +8,8 @@ SYSTEM_DEVICES=(
     ata-SanDisk_SDSSDX240GG25_131102401287
     ata-SanDisk_SDSSDX240GG25_131102402736
     )
+
+echo "Cleaning up prior LVM config..."
 vgremove -f vg || true
 for i in "${!SYSTEM_DEVICES[@]}"
 do
@@ -17,26 +19,36 @@ SYSTEM_PVS=()
 for i in "${!SYSTEM_DEVICES[@]}"
 do
     DEVICE="/dev/disk/by-id/${SYSTEM_DEVICES[$i]}"
+    echo "Wiping and re-partitioning ${DEVICE}..."
     parted -s "${DEVICE}" -- mklabel gpt
+    while [ -L "${DEVICE}-part2" ] ; do : ; done
     parted -s "${DEVICE}" -- mkpart primary 4MiB 512MiB
     parted -s "${DEVICE}" -- set 1 esp on
     parted -s "${DEVICE}" -- mkpart primary 512MiB 100%
+    while [ ! -L "${DEVICE}-part2" ] ; do : ; done
     SYSTEM_PVS+=("${DEVICE}-part2")
 done
+echo "Setting up LVM..."
 vgcreate vg "${SYSTEM_PVS[@]}"
 SYSTEM_BOOT_DEVS=()
 SYSTEM_Z_DEVS=()
 for i in "${!SYSTEM_DEVICES[@]}"
 do
+    echo "Formatting UEFI-${i}..."
     mkfs.fat -F32 "/dev/disk/by-id/${SYSTEM_DEVICES[$i]}-part1" -n UEFI-${i}
+    echo "Creating LV boot${i}..."
     lvcreate -Wy -L 512M -n boot${i} vg "${SYSTEM_PVS[$i]}"
+    echo "Creating LV z${i}..."
     lvcreate -Wy -L 210G -n z${i} vg "${SYSTEM_PVS[$i]}"
     SYSTEM_BOOT_DEVS+=("boot${i}")
     SYSTEM_Z_DEVS+=("z${i}")
 done
 
+echo "Creating LV swap..."
 lvcreate -Wy -l 100%FREE -n swap -i "${#SYSTEM_DEVICES[@]}" vg
+mkswap /dev/system/swap
 
+echo "Creating zpool boot..."
 zpool create \
     -d \
     -o feature@allocation_classes=enabled \
@@ -62,6 +74,7 @@ zpool create \
     -m none \
     boot raidz "${SYSTEM_BOOT_DEVS[@]}"
 
+echo "Creating zpool main..."
 zpool create \
     -o ashift=12 \
     -O atime=off \
@@ -69,10 +82,12 @@ zpool create \
     -m none \
     z raidz "${SYSTEM_Z_DEVS[@]}"
 
+echo "Unmounting zpools..."
 zfs unmount -a
 
 zfs set mountpoint=/boot boot
 
+echo "Unmounting zfs datasets..."
 zfs create -o mountpoint=/ z/root
 zfs create -o canmount=off z/root/var
 zfs create z/root/var/cache
@@ -85,8 +100,11 @@ zfs create -o mountpoint=/var/lib/docker z/docker
 zpool set bootfs=boot boot
 zpool set bootfs=z/root z
 
+echo "Exporting zfs datasets..."
 zpool export boot
 zpool export z
 
 # Bulk
 # ata-WDC_WD60EFRX-68MYMN1_WD-WX11DA4DJ3CN
+
+echo "Done partitioning!"
