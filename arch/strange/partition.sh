@@ -9,12 +9,17 @@ SYSTEM_DEVICES=(
     ata-SanDisk_SDSSDX240GG25_131102402736
     )
 
+echo "Cleaning up prior ZFS pools..."
+zpool destroy boot || true
+zpool destroy z || true
+
 echo "Cleaning up prior LVM config..."
 vgremove -f vg || true
 for i in "${!SYSTEM_DEVICES[@]}"
 do
     pvremove -f "/dev/disk/by-id/${SYSTEM_DEVICES[$i]}"* || true
 done
+
 SYSTEM_PVS=()
 for i in "${!SYSTEM_DEVICES[@]}"
 do
@@ -28,8 +33,10 @@ do
     while [ ! -L "${DEVICE}-part2" ] ; do : ; done
     SYSTEM_PVS+=("${DEVICE}-part2")
 done
+
 echo "Setting up LVM..."
 vgcreate vg "${SYSTEM_PVS[@]}"
+
 SYSTEM_BOOT_DEVS=()
 SYSTEM_Z_DEVS=()
 for i in "${!SYSTEM_DEVICES[@]}"
@@ -40,13 +47,13 @@ do
     lvcreate -Wy -L 512M -n boot${i} vg "${SYSTEM_PVS[$i]}"
     echo "Creating LV z${i}..."
     lvcreate -Wy -L 210G -n z${i} vg "${SYSTEM_PVS[$i]}"
-    SYSTEM_BOOT_DEVS+=("boot${i}")
-    SYSTEM_Z_DEVS+=("z${i}")
+    SYSTEM_BOOT_DEVS+=("/dev/vg/boot${i}")
+    SYSTEM_Z_DEVS+=("/dev/vg/z${i}")
 done
 
 echo "Creating LV swap..."
 lvcreate -Wy -l 100%FREE -n swap -i "${#SYSTEM_DEVICES[@]}" vg
-mkswap /dev/system/swap
+mkswap /dev/vg/swap
 
 echo "Creating zpool boot..."
 zpool create \
@@ -85,17 +92,15 @@ zpool create \
 echo "Unmounting zpools..."
 zfs unmount -a
 
-zfs set mountpoint=/boot boot
-
 echo "Unmounting zfs datasets..."
-zfs create -o mountpoint=/ z/root
+zfs create z/root
 zfs create -o canmount=off z/root/var
 zfs create z/root/var/cache
 zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
-zfs create -o mountpoint=/home z/home
-zfs create -o mountpoint=/var/lib/docker z/docker
+zfs create z/home
+zfs create z/docker
 
 zpool set bootfs=boot boot
 zpool set bootfs=z/root z
