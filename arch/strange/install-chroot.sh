@@ -28,10 +28,10 @@ cat <<EOF >>/etc/pacman.conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 EOF
-pacman -Syu --noconfirm base-devel git zsh
+pacman -Syu --needed --noconfirm base-devel git zsh
 
 # Drivers
-pacman -S --noconfirm nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
+pacman -S --needed --noconfirm nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
 
 # Initramfs
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
@@ -39,7 +39,7 @@ sed -i 's/HOOKS=(\(.*\)block filesystems\(.*\))/HOOKS=(\1block lvm2 filesystems\
 mkinitcpio -p linux-zen
 
 # Bootloader
-pacman -S --noconfirm intel-ucode grub efibootmgr
+pacman -S --needed --noconfirm intel-ucode grub efibootmgr
 for  i in 3 2 1 0
 do
     grub-install --target=x86_64-efi --efi-directory="/efi/${i}" --bootloader-id="GRUB-${i}"
@@ -49,7 +49,7 @@ sed -i 's/GRUB_PRELOAD_MODULES="\(.*\)"/GRUB_PRELOAD_MODULES="\1 lvm"/g' /etc/de
 grub-mkconfig -o /boot/grub/grub.cfg
 
 # SSH
-pacman -S --noconfirm openssh
+pacman -S --needed --noconfirm openssh
 echo "PasswordAuthentication no" >>/etc/ssh/sshd_config
 systemctl enable sshd.socket
 mkdir -p /root/.ssh
@@ -57,7 +57,7 @@ curl https://github.com/jgus.keys >> /root/.ssh/authorized_keys
 chmod 400 /root/.ssh/authorized_keys
 
 # Xorg
-pacman -S --noconfirm xorg
+pacman -S --needed --noconfirm xorg
 #cp /usr/share/X11/xorg.conf.d/* /etc/X11/xorg.conf.d/
 #nvidia-xconfig
 cat <<EOF >/etc/X11/xorg.conf
@@ -115,14 +115,14 @@ EndSection
 EOF
 
 # LightDM
-pacman -S --noconfirm lightdm lightdm-gtk-greeter
+pacman -S --needed --noconfirm lightdm lightdm-gtk-greeter
 systemctl enable lightdm.service
 
 # KDE
-pacman -S --noconfirm plasma-meta kde-applications-meta xdg-user-dirs
+pacman -S --needed --noconfirm plasma-meta kde-applications-meta xdg-user-dirs
 
 # # Applications
-# pacman -S --noconfirm google-chrome vlc ffmpeg-full
+# pacman -S --needed --noconfirm google-chrome vlc ffmpeg-full
 
 # Password
 cat <<EOF
@@ -135,10 +135,12 @@ EOF
 passwd
 
 # TODO
+# ZFS autostart
+# NVIDIA kernel hook
+# ZFS scrub
+# ZFS snapshots/replication
 # Set default shell
 # add users
-# ZFS
-# Backup
 # Sync
 # Steam
 # Wine?

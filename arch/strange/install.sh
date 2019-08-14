@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+mount -o remount,size=8G /run/archiso/cowspace
+
 umount -R /target || true
 swapoff /dev/system/swap || true
 
@@ -21,7 +23,7 @@ done
 mkdir -p /target/install
 mount --bind "$(cd "$(dirname "$0")" ; pwd)" /target/install
 
-pacman -Sy --noconfirm pacman-contrib
+pacman -Sy --needed --noconfirm pacman-contrib
 curl -s "https://www.archlinux.org/mirrorlist/?country=US&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
 cat <<EOF >>/etc/pacman.conf
 
@@ -30,7 +32,7 @@ Include = /etc/pacman.d/mirrorlist
 EOF
 pacman -Syy
 
-pacstrap /target base linux-zen linux-zen-headers dkms
+pacstrap /target base linux-zen linux-zen-headers dkms zfs-linux-zen
 
 genfstab -U /target >> /target/etc/fstab
 
