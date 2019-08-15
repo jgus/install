@@ -26,6 +26,7 @@ for i in "${!SYSTEM_DEVICES[@]}"
 do
     DEVICE="/dev/disk/by-id/${SYSTEM_DEVICES[$i]}"
     echo "Wiping and re-partitioning ${DEVICE}..."
+    wipefs --all "${DEVICE}"
     parted -s "${DEVICE}" -- mklabel gpt
     while [ -L "${DEVICE}-part2" ] ; do : ; done
     parted -s "${DEVICE}" -- mkpart primary 4MiB 512MiB

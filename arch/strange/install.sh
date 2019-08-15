@@ -39,12 +39,6 @@ mount | grep target
 echo "Updating Pacman..."
 pacman -Sy --needed --noconfirm pacman-contrib
 curl -s "https://www.archlinux.org/mirrorlist/?country=US&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
-cat <<EOF >>/etc/pacman.conf
-
-[multilib]
-Include = /etc/pacman.d/mirrorlist
-EOF
-pacman -Syy
 
 echo "Pacstrapping..."
 pacstrap /target base linux-zen linux-zen-headers dkms zfs-linux-zen
