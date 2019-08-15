@@ -33,25 +33,27 @@ Server = https://archzfs.com/\$repo/\$arch
 EOF
 pacman-key -r F75D9D76
 pacman-key --lsign-key F75D9D76
-pacman -Syyu --needed --noconfirm \
+PACKAGES=(
     # General
-    base-devel git zsh \
+    base-devel git zsh
     # Drivers
-    nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings \
+    nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
     # Bootloader
-    intel-ucode grub efibootmgr \
+    intel-ucode grub efibootmgr
     # RNG
-    rng-tools \
+    rng-tools
     # OpenSSH
-    openssh \
+    openssh
     # Xorg
-    xorg \
+    xorg
     # LightDM
-    lightdm lightdm-gtk-greeter \
+    lightdm lightdm-gtk-greeter
     # KDE
-    plasma-meta kde-applications-meta xdg-user-dirs \
+    plasma-meta kde-applications-meta xdg-user-dirs
     # Applications
-    # google-chrome vlc ffmpeg-full \
+    # google-chrome vlc ffmpeg-full
+)
+pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
 
 # Initramfs
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf

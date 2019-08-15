@@ -29,6 +29,7 @@ do
 done
 mkdir -p /target/install
 mount --bind "$(cd "$(dirname "$0")" ; pwd)" /target/install
+mount | grep target
 
 echo "Updating Pacman..."
 pacman -Sy --needed --noconfirm pacman-contrib
