@@ -32,11 +32,11 @@ do
     parted -s "${DEVICE}" -- mkpart primary 512MiB 1024MiB
     parted -s "${DEVICE}" -- mkpart primary 1024MiB 211GiB
     parted -s "${DEVICE}" -- mkpart primary 211GiB 100%
-    while [ ! -L "${DEVICE}-part4" ] ; do : ; done
     BOOT_DEVS+=("${DEVICE}-part2")
     LOCKED_Z_DEVS+=("${DEVICE}-part3")
     SWAP_DEVS+=("${DEVICE}-part4")
 done
+sleep 1
 
 echo "Creating zpool boot..."
 zpool create \
