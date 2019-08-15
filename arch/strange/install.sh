@@ -2,21 +2,30 @@
 set -e
 
 umount -R /target || true
-swapoff /dev/system/swap || true
+umount /bootkey || true
+swapoff /dev/vg/swap || true
 
 echo "Importing/mounting filesystems..."
-swapon /dev/system/swap
+swapon /dev/vg/swap
+mount -o remount,size=8G /run/archiso/cowspace
+mkdir -p /bootkey
+mount -o ro /dev/disk/by-label/BOOTKEY /bootkey
 
 mkdir -p /target
-zpool import -R /target z 
+zpool import -R /target z
 zpool set cachefile=/etc/zfs/zpool.cache z
+zfs load-key -a
 zfs set mountpoint=/ z/root
+zfs mount z/root
 zfs set mountpoint=/home z/home
+zfs mount z/home
 zfs set mountpoint=/var/lib/docker z/docker
+zfs mount z/docker
 mkdir -p /target/boot
 zpool import -R /target boot
-zpool set cachefile=/etc/zfs/zpool.cache boot 
+zpool set cachefile=/etc/zfs/zpool.cache boot
 zfs set mountpoint=/boot boot
+zfs mount boot
 for i in 0 1 2 3
 do
     mkdir -p "/target/efi/${i}"

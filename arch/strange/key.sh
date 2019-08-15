@@ -16,6 +16,6 @@ mkfs.fat -F 32 -n INTERNAL "${DEVICE}-part2"
 
 mkdir -p /bootkey
 mount /dev/disk/by-label/BOOTKEY /bootkey
-dd bs=1 count=512 if=/dev/random of=/bootkey/key status=progress
+dd bs=1 count=32 if=/dev/random of=/bootkey/key status=progress
 chmod 400 /bootkey/key
 umount /bootkey
