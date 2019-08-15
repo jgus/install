@@ -17,17 +17,9 @@ echo "Cleaning up prior ZFS pools..."
 zpool destroy boot || true
 zpool destroy z || true
 
-echo "Cleaning up prior LVM config..."
-swapoff /dev/swapvg/swap || true
-vgremove -f swapvg || true
-for i in "${!SYSTEM_DEVICES[@]}"
-do
-    pvremove -f "/dev/disk/by-id/${SYSTEM_DEVICES[$i]}"* || true
-done
-
 BOOT_DEVS=()
 LOCKED_Z_DEVS=()
-LOCKED_SWAP_DEVS=()
+SWAP_DEVS=()
 for i in "${!SYSTEM_DEVICES[@]}"
 do
     DEVICE="/dev/disk/by-id/${SYSTEM_DEVICES[$i]}"
@@ -43,7 +35,7 @@ do
     while [ ! -L "${DEVICE}-part4" ] ; do : ; done
     BOOT_DEVS+=("${DEVICE}-part2")
     LOCKED_Z_DEVS+=("${DEVICE}-part3")
-    LOCKED_SWAP_DEVS+=("${DEVICE}-part4")
+    SWAP_DEVS+=("${DEVICE}-part4")
 done
 
 echo "Creating zpool boot..."
@@ -110,23 +102,10 @@ do
     cryptsetup close "z${i}"
 done
 
-echo "Setting up swap LUKS..."
-SWAP_PVS=()
-for i in "${!LOCKED_SWAP_DEVS[@]}"
-do
-    cryptsetup -vq --type luks2 --key-file=/keyfile/system --label="lockedswap${i}" luksFormat "${LOCKED_SWAP_DEVS[$i]}"
-    cryptsetup --key-file=/keyfile/system open "/dev/disk/by-label/lockedswap${i}" "swap${i}"
-    SWAP_PVS+=("/dev/mapper/swap${i}")
-done
-
 echo "Setting up swap..."
-vgcreate swapvg "${SWAP_PVS[@]}"
-yes | lvcreate -Wy -l 100%FREE -n swap -i "${#SYSTEM_DEVICES[@]}" swapvg
-mkswap /dev/swapvg/swap
-
-for i in "${!LOCKED_SWAP_DEVS[@]}"
+for i in "${!SWAP_DEVS[@]}"
 do
-    cryptsetup close "swap${i}"
+    mkswap -L"SWAP${i}" "${SWAP_DEVS[$i]}"
 done
 
 # Bulk

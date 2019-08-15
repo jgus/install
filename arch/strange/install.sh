@@ -3,18 +3,19 @@ set -e
 
 umount -R /target || true
 umount /keyfile || true
-swapoff /dev/vg/swap || true
 
 echo "Importing/mounting filesystems..."
-mount -o remount,size=8G /run/archiso/cowspace
 mkdir -p /keyfile
 mount -o ro /dev/disk/by-label/KEYFILE /keyfile
 for i in 0 1 2 3
 do
     cryptsetup --key-file=/keyfile/system open "/dev/disk/by-label/lockedz${i}" "z${i}"
-    cryptsetup --key-file=/keyfile/system open "/dev/disk/by-label/lockedswap${i}" "swap${i}"
 done
-swapon /dev/swapvg/swap
+for d in /dev/disk/by-label/SWAP*
+do
+    swapon -p 0 "${d}"
+done
+mount -o remount,size=8G /run/archiso/cowspace
 
 mkdir -p /target
 zpool import -R /target z
