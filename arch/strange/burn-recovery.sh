@@ -22,10 +22,9 @@ w
 EOF
 partprobe || true
 
-mkfs.ext2 -L KEYFILE "${DEVICE}-part3"
+mkfs.fat -F 32 -n KEYFILE "${DEVICE}-part3"
 umount /keyfile || true
 mkdir -p /keyfile
 mount "/dev/disk/by-label/KEYFILE" /keyfile
 dd bs=1 count=32 if=/dev/random of=/keyfile/system status=progress
-chmod 000 /keyfile/system
 umount /keyfile
