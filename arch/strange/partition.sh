@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+umount /keyfile || true
+mkdir -p /keyfile
+mount -o ro "/dev/disk/by-label/KEYFILE" /keyfile
+
 # System
 SYSTEM_DEVICES=(
     ata-SanDisk_SDSSDX240GG25_130811402135
@@ -21,7 +25,9 @@ do
     pvremove -f "/dev/disk/by-id/${SYSTEM_DEVICES[$i]}"* || true
 done
 
-SYSTEM_PVS=()
+BOOT_DEVS=()
+LOCKED_Z_DEVS=()
+LOCKED_SWAP_DEVS=()
 for i in "${!SYSTEM_DEVICES[@]}"
 do
     DEVICE="/dev/disk/by-id/${SYSTEM_DEVICES[$i]}"
@@ -31,31 +37,14 @@ do
     while [ -L "${DEVICE}-part2" ] ; do : ; done
     parted -s "${DEVICE}" -- mkpart primary 4MiB 512MiB
     parted -s "${DEVICE}" -- set 1 esp on
-    parted -s "${DEVICE}" -- mkpart primary 512MiB 100%
-    while [ ! -L "${DEVICE}-part2" ] ; do : ; done
-    SYSTEM_PVS+=("${DEVICE}-part2")
+    parted -s "${DEVICE}" -- mkpart primary 512MiB 1024MiB
+    parted -s "${DEVICE}" -- mkpart primary 1024MiB 211GiB
+    parted -s "${DEVICE}" -- mkpart primary 211GiB 100%
+    while [ ! -L "${DEVICE}-part4" ] ; do : ; done
+    BOOT_DEVS+=("${DEVICE}-part2")
+    LOCKED_Z_DEVS+=("${DEVICE}-part3")
+    LOCKED_SWAP_DEVS+=("${DEVICE}-part4")
 done
-
-echo "Setting up LVM..."
-vgcreate vg "${SYSTEM_PVS[@]}"
-
-SYSTEM_BOOT_DEVS=()
-SYSTEM_Z_DEVS=()
-for i in "${!SYSTEM_DEVICES[@]}"
-do
-    echo "Formatting UEFI-${i}..."
-    mkfs.fat -F32 "/dev/disk/by-id/${SYSTEM_DEVICES[$i]}-part1" -n UEFI-${i}
-    echo "Creating LV boot${i}..."
-    yes | lvcreate -Wy -L 512M -n boot${i} vg "${SYSTEM_PVS[$i]}"
-    echo "Creating LV z${i}..."
-    yes | lvcreate -Wy -L 210G -n z${i} vg "${SYSTEM_PVS[$i]}"
-    SYSTEM_BOOT_DEVS+=("/dev/vg/boot${i}")
-    SYSTEM_Z_DEVS+=("/dev/vg/z${i}")
-done
-
-echo "Creating LV swap..."
-yes | lvcreate -Wy -l 100%FREE -n swap -i "${#SYSTEM_DEVICES[@]}" vg
-mkswap /dev/vg/swap
 
 echo "Creating zpool boot..."
 zpool create \
@@ -81,7 +70,19 @@ zpool create \
     -O atime=off \
     -O compression=lz4 \
     -m none \
-    boot raidz "${SYSTEM_BOOT_DEVS[@]}"
+    boot raidz "${BOOT_DEVS[@]}"
+zfs unmount -a
+zpool set bootfs=boot boot
+zpool export boot
+
+echo "Setting up z LUKS..."
+Z_DEVS=()
+for i in "${!LOCKED_Z_DEVS[@]}"
+do
+    cryptsetup -vq --type luks2 --key-file=/keyfile/system --label="lockedz${i}" luksFormat "${LOCKED_Z_DEVS[$i]}"
+    cryptsetup open "/dev/disk/by-label/lockedz${i}" "z${i}"
+    Z_DEVS+=("/dev/mapper/z${i}")
+done
 
 echo "Creating zpool main..."
 zpool create \
@@ -89,33 +90,32 @@ zpool create \
     -O atime=off \
     -O compression=lz4 \
     -m none \
-    z raidz "${SYSTEM_Z_DEVS[@]}"
-
-echo "Unmounting zpools..."
-zfs unmount -a
-
-echo "Creating zfs datasets..."
-umount /bootkey || true
-# mkdir -p /bootkey
-# mount -o ro /dev/disk/by-label/BOOTKEY /bootkey
+    z raidz "${Z_DEVS[@]}"
 zfs create z/root
 zfs create -o canmount=off z/root/var
 zfs create z/root/var/cache
 zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
-# zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///bootkey/key z/home
-# zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///bootkey/key z/docker
 zfs create z/home
 zfs create z/docker
-# umount /bootkey
-
-zpool set bootfs=boot boot
+zfs unmount -a
 zpool set bootfs=z/root z
-
-echo "Exporting zfs datasets..."
-zpool export boot
 zpool export z
+
+echo "Setting up swap LUKS..."
+SWAP_PVS=()
+for i in "${!LOCKED_SWAP_DEVS[@]}"
+do
+    cryptsetup -vq --type luks2 --key-file=/keyfile/system --label="lockedswap${i}" luksFormat "${LOCKED_SWAP_DEVS[$i]}"
+    cryptsetup open "/dev/disk/by-label/lockedswap${i}" "swap${i}"
+    SWAP_PVS+=("/dev/mapper/swap${i}")
+done
+
+echo "Setting up swap..."
+vgcreate vg-swap "${SWAP_PVS[@]}"
+yes | lvcreate -Wy -l 100%FREE -n swap -i "${#SYSTEM_DEVICES[@]}" vg-swap
+mkswap /dev/vg-swap/swap
 
 # Bulk
 # ata-WDC_WD60EFRX-68MYMN1_WD-WX11DA4DJ3CN

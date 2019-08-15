@@ -31,11 +31,12 @@ EOF
 cat <<EOF >>~/archiso/packages.x86_64
 archzfs-linux
 git
+pacman-contrib
 EOF
 
 for file in ~/archiso/efiboot/loader/entries/archiso-*.conf
 do
-    sed -i 's/options (.*\)/options nomodeset=1 \1/g' "${file}"
+    sed -i 's/options \(.*\)/options nomodeset=1 \1/g' "${file}"
 done
 
 cd ~/archiso/airootfs/root
