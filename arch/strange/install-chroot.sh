@@ -55,6 +55,10 @@ sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 nvi
 sed -i 's/GRUB_PRELOAD_MODULES="\(.*\)"/GRUB_PRELOAD_MODULES="\1 lvm"/g' /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
+# RNG
+pacman -S --needed --noconfirm rng-tools
+systemctl enable rngd.service
+
 # SSH
 pacman -S --needed --noconfirm openssh
 echo "PasswordAuthentication no" >>/etc/ssh/sshd_config

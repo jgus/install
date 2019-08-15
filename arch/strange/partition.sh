@@ -82,12 +82,18 @@ zpool create \
     boot raidz "${SYSTEM_BOOT_DEVS[@]}"
 
 echo "Creating zpool main..."
+mkdir -p /bootkey
+mount -o ro /dev/disk/by-label/BOOTKEY /bootkey
 zpool create \
     -o ashift=12 \
     -O atime=off \
     -O compression=lz4 \
+    -O encryption=on \
+    -O keyformat=raw \
+    -O keylocation=file:///bootkey/key \
     -m none \
     z raidz "${SYSTEM_Z_DEVS[@]}"
+umount /bootkey
 
 echo "Unmounting zpools..."
 zfs unmount -a
