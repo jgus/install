@@ -2,19 +2,23 @@
 set -e
 
 umount -R /target || true
-umount /bootkey || true
+umount /keyfile || true
 swapoff /dev/vg/swap || true
 
 echo "Importing/mounting filesystems..."
-swapon /dev/vg/swap
 mount -o remount,size=8G /run/archiso/cowspace
-# mkdir -p /bootkey
-# mount -o ro /dev/disk/by-label/BOOTKEY /bootkey
+mkdir -p /keyfile
+mount -o ro /dev/disk/by-label/KEYFILE /keyfile
+for i in 0 1 2 3
+do
+    cryptsetup --key-file=/keyfile/system open "/dev/disk/by-label/lockedz${i}" "z${i}"
+    cryptsetup --key-file=/keyfile/system open "/dev/disk/by-label/lockedswap${i}" "swap${i}"
+done
+swapon /dev/swapvg/swap
 
 mkdir -p /target
 zpool import -R /target z
 zpool set cachefile=/etc/zfs/zpool.cache z
-# zfs load-key -a
 zfs set mountpoint=/ z/root
 zfs set mountpoint=/home z/home
 zfs set mountpoint=/var/lib/docker z/docker
@@ -30,9 +34,9 @@ do
 done
 mkdir -p /target/install
 mount --bind "$(cd "$(dirname "$0")" ; pwd)" /target/install
-# umount /bootkey
-# mkdir -p /target/bootkey
-# mount -o ro /dev/disk/by-label/BOOTKEY /target/bootkey
+umount /keyfile
+mkdir -p /target/keyfile
+mount -o ro /dev/disk/by-label/KEYFILE /target/keyfile
 df -h
 mount | grep target
 
@@ -52,9 +56,9 @@ LABEL=UEFI-1        	/efi/1    	vfat      	rw,relatime,fmask=0022,dmask=0022,cod
 LABEL=UEFI-2        	/efi/2    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
 LABEL=UEFI-3        	/efi/3    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
 
-#LABEL=BOOTKEY       	/bootkey  	ext2      	ro,relatime	0 2
+LABEL=KEYFILE       	/keyfile  	ext2      	ro,relatime	0 2
 
-/dev/mapper/vg-swap 	none      	swap      	defaults  	0 0
+/dev/mapper/swapvg-swap 	none      	swap      	defaults  	0 0
 EOF
 
 cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache

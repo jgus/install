@@ -18,8 +18,8 @@ zpool destroy boot || true
 zpool destroy z || true
 
 echo "Cleaning up prior LVM config..."
-swapoff /dev/vg/swap || true
-vgremove -f vg || true
+swapoff /dev/swapvg/swap || true
+vgremove -f swapvg || true
 for i in "${!SYSTEM_DEVICES[@]}"
 do
     pvremove -f "/dev/disk/by-id/${SYSTEM_DEVICES[$i]}"* || true
@@ -70,6 +70,7 @@ zpool create \
     -O atime=off \
     -O compression=lz4 \
     -m none \
+    -f \
     boot raidz "${BOOT_DEVS[@]}"
 zfs unmount -a
 zpool set bootfs=boot boot
@@ -80,7 +81,7 @@ Z_DEVS=()
 for i in "${!LOCKED_Z_DEVS[@]}"
 do
     cryptsetup -vq --type luks2 --key-file=/keyfile/system --label="lockedz${i}" luksFormat "${LOCKED_Z_DEVS[$i]}"
-    cryptsetup open "/dev/disk/by-label/lockedz${i}" "z${i}"
+    cryptsetup --key-file=/keyfile/system open "/dev/disk/by-label/lockedz${i}" "z${i}"
     Z_DEVS+=("/dev/mapper/z${i}")
 done
 
@@ -90,6 +91,7 @@ zpool create \
     -O atime=off \
     -O compression=lz4 \
     -m none \
+    -f \
     z raidz "${Z_DEVS[@]}"
 zfs create z/root
 zfs create -o canmount=off z/root/var
@@ -103,19 +105,29 @@ zfs unmount -a
 zpool set bootfs=z/root z
 zpool export z
 
+for i in "${!LOCKED_Z_DEVS[@]}"
+do
+    cryptsetup close "z${i}"
+done
+
 echo "Setting up swap LUKS..."
 SWAP_PVS=()
 for i in "${!LOCKED_SWAP_DEVS[@]}"
 do
     cryptsetup -vq --type luks2 --key-file=/keyfile/system --label="lockedswap${i}" luksFormat "${LOCKED_SWAP_DEVS[$i]}"
-    cryptsetup open "/dev/disk/by-label/lockedswap${i}" "swap${i}"
+    cryptsetup --key-file=/keyfile/system open "/dev/disk/by-label/lockedswap${i}" "swap${i}"
     SWAP_PVS+=("/dev/mapper/swap${i}")
 done
 
 echo "Setting up swap..."
-vgcreate vg-swap "${SWAP_PVS[@]}"
-yes | lvcreate -Wy -l 100%FREE -n swap -i "${#SYSTEM_DEVICES[@]}" vg-swap
-mkswap /dev/vg-swap/swap
+vgcreate swapvg "${SWAP_PVS[@]}"
+yes | lvcreate -Wy -l 100%FREE -n swap -i "${#SYSTEM_DEVICES[@]}" swapvg
+mkswap /dev/swapvg/swap
+
+for i in "${!LOCKED_SWAP_DEVS[@]}"
+do
+    cryptsetup close "swap${i}"
+done
 
 # Bulk
 # ata-WDC_WD60EFRX-68MYMN1_WD-WX11DA4DJ3CN
