@@ -33,11 +33,25 @@ Server = https://archzfs.com/\$repo/\$arch
 EOF
 pacman-key -r F75D9D76
 pacman-key --lsign-key F75D9D76
-pacman -Syy
-pacman -Su --needed --noconfirm base-devel git zsh
-
-# Drivers
-pacman -S --needed --noconfirm nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
+pacman -Syyu --needed --noconfirm \
+    # General
+    base-devel git zsh \
+    # Drivers
+    nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings \
+    # Bootloader
+    intel-ucode grub efibootmgr \
+    # RNG
+    rng-tools \
+    # OpenSSH
+    openssh \
+    # Xorg
+    xorg \
+    # LightDM
+    lightdm lightdm-gtk-greeter \
+    # KDE
+    plasma-meta kde-applications-meta xdg-user-dirs \
+    # Applications
+    # google-chrome vlc ffmpeg-full \
 
 # Initramfs
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
@@ -46,7 +60,6 @@ mkinitcpio -p linux-zen
 
 # Bootloader
 export ZPOOL_VDEV_NAME_PATH=1
-pacman -S --needed --noconfirm intel-ucode grub efibootmgr
 for  i in 3 2 1 0
 do
     grub-install --target=x86_64-efi --efi-directory="/efi/${i}" --bootloader-id="GRUB-${i}"
@@ -56,11 +69,9 @@ sed -i 's/GRUB_PRELOAD_MODULES="\(.*\)"/GRUB_PRELOAD_MODULES="\1 lvm"/g' /etc/de
 grub-mkconfig -o /boot/grub/grub.cfg
 
 # RNG
-pacman -S --needed --noconfirm rng-tools
 systemctl enable rngd.service
 
 # SSH
-pacman -S --needed --noconfirm openssh
 echo "PasswordAuthentication no" >>/etc/ssh/sshd_config
 systemctl enable sshd.socket
 mkdir -p /root/.ssh
@@ -68,7 +79,6 @@ curl https://github.com/jgus.keys >> /root/.ssh/authorized_keys
 chmod 400 /root/.ssh/authorized_keys
 
 # Xorg
-pacman -S --needed --noconfirm xorg
 #cp /usr/share/X11/xorg.conf.d/* /etc/X11/xorg.conf.d/
 #nvidia-xconfig
 cat <<EOF >/etc/X11/xorg.conf
@@ -126,14 +136,7 @@ EndSection
 EOF
 
 # LightDM
-pacman -S --needed --noconfirm lightdm lightdm-gtk-greeter
 systemctl enable lightdm.service
-
-# KDE
-pacman -S --needed --noconfirm plasma-meta kde-applications-meta xdg-user-dirs
-
-# # Applications
-# pacman -S --needed --noconfirm google-chrome vlc ffmpeg-full
 
 # Password
 cat <<EOF

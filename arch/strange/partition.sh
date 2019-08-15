@@ -14,6 +14,7 @@ zpool destroy boot || true
 zpool destroy z || true
 
 echo "Cleaning up prior LVM config..."
+swapoff /dev/vg/swap || true
 vgremove -f vg || true
 for i in "${!SYSTEM_DEVICES[@]}"
 do
@@ -82,6 +83,7 @@ zpool create \
     boot raidz "${SYSTEM_BOOT_DEVS[@]}"
 
 echo "Creating zpool main..."
+umount /bootkey || true
 mkdir -p /bootkey
 mount -o ro /dev/disk/by-label/BOOTKEY /bootkey
 zpool create \

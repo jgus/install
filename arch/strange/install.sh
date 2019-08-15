@@ -16,16 +16,12 @@ zpool import -R /target z
 zpool set cachefile=/etc/zfs/zpool.cache z
 zfs load-key -a
 zfs set mountpoint=/ z/root
-zfs mount z/root
 zfs set mountpoint=/home z/home
-zfs mount z/home
 zfs set mountpoint=/var/lib/docker z/docker
-zfs mount z/docker
 mkdir -p /target/boot
 zpool import -R /target boot
 zpool set cachefile=/etc/zfs/zpool.cache boot
 zfs set mountpoint=/boot boot
-zfs mount boot
 for i in 0 1 2 3
 do
     mkdir -p "/target/efi/${i}"
