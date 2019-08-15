@@ -18,6 +18,7 @@ zfs load-key -a
 zfs set mountpoint=/ z/root
 zfs set mountpoint=/home z/home
 zfs set mountpoint=/var/lib/docker z/docker
+zfs mount -a
 mkdir -p /target/boot
 zpool import -R /target boot
 zpool set cachefile=/etc/zfs/zpool.cache boot
@@ -29,6 +30,7 @@ do
 done
 mkdir -p /target/install
 mount --bind "$(cd "$(dirname "$0")" ; pwd)" /target/install
+df -h
 mount | grep target
 
 echo "Updating Pacman..."

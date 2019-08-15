@@ -83,32 +83,29 @@ zpool create \
     boot raidz "${SYSTEM_BOOT_DEVS[@]}"
 
 echo "Creating zpool main..."
-umount /bootkey || true
-mkdir -p /bootkey
-mount -o ro /dev/disk/by-label/BOOTKEY /bootkey
 zpool create \
     -o ashift=12 \
     -O atime=off \
     -O compression=lz4 \
-    -O encryption=on \
-    -O keyformat=raw \
-    -O keylocation=file:///bootkey/key \
     -m none \
     z raidz "${SYSTEM_Z_DEVS[@]}"
-umount /bootkey
 
 echo "Unmounting zpools..."
 zfs unmount -a
 
-echo "Unmounting zfs datasets..."
+echo "Creating zfs datasets..."
+umount /bootkey || true
+mkdir -p /bootkey
+mount -o ro /dev/disk/by-label/BOOTKEY /bootkey
 zfs create z/root
 zfs create -o canmount=off z/root/var
 zfs create z/root/var/cache
 zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
-zfs create z/home
-zfs create z/docker
+zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///bootkey/key z/home
+zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///bootkey/key z/docker
+umount /bootkey
 
 zpool set bootfs=boot boot
 zpool set bootfs=z/root z
