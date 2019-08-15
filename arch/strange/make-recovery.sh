@@ -49,13 +49,17 @@ chmod 400 ~/archiso/airootfs/root/.ssh/authorized_keys
 
 cat <<EOF >>~/archiso/airootfs/root/customize_airootfs.sh
 
+systemctl enable sshd.socket
+EOF
+
+cat <<EOF >>~/archiso/airootfs/root/add-keys.sh
+
 pacman-key --init
 pacman-key -r F75D9D76
 pacman-key --lsign-key F75D9D76
 pacman -Sy
-
-systemctl enable sshd.service
 EOF
+chmod a+x ~/archiso/airootfs/root/add-keys.sh
 
 cd ~/archiso
 ./build.sh -v

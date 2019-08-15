@@ -79,4 +79,9 @@ zfs snapshot -r z@install
 zpool export boot
 zpool export z
 
+for i in 0 1 2 3
+do
+    cryptsetup close "z${i}"
+done
+
 echo "Done installing!"
