@@ -29,7 +29,9 @@ done
 mkdir -p /target/install
 mount --bind "$(cd "$(dirname "$0")" ; pwd)" /target/install
 cp /tmp/z.key /target/boot/z.key
-zfs set keylocation=file:///boot/z.key z
+zfs set keylocation=file:///boot/z.key z/root
+zfs set keylocation=file:///boot/z.key z/home
+zfs set keylocation=file:///boot/z.key z/docker
 df -h
 mount | grep target
 

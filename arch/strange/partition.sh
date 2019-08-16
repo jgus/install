@@ -73,17 +73,17 @@ zpool create \
     -m none \
     -f \
     z raidz "${Z_DEVS[@]}"
-#zfs create z/root
+# zfs create z/root
 zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///tmp/z.key z/root
 zfs create -o canmount=off z/root/var
 zfs create z/root/var/cache
 zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
-zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///tmp/z.key z/home
-zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///tmp/z.key z/docker
 # zfs create z/home
 # zfs create z/docker
+zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///tmp/z.key z/home
+zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///tmp/z.key z/docker
 zfs unmount -a
 zpool set bootfs=z/root z
 zpool export z
