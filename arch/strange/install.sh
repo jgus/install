@@ -2,11 +2,8 @@
 set -e
 
 umount -R /target || true
-umount /keys || true
 
 echo "Importing/mounting filesystems..."
-mkdir -p /keys
-mount -o ro /dev/disk/by-label/KEYS /keys
 for d in /dev/disk/by-label/SWAP*
 do
     swapon -p 100 "${d}"
@@ -31,9 +28,8 @@ do
 done
 mkdir -p /target/install
 mount --bind "$(cd "$(dirname "$0")" ; pwd)" /target/install
-umount /keys
-mkdir -p /target/keys
-mount -o ro /dev/disk/by-label/KEYS /target/keys
+cp /tmp/z.key /target/boot/z.key
+zfs set keylocation=file:///boot/z.key z
 df -h
 mount | grep target
 

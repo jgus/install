@@ -6,7 +6,7 @@ zpool set cachefile=/etc/zfs/zpool.cache boot
 zpool set cachefile=/etc/zfs/zpool.cache z
 zfs mount -a
 
-cat <<EOF >>etc/systemd/system/zfs-load-key.service
+cat <<EOF >>/etc/systemd/system/zfs-load-key.service
 [Unit]
 Description=Load encryption keys
 DefaultDependencies=no
