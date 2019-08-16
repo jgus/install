@@ -61,10 +61,9 @@ zpool create \
     -f \
     boot raidz "${BOOT_DEVS[@]}"
 zfs unmount -a
-zpool set bootfs=boot boot
 zpool export boot
 
-echo "Creating zpool main..."
+echo "Creating zpool z..."
 umount /keys || true
 mkdir -p /keys
 mount -o ro "/dev/disk/by-label/KEYS" /keys

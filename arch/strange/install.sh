@@ -14,8 +14,7 @@ done
 mount -o remount,size=8G /run/archiso/cowspace
 
 mkdir -p /target
-zpool import -R /target z
-zfs load-key -a
+zpool import -R /target -l z
 zpool set cachefile=/etc/zfs/zpool.cache z
 zfs set mountpoint=/ z/root
 zfs set mountpoint=/home z/home
@@ -47,14 +46,14 @@ pacstrap /target base linux-zen linux-zen-headers dkms zfs-linux-zen
 
 #genfstab -U /target >> /target/etc/fstab
 cat <<EOF >>/target/etc/fstab
+LABEL=KEYS       	/keys  	ext2      	ro,relatime	0 2
+
 z/root              	/         	zfs       	rw,noatime,xattr,noacl	0 0
 
 LABEL=UEFI-0        	/efi/0    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
 LABEL=UEFI-1        	/efi/1    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
 LABEL=UEFI-2        	/efi/2    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
 LABEL=UEFI-3        	/efi/3    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
-
-LABEL=KEYS       	/keys  	ext2      	ro,relatime	0 2
 
 /dev/disk/by-label/SWAP0 	none      	swap      	defaults,pri=100  	0 0
 /dev/disk/by-label/SWAP1 	none      	swap      	defaults,pri=100  	0 0
