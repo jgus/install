@@ -2,11 +2,15 @@
 set -e
 
 umount -R /target || true
-umount /keyfile || true
+umount /keys || true
 
 echo "Importing/mounting filesystems..."
-mkdir -p /keyfile
-mount -o ro /dev/disk/by-label/KEYFILE /keyfile
+mkdir -p /keys
+mount -o ro /dev/disk/by-label/KEYS /keys
+for i in 0 1 2 3
+do
+    cryptsetup --key-file=/keys/1138 open "/dev/disk/by-label/lockedz${i}" "z${i}"
+done
 for d in /dev/disk/by-label/SWAP*
 do
     swapon -p 100 "${d}"
@@ -32,9 +36,9 @@ do
 done
 mkdir -p /target/install
 mount --bind "$(cd "$(dirname "$0")" ; pwd)" /target/install
-umount /keyfile
-mkdir -p /target/keyfile
-mount -o ro /dev/disk/by-label/KEYFILE /target/keyfile
+umount /keys
+mkdir -p /target/keys
+mount -o ro /dev/disk/by-label/KEYS /target/keys
 df -h
 mount | grep target
 
@@ -54,7 +58,7 @@ LABEL=UEFI-1        	/efi/1    	vfat      	rw,relatime,fmask=0022,dmask=0022,cod
 LABEL=UEFI-2        	/efi/2    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
 LABEL=UEFI-3        	/efi/3    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
 
-LABEL=KEYFILE       	/keyfile  	ext2      	ro,relatime	0 2
+LABEL=KEYS       	/keys  	ext2      	ro,relatime	0 2
 
 /dev/disk/by-label/SWAP0 	none      	swap      	defaults,pri=100  	0 0
 /dev/disk/by-label/SWAP1 	none      	swap      	defaults,pri=100  	0 0
@@ -78,5 +82,10 @@ zfs snapshot -r z@install
 
 zpool export boot
 zpool export z
+
+for i in 0 1 2 3
+do
+    cryptsetup close "z${i}"
+done
 
 echo "Done installing!"
