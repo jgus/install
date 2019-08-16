@@ -9,7 +9,7 @@ mkdir -p /keys
 mount -o ro /dev/disk/by-label/KEYS /keys
 for i in 0 1 2 3
 do
-    cryptsetup --key-file=/keys/1138 open "/dev/disk/by-label/lockedz${i}" "z${i}"
+    cryptsetup --key-file=/keys/13 open "/dev/disk/by-label/lockedz${i}" "z${i}"
 done
 for d in /dev/disk/by-label/SWAP*
 do

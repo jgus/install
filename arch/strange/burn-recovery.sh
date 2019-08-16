@@ -11,6 +11,7 @@ ISO=$(ls -1 ~/archiso/out/*)
 
 pacman -Sy --needed --noconfirm rng-tools
 systemctl enable rngd.service
+systemctl start rngd.service
 
 wipefs --all "${DEVICE}"
 dd bs=4M if="${ISO}" of="${DEVICE}" status=progress oflag=sync
@@ -26,14 +27,15 @@ EOF
 sleep 1
 
 mkfs.ext2 -L KEYS "${DEVICE}-part3"
+sleep 1
 umount /keys || true
 mkdir -p /keys
 mount "/dev/disk/by-label/KEYS" /keys
-for i in {1..1023}
+for i in {1..15}
 do
-    dd bs=1 count=16 if=/dev/random of=/keys/"$(printf '0%03x' ${i})"
-    dd bs=1 count=32 if=/dev/random of=/keys/"$(printf '1%03x' ${i})"
-    dd bs=1 count=64 if=/dev/random of=/keys/"$(printf '2%03x' ${i})"
-    dd bs=1 count=128 if=/dev/random of=/keys/"$(printf '3%03x' ${i})"
+    dd bs=1 count=16 if=/dev/random of=/keys/"$(printf '0%01x' ${i})"
+    dd bs=1 count=32 if=/dev/random of=/keys/"$(printf '1%01x' ${i})"
+    dd bs=1 count=64 if=/dev/random of=/keys/"$(printf '2%01x' ${i})"
+    dd bs=1 count=128 if=/dev/random of=/keys/"$(printf '3%01x' ${i})"
 done
 umount /keys

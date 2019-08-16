@@ -72,8 +72,8 @@ echo "Setting up z LUKS..."
 Z_DEVS=()
 for i in "${!LOCKED_Z_DEVS[@]}"
 do
-    cryptsetup -vq --type luks2 --key-file=/keys/1138 --label="lockedz${i}" luksFormat "${LOCKED_Z_DEVS[$i]}"
-    cryptsetup --key-file=/keys/1138 open "/dev/disk/by-label/lockedz${i}" "z${i}"
+    cryptsetup -vq --type luks2 --key-file=/keys/13 --label="lockedz${i}" luksFormat "${LOCKED_Z_DEVS[$i]}"
+    cryptsetup --key-file=/keys/13 open "/dev/disk/by-label/lockedz${i}" "z${i}"
     Z_DEVS+=("/dev/mapper/z${i}")
 done
 
@@ -91,8 +91,8 @@ zfs create z/root/var/cache
 zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
-# zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/1138 z/home
-# zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/1138 z/docker
+# zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/home
+# zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/docker
 zfs create z/home
 zfs create z/docker
 zfs unmount -a
