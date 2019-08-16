@@ -34,8 +34,9 @@ mount --bind "$(cd "$(dirname "$0")" ; pwd)" /target/install
 umount /keys
 mkdir -p /target/keys
 mount -o ro /dev/disk/by-label/KEYS /target/keys
-zfs set keylocation=file:///boot/z.key z/home
-zfs set keylocation=file:///boot/z.key z/docker
+# zfs set keylocation=file:///boot/z.key z/root
+# zfs set keylocation=file:///boot/z.key z/home
+# zfs set keylocation=file:///boot/z.key z/docker
 df -h
 mount | grep target
 
