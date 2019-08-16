@@ -26,7 +26,7 @@ w
 EOF
 sleep 1
 
-mkfs.ext2 -L KEYS "${DEVICE}-part3"
+mkfs.fat -F 32 -n KEYS "${DEVICE}-part3"
 sleep 1
 umount /keys || true
 mkdir -p /keys
