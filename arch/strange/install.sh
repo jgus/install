@@ -7,10 +7,6 @@ umount /keys || true
 echo "Importing/mounting filesystems..."
 mkdir -p /keys
 mount -o ro /dev/disk/by-label/KEYS /keys
-for i in 0 1 2 3
-do
-    cryptsetup --key-file=/keys/13 open "/dev/disk/by-label/lockedz${i}" "z${i}"
-done
 for d in /dev/disk/by-label/SWAP*
 do
     swapon -p 100 "${d}"
@@ -82,10 +78,5 @@ zfs snapshot -r z@install
 
 zpool export boot
 zpool export z
-
-for i in 0 1 2 3
-do
-    cryptsetup close "z${i}"
-done
 
 echo "Done installing!"

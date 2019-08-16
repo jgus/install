@@ -1,10 +1,6 @@
 #!/bin/bash
 set -e
 
-umount /keys || true
-mkdir -p /keys
-mount -o ro "/dev/disk/by-label/KEYS" /keys
-
 # System
 SYSTEM_DEVICES=(
     ata-SanDisk_SDSSDX240GG25_130811402135
@@ -18,7 +14,7 @@ zpool destroy boot || true
 zpool destroy z || true
 
 BOOT_DEVS=()
-LOCKED_Z_DEVS=()
+Z_DEVS=()
 SWAP_DEVS=()
 for i in "${!SYSTEM_DEVICES[@]}"
 do
@@ -33,7 +29,7 @@ do
     parted -s "${DEVICE}" -- mkpart primary 1024MiB 211GiB
     parted -s "${DEVICE}" -- mkpart primary 211GiB 100%
     BOOT_DEVS+=("${DEVICE}-part2")
-    LOCKED_Z_DEVS+=("${DEVICE}-part3")
+    Z_DEVS+=("${DEVICE}-part3")
     SWAP_DEVS+=("${DEVICE}-part4")
 done
 sleep 1
@@ -68,20 +64,18 @@ zfs unmount -a
 zpool set bootfs=boot boot
 zpool export boot
 
-echo "Setting up z LUKS..."
-Z_DEVS=()
-for i in "${!LOCKED_Z_DEVS[@]}"
-do
-    cryptsetup -vq --type luks2 --key-file=/keys/13 --label="lockedz${i}" luksFormat "${LOCKED_Z_DEVS[$i]}"
-    cryptsetup --key-file=/keys/13 open "/dev/disk/by-label/lockedz${i}" "z${i}"
-    Z_DEVS+=("/dev/mapper/z${i}")
-done
-
 echo "Creating zpool main..."
+umount /keys || true
+mkdir -p /keys
+mount -o ro "/dev/disk/by-label/KEYS" /keys
+
 zpool create \
     -o ashift=12 \
     -O atime=off \
     -O compression=lz4 \
+    -O encryption=on \
+    -O keyformat=raw \
+    -O keylocation=file:///keys/13 \
     -m none \
     -f \
     z raidz "${Z_DEVS[@]}"
@@ -99,10 +93,7 @@ zfs unmount -a
 zpool set bootfs=z/root z
 zpool export z
 
-for i in "${!LOCKED_Z_DEVS[@]}"
-do
-    cryptsetup close "z${i}"
-done
+umount /keys
 
 echo "Setting up swap..."
 for i in "${!SWAP_DEVS[@]}"
