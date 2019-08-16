@@ -42,8 +42,6 @@ pacstrap /target base linux-zen linux-zen-headers dkms zfs-linux-zen
 
 #genfstab -U /target >> /target/etc/fstab
 cat <<EOF >>/target/etc/fstab
-LABEL=KEYS       	/keys  	ext2      	ro,relatime	0 2
-
 z/root              	/         	zfs       	rw,noatime,xattr,noacl	0 0
 
 LABEL=UEFI-0        	/efi/0    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
