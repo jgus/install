@@ -26,7 +26,7 @@ w
 EOF
 sleep 1
 
-mkfs.fat -F 32 -n KEYS "${DEVICE}-part3"
+mkfs.ext2 -L KEYS "${DEVICE}-part3"
 sleep 1
 umount /keys || true
 mkdir -p /keys
@@ -38,4 +38,5 @@ do
     dd bs=1 count=64 if=/dev/random of=/keys/"$(printf '2%01x' ${i})"
     dd bs=1 count=128 if=/dev/random of=/keys/"$(printf '3%01x' ${i})"
 done
+chmod 000 /keys/*
 umount /keys
