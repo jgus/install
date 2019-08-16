@@ -82,10 +82,10 @@ zfs create z/root/var/cache
 zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
-# zfs create z/home
-# zfs create z/docker
-zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/home
-zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/docker
+zfs create z/home
+zfs create z/docker
+# zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/home
+# zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/docker
 zfs unmount -a
 zpool set bootfs=z/root z
 zpool export z
