@@ -64,8 +64,10 @@ zfs unmount -a
 zpool export boot
 
 echo "Creating zpool z..."
-dd bs=1 count=32 if=/dev/random of=/tmp/z.key
-chmod 400 /tmp/z.key
+umount /keys || true
+mkdir -p /keys
+mount -o ro "/dev/disk/by-label/KEYS" /keys
+
 zpool create \
     -o ashift=12 \
     -O atime=off \
@@ -73,8 +75,8 @@ zpool create \
     -m none \
     -f \
     z raidz "${Z_DEVS[@]}"
-# zfs create z/root
-zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///tmp/z.key z/root
+zfs create z/root
+# zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/root
 zfs create -o canmount=off z/root/var
 zfs create z/root/var/cache
 zfs create z/root/var/log
@@ -82,11 +84,13 @@ zfs create z/root/var/spool
 zfs create z/root/var/tmp
 # zfs create z/home
 # zfs create z/docker
-zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///tmp/z.key z/home
-zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///tmp/z.key z/docker
+zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/home
+zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/docker
 zfs unmount -a
 zpool set bootfs=z/root z
 zpool export z
+
+umount /keys
 
 echo "Setting up swap..."
 for i in "${!SWAP_DEVS[@]}"

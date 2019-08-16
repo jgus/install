@@ -2,8 +2,11 @@
 set -e
 
 umount -R /target || true
+umount /keys || true
 
 echo "Importing/mounting filesystems..."
+mkdir -p /keys
+mount -o ro /dev/disk/by-label/KEYS /keys
 for d in /dev/disk/by-label/SWAP*
 do
     swapon -p 100 "${d}"
@@ -28,8 +31,9 @@ do
 done
 mkdir -p /target/install
 mount --bind "$(cd "$(dirname "$0")" ; pwd)" /target/install
-cp /tmp/z.key /target/boot/z.key
-zfs set keylocation=file:///boot/z.key z/root
+umount /keys
+mkdir -p /target/keys
+mount -o ro /dev/disk/by-label/KEYS /target/keys
 zfs set keylocation=file:///boot/z.key z/home
 zfs set keylocation=file:///boot/z.key z/docker
 df -h
@@ -44,6 +48,8 @@ pacstrap /target base linux-zen linux-zen-headers dkms zfs-linux-zen
 
 #genfstab -U /target >> /target/etc/fstab
 cat <<EOF >>/target/etc/fstab
+LABEL=KEYS       	/keys  	ext2      	ro,relatime	0 2
+
 z/root              	/         	zfs       	rw,noatime,xattr,noacl	0 0
 
 LABEL=UEFI-0        	/efi/0    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2

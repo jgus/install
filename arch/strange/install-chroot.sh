@@ -57,7 +57,7 @@ pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
 
 # Initramfs
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
-sed -i 's|FILES=(\(.*\))|FILES=(\1 /boot/z.key)|g' /etc/mkinitcpio.conf
+#sed -i 's|FILES=(\(.*\))|FILES=(\1 /boot/z.key)|g' /etc/mkinitcpio.conf
 sed -i 's/HOOKS=(\(.*\)block filesystems keyboard\(.*\))/HOOKS=(\1udev keyboard block zfs filesystems\2)/g' /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
 mkinitcpio -p linux-zen
