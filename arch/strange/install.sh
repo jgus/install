@@ -7,18 +7,15 @@ umount /keyfile || true
 echo "Importing/mounting filesystems..."
 mkdir -p /keyfile
 mount -o ro /dev/disk/by-label/KEYFILE /keyfile
-for i in 0 1 2 3
-do
-    cryptsetup --key-file=/keyfile/system open "/dev/disk/by-label/lockedz${i}" "z${i}"
-done
 for d in /dev/disk/by-label/SWAP*
 do
-    swapon -p 0 "${d}"
+    swapon -p 100 "${d}"
 done
 mount -o remount,size=8G /run/archiso/cowspace
 
 mkdir -p /target
 zpool import -R /target z
+zfs load-key -a
 zpool set cachefile=/etc/zfs/zpool.cache z
 zfs set mountpoint=/ z/root
 zfs set mountpoint=/home z/home
@@ -59,7 +56,10 @@ LABEL=UEFI-3        	/efi/3    	vfat      	rw,relatime,fmask=0022,dmask=0022,cod
 
 LABEL=KEYFILE       	/keyfile  	ext2      	ro,relatime	0 2
 
-/dev/mapper/swapvg-swap 	none      	swap      	defaults  	0 0
+/dev/disk/by-label/SWAP0 	none      	swap      	defaults,pri=100  	0 0
+/dev/disk/by-label/SWAP1 	none      	swap      	defaults,pri=100  	0 0
+/dev/disk/by-label/SWAP2 	none      	swap      	defaults,pri=100  	0 0
+/dev/disk/by-label/SWAP3 	none      	swap      	defaults,pri=100  	0 0
 EOF
 
 cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
@@ -78,10 +78,5 @@ zfs snapshot -r z@install
 
 zpool export boot
 zpool export z
-
-for i in 0 1 2 3
-do
-    cryptsetup close "z${i}"
-done
 
 echo "Done installing!"

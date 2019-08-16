@@ -55,6 +55,24 @@ PACKAGES=(
 )
 pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
 
+# ZFS
+cat <<EOF >>etc/systemd/system/zfs-load-key.service
+[Unit]
+Description=Load encryption keys
+DefaultDependencies=no
+Before=zfs-mount.service
+After=zfs-import.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/bash -c '/usr/bin/zfs load-key -a'
+
+[Install]
+WantedBy=zfs-mount.service
+EOF
+systemctl enable zfs-load-key.service
+
 # Initramfs
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
 sed -i 's/HOOKS=(\(.*\)block filesystems keyboard\(.*\))/HOOKS=(\1udev keyboard block encrypt lvm2 zfs filesystems\2)/g' /etc/mkinitcpio.conf

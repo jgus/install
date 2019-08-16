@@ -20,7 +20,7 @@ p
 +1M
 w
 EOF
-partprobe || true
+sleep 1
 
 mkfs.fat -F 32 -n KEYFILE "${DEVICE}-part3"
 umount /keyfile || true
