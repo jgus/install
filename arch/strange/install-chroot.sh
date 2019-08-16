@@ -75,7 +75,7 @@ systemctl enable zfs-load-key.service
 
 # Initramfs
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
-sed -i 's/HOOKS=(\(.*\)block filesystems keyboard\(.*\))/HOOKS=(\1udev keyboard block encrypt lvm2 zfs filesystems\2)/g' /etc/mkinitcpio.conf
+sed -i 's/HOOKS=(\(.*\)block filesystems keyboard\(.*\))/HOOKS=(\1udev keyboard block lvm2 zfs filesystems\2)/g' /etc/mkinitcpio.conf
 mkinitcpio -p linux-zen
 
 # Bootloader
@@ -84,7 +84,7 @@ for  i in 3 2 1 0
 do
     grub-install --target=x86_64-efi --efi-directory="/efi/${i}" --bootloader-id="GRUB-${i}"
 done
-sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="\1 nvidia-drm.modeset=1 cryptdevice=/dev/disk/by-label/lockedz0:lockedz0 cryptdevice=/dev/disk/by-label/lockedz1:lockedz1 cryptdevice=/dev/disk/by-label/lockedz2:lockedz2 cryptdevice=/dev/disk/by-label/lockedz3:lockedz3 cryptdevice=/dev/disk/by-label/lockedswap0:lockedswap0 cryptdevice=/dev/disk/by-label/lockedswap1:lockedswap1 cryptdevice=/dev/disk/by-label/lockedswap2:lockedswap2 cryptdevice=/dev/disk/by-label/lockedswap3:lockedswap3 cryptkey=/dev/disk/by-label/KEYFILE:vfat:/system"|g' /etc/default/grub
+sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="\1 nvidia-drm.modeset=1"|g' /etc/default/grub
 sed -i 's/GRUB_PRELOAD_MODULES="\(.*\)"/GRUB_PRELOAD_MODULES="\1 lvm"/g' /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
