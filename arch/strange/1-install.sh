@@ -168,6 +168,7 @@ LABEL=UEFI-3        	/efi/3    	vfat      	rw,relatime,fmask=0022,dmask=0022,cod
 /dev/disk/by-label/SWAP3 	none      	swap      	defaults,pri=100  	0 0
 EOF
 
+mkdir -p /target/etc/zfs
 cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
 
 echo "### Running further install in the chroot..."
