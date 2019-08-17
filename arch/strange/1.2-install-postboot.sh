@@ -22,11 +22,38 @@ ExecStart=/usr/bin/bash -c '/usr/bin/zfs load-key -a'
 [Install]
 WantedBy=zfs-mount.service
 EOF
+
+cat <<EOF >>/etc/systemd/system/zfs-scrub@.timer
+[Unit]
+Description=Monthly zpool scrub on %i
+
+[Timer]
+OnCalendar=monthly
+AccuracySec=1h
+Persistent=true
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat <<EOF >>/etc/systemd/system/zfs-scrub@.service
+[Unit]
+Description=zpool scrub on %i
+
+[Service]
+Nice=19
+IOSchedulingClass=idle
+KillSignal=SIGINT
+ExecStart=/usr/bin/zpool scrub %i
+EOF
+
 systemctl enable zfs.target
 systemctl enable zfs-import-cache
 systemctl enable zfs-mount
 systemctl enable zfs-import.target
 systemctl enable zfs-load-key.service
+systemctl enable fs-scrub@boot.timer
+systemctl enable fs-scrub@z.timer
 
 zgenhostid $(hostid)
 

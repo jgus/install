@@ -79,6 +79,25 @@ sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="\1 nvi
 #sed -i 's/GRUB_PRELOAD_MODULES="\(.*\)"/GRUB_PRELOAD_MODULES="\1 lvm"/g' /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
+echo "### Configuring nVidia updates..."
+cat <<EOF >>/etc/pacman.d/hooks/nvidia.hook
+[Trigger]
+Operation=Install
+Operation=Upgrade
+Operation=Remove
+Type=Package
+Target=nvidia
+Target=linux
+# Change the linux part above and in the Exec line if a different kernel is used
+
+[Action]
+Description=Update Nvidia module in initcpio
+Depends=mkinitcpio
+When=PostTransaction
+NeedsTargets
+Exec=/bin/sh -c 'while read -r trg; do case $trg in linux) exit 0; esac; done; /usr/bin/mkinitcpio -P'
+EOF
+
 echo "### Configuring Zsh..."
 chsh -s /bin/zsh
 
@@ -111,9 +130,6 @@ EOF
 chmod a+x ~/.runonce.sh
 
 # TODO
-# ZFS encryption
-# NVIDIA kernel hook
-# ZFS scrub
 # ZFS snapshots/replication
 # add users (with shell)
 # Sync
