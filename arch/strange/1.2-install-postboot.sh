@@ -52,8 +52,8 @@ systemctl enable zfs-import-cache
 systemctl enable zfs-mount
 systemctl enable zfs-import.target
 systemctl enable zfs-load-key.service
-systemctl enable fs-scrub@boot.timer
-systemctl enable fs-scrub@z.timer
+systemctl enable zfs-scrub@boot.timer
+systemctl enable zfs-scrub@z.timer
 
 zgenhostid $(hostid)
 
