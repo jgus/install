@@ -42,9 +42,12 @@ Server = https://archzfs.com/\$repo/\$arch
 EOF
 
     cat <<EOF >>~/archiso/packages.x86_64
-archzfs-linux
+base-devel
+dkms
+linux-headers
 git
 pacman-contrib
+zfs-dkms
 EOF
 
     for file in ~/archiso/efiboot/loader/entries/archiso-*.conf

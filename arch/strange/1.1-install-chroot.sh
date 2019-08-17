@@ -45,15 +45,15 @@ pacman-key -r F75D9D76
 pacman-key --lsign-key F75D9D76
 PACKAGES=(
     # Kernel
-    linux-zen linux-zen-headers dkms
+    linux-headers linux-zen linux-zen-headers dkms base-devel
     # Drivers
     nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
     # Bootloader
     intel-ucode grub efibootmgr
     # ZFS
-    zfs-linux-zen
+    zfs-dkms
     # General
-    base-devel git zsh
+    git zsh
     # RNG
     rng-tools
     # OpenSSH
