@@ -14,7 +14,7 @@ umount /keys || true
 umount -R /target || true
 for i in /dev/disk/by-label/SWAP*
 do
-    swapoff "${i}"
+    swapoff "${i}" || true
 done
 zpool destroy boot || true
 zpool destroy z || true
