@@ -77,12 +77,12 @@ zpool create \
     -o ashift=12 \
     -O atime=off \
     -O compression=lz4 \
-    -O encryption=on \
-    -O keyformat=raw \
-    -O keylocation=file:///keys/13 \
     -m none \
     -f \
     z raidz "${Z_DEVS[@]}"
+    # -O encryption=on \
+    # -O keyformat=raw \
+    # -O keylocation=file:///keys/13 \
 zfs create z/root
 # zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/root
 zfs create -o canmount=off z/root/var
@@ -90,8 +90,8 @@ zfs create z/root/var/cache
 zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
-zfs create z/home
-zfs create z/docker
+# zfs create z/home
+# zfs create z/docker
 # zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/home
 # zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/docker
 zfs unmount -a
@@ -124,8 +124,8 @@ mkdir -p /target
 zpool import -R /target -l z
 zpool set cachefile=/etc/zfs/zpool.cache z
 zfs set mountpoint=/ z/root
-zfs set mountpoint=/home z/home
-zfs set mountpoint=/var/lib/docker z/docker
+# zfs set mountpoint=/home z/home
+# zfs set mountpoint=/var/lib/docker z/docker
 zfs mount -a
 mkdir -p /target/boot
 zpool import -R /target boot
@@ -141,7 +141,7 @@ cp -rf "$(cd "$(dirname "$0")" ; pwd)"/* /target/install
 umount /keys
 mkdir -p /target/keys
 mount -o ro /dev/disk/by-label/KEYS /target/keys
-zfs set keylocation=file:///keys/13 z
+# zfs set keylocation=file:///keys/13 z
 # zfs set keylocation=file:///keys/13 z/root
 # zfs set keylocation=file:///keys/13 z/home
 # zfs set keylocation=file:///keys/13 z/docker

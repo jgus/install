@@ -29,6 +29,10 @@ systemctl enable zfs-import.target
 systemctl enable zfs-load-key.service
 
 zgenhostid $(hostid)
+
+zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 -o mountpoint=/home z/home
+zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 -o mountpoint=/var/lib/docker z/docker
+
 mkinitcpio -p linux-zen
 
 echo "### Installing Packages..."
