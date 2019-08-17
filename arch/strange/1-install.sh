@@ -77,6 +77,9 @@ zpool create \
     -o ashift=12 \
     -O atime=off \
     -O compression=lz4 \
+    -O encryption=on \
+    -O keyformat=raw \
+    -O keylocation=file:///keys/13 \
     -m none \
     -f \
     z raidz "${Z_DEVS[@]}"
@@ -138,9 +141,10 @@ cp -rf "$(cd "$(dirname "$0")" ; pwd)"/* /target/install
 umount /keys
 mkdir -p /target/keys
 mount -o ro /dev/disk/by-label/KEYS /target/keys
-# zfs set keylocation=file:///boot/z.key z/root
-# zfs set keylocation=file:///boot/z.key z/home
-# zfs set keylocation=file:///boot/z.key z/docker
+zfs set keylocation=file:///keys/13 z
+# zfs set keylocation=file:///keys/13 z/root
+# zfs set keylocation=file:///keys/13 z/home
+# zfs set keylocation=file:///keys/13 z/docker
 df -h
 mount | grep target
 
