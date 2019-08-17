@@ -171,6 +171,9 @@ EOF
 mkdir -p /target/etc/zfs
 cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
 
+mkdir -p /target/etc/zsh
+cp /etc/zsh/* /target/etc/zsh
+
 echo "### Running further install in the chroot..."
 arch-chroot /target /install/1.1-install-chroot.sh
 
@@ -178,8 +181,8 @@ echo "### Unmounting..."
 umount -R /target
 zfs unmount -a
 
-zfs snapshot -r boot@install
-zfs snapshot -r z@install
+zfs snapshot boot@install
+zfs snapshot z@install
 
 zpool export boot
 zpool export z
