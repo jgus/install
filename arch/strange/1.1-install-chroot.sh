@@ -112,6 +112,12 @@ curl https://github.com/jgus.keys >> /root/.ssh/authorized_keys
 chmod 400 /root/.ssh/authorized_keys
 
 echo "### Preparing post-boot install..."
+cat <<EOF >>~/etc/systemd/system/getty@tty1.service.d/override.conf
+[Service]
+ExecStart=
+ExecStart=-/usr/bin/agetty --autologin root --noclear %I $TERM
+EOF
+
 cat <<EOF >>~/.zlogin
 if [[ -x ~/.runonce.sh ]]
 then

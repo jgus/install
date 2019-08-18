@@ -135,8 +135,32 @@ EOF
 echo "### Configuring LightDM..."
 systemctl enable lightdm.service
 
-echo "### Making a snapshot..."
+echo "### Adding users..."
+cat <<EOF >>/etc/sudoers.d/wheel
+%wheel ALL=(ALL) ALL
+EOF
+useradd -D --shell /bin/zsh
+groupadd gustafson
+useradd --groups gustafson,wheel --user-group josh
+KIDS=(kayleigh john william lyra)
+for u in "${KIDS[@]}"
+do
+    useradd --groups gustafson --user-group "${u}"
+done
+for u in josh "${KIDS[@]}"
+do
+    cat <<EOF | passwd "${u}"
+changeme
+changeme
+EOF
+    passwd -e "${u}"
+done
+
+echo "### Cleaning up..."
 rm -rf /install
+rm /etc/systemd/system/getty@tty1.service.d/override.conf
+
+echo "### Making a snapshot..."
 zfs snapshot boot@first-boot
 zfs snapshot z@first-boot
 
