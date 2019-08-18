@@ -156,6 +156,15 @@ EOF
     passwd -e "${u}"
 done
 
+cat <<EOF
+#####
+#
+# Please enter a root password:
+#
+#####
+EOF
+passwd
+
 echo "### Cleaning up..."
 rm -rf /install
 rm /etc/systemd/system/getty@tty1.service.d/override.conf

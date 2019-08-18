@@ -2,14 +2,10 @@
 set -e
 
 # Password
-cat <<EOF
-#####
-#
-# Please enter a root password:
-#
-#####
+cat <<EOF | passwd
+changeme
+changeme
 EOF
-passwd
 
 echo "### Configuring clock..."
 ln -sf /usr/share/zoneinfo/America/Denver /etc/localtime
@@ -80,6 +76,7 @@ sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="\1 nvi
 grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "### Configuring nVidia updates..."
+mkdir -p /etc/pacman.d/hooks
 cat <<EOF >>/etc/pacman.d/hooks/nvidia.hook
 [Trigger]
 Operation=Install
