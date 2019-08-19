@@ -109,6 +109,7 @@ curl https://github.com/jgus.keys >> /root/.ssh/authorized_keys
 chmod 400 /root/.ssh/authorized_keys
 
 echo "### Preparing post-boot install..."
+mkdir -p /etc/systemd/system/getty@tty1.service.d
 cat <<EOF >>~/etc/systemd/system/getty@tty1.service.d/override.conf
 [Service]
 ExecStart=
