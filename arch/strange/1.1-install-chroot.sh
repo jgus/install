@@ -101,9 +101,9 @@ for  i in 3 2 1 0
 do
     grub-install --target=x86_64-efi --efi-directory="/efi/${i}" --bootloader-id="GRUB-${i}"
 done
-sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 nvidia-drm.modeset=1"|g' /etc/default/grub
+sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 nvidia-drm.modeset=1 zfs=z/root"|g' /etc/default/grub
 #sed -i 's/GRUB_PRELOAD_MODULES="\(.*\)"/GRUB_PRELOAD_MODULES="\1 lvm"/g' /etc/default/grub
-echo "GRUB_GFXPAYLOAD_LINUX=3840x1600x32" >>/etc/default/grub
+#echo "GRUB_GFXPAYLOAD_LINUX=3840x1600x32" >>/etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "### Configuring nVidia updates..."
