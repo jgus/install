@@ -110,7 +110,7 @@ chmod 400 /root/.ssh/authorized_keys
 
 echo "### Preparing post-boot install..."
 mkdir -p /etc/systemd/system/getty@tty1.service.d
-cat <<EOF >>~/etc/systemd/system/getty@tty1.service.d/override.conf
+cat <<EOF >>/etc/systemd/system/getty@tty1.service.d/override.conf
 [Service]
 ExecStart=
 ExecStart=-/usr/bin/agetty --autologin root --noclear %I $TERM
