@@ -141,20 +141,16 @@ cat <<EOF >>/etc/sudoers.d/wheel
 EOF
 useradd -D --shell /bin/zsh
 groupadd gustafson
-useradd --groups gustafson,wheel --user-group josh
-KIDS=(kayleigh john william lyra)
-for u in "${KIDS[@]}"
+for u in josh kayleigh john william lyra
 do
-    useradd --groups gustafson --user-group "${u}"
-done
-for u in josh "${KIDS[@]}"
-do
+    useradd --groups gustafson --user-group --create-home "${u}"
     cat <<EOF | passwd "${u}"
 changeme
 changeme
 EOF
     passwd -e "${u}"
 done
+usermod -a -G wheel josh
 
 cat <<EOF
 #####
