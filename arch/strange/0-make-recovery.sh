@@ -102,27 +102,4 @@ wipefs --all "${DEVICE}"
 echo "### Flashing recovery device..."
 dd bs=4M if="${ISO}" of="${DEVICE}" status=progress oflag=sync
 
-echo "### Adding keys..."
-cat <<EOF | fdisk "${DEVICE}"
-n
-p
-3
-
-+1M
-w
-EOF
-sleep 1
-
-mkfs.ext2 -L KEYS "${DEVICE}-part3"
-sleep 1
-umount /keys || true
-mkdir -p /keys
-mount "/dev/disk/by-label/KEYS" /keys
-for i in {1..63}
-do
-    dd bs=1 count=32 if=/dev/urandom of=/keys/"$(printf '%02x' ${i})"
-done
-chmod 000 /keys/*
-umount /keys
-
 echo "Done creating recovery key!"

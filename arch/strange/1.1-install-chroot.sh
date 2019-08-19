@@ -76,10 +76,7 @@ cat <<EOF >>/etc/initcpio/hooks/mount-keys
 #!/usr/bin/ash
 
 run_hook() {
-    #ls -1 /dev/disk/by-id/*Fit*
-    #ls -1 /dev/disk/by-path/*usb*
-    ls -1 /dev/disk/by-label
-    ls -1 /keys/*
+    ls -1 /sys/firmware/efi/efivars/*d719b2cb-3d3a-4596-a3bc-dad00e67656f*
     #mkdir -p /keys
     #mount -o ro /dev/disk/by-label/KEYS /keys
 }
@@ -88,8 +85,8 @@ run_hook() {
 #    umount /keys
 #}
 EOF
-sed -i 's/MODULES=(\(.*\))/MODULES=(\1 ext2 usb_storage nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
-sed -i 's|FILES=(\(.*\))|FILES=(\1 /keys/13)|g' /etc/mkinitcpio.conf
+sed -i 's/MODULES=(\(.*\))/MODULES=(\1 efivarfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
+#sed -i 's|FILES=(\(.*\))|FILES=(\1 /keys/13)|g' /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
 sed -i 's/HOOKS=(\(.*\))/HOOKS=(base udev autodetect modconf block mount-keys zfs filesystems keyboard)/g' /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf

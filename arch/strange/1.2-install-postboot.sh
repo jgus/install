@@ -57,8 +57,8 @@ systemctl enable zfs-scrub@z.timer
 
 zgenhostid $(hostid)
 
-zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 -o mountpoint=/home z/home
-zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 -o mountpoint=/var/lib/docker z/docker
+zfs create -o mountpoint=/home z/home
+zfs create -o mountpoint=/var/lib/docker z/docker
 
 mkinitcpio -p linux-zen
 

@@ -10,7 +10,6 @@ SYSTEM_DEVICES=(
     )
 
 echo "### Cleaning up prior partitions..."
-umount /keys || true
 umount -R /target || true
 for i in /dev/disk/by-label/SWAP*
 do
@@ -70,38 +69,25 @@ zfs unmount -a
 zpool export boot
 
 echo "### Creating zpool z..."
-mkdir -p /keys
-mount -o ro "/dev/disk/by-label/KEYS" /keys
-
 zpool create \
     -o ashift=12 \
     -O atime=off \
     -O compression=lz4 \
     -O encryption=on \
     -O keyformat=raw \
-    -O keylocation=file:///keys/13 \
+    -O keylocation=file:///sys/firmware/efi/efivars/keyfile-d719b2cb-3d3a-4596-a3bc-dad00e67656f \
     -m none \
     -f \
     z raidz "${Z_DEVS[@]}"
-    # -O encryption=on \
-    # -O keyformat=raw \
-    # -O keylocation=file:///keys/13 \
 zfs create z/root
-# zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/root
 zfs create -o canmount=off z/root/var
 zfs create z/root/var/cache
 zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
-# zfs create z/home
-# zfs create z/docker
-# zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/home
-# zfs create -o encryption=on -o keyformat=raw -o keylocation=file:///keys/13 z/docker
 zfs unmount -a
 zpool set bootfs=z/root z
 zpool export z
-
-umount /keys
 
 echo "### Setting up swap..."
 for i in "${!SWAP_DEVS[@]}"
@@ -115,8 +101,6 @@ done
 echo "### Done partitioning!"
 
 echo "### Importing/mounting filesystems..."
-mkdir -p /keys
-mount -o ro /dev/disk/by-label/KEYS /keys
 for d in /dev/disk/by-label/SWAP*
 do
     swapon -p 100 "${d}"
@@ -141,13 +125,6 @@ do
 done
 mkdir -p /target/install
 cp -rf "$(cd "$(dirname "$0")" ; pwd)"/* /target/install
-umount /keys
-mkdir -p /target/keys
-mount -o ro /dev/disk/by-label/KEYS /target/keys
-# zfs set keylocation=file:///keys/13 z
-# zfs set keylocation=file:///keys/13 z/root
-# zfs set keylocation=file:///keys/13 z/home
-# zfs set keylocation=file:///keys/13 z/docker
 df -h
 mount | grep target
 
@@ -160,8 +137,6 @@ pacstrap /target base
 
 #genfstab -U /target >> /target/etc/fstab
 cat <<EOF >>/target/etc/fstab
-LABEL=KEYS       	/keys  	ext2      	ro,relatime	0 2
-
 z/root              	/         	zfs       	rw,noatime,xattr,noacl	0 0
 
 LABEL=UEFI-0        	/efi/0    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
