@@ -83,9 +83,8 @@ Operation=Install
 Operation=Upgrade
 Operation=Remove
 Type=Package
-Target=nvidia
-Target=linux
-# Change the linux part above and in the Exec line if a different kernel is used
+Target=nvidia-dkms
+Target=linux-zen
 
 [Action]
 Description=Update Nvidia module in initcpio
