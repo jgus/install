@@ -77,6 +77,9 @@ zpool create \
     -o ashift=12 \
     -O atime=off \
     -O compression=lz4 \
+    -O encryption=on \
+    -O keyformat=raw \
+    -O keylocation=file:///keys/13 \
     -m none \
     -f \
     z raidz "${Z_DEVS[@]}"
