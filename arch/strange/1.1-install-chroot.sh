@@ -90,7 +90,7 @@ EOF
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 ext2 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
 #sed -i 's|FILES=(\(.*\))|FILES=(\1 /boot/z.key)|g' /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
-sed -i 's/HOOKS=(\(.*\) filesystems \(.*\) fsck)/HOOKS=(\1 mount-keys zfs filesystems \2)/g' /etc/mkinitcpio.conf
+sed -i 's/HOOKS=(\(.*\))/HOOKS=(base udev block autodetect modconf mount-keys zfs filesystems keyboard)/g' /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
 mkinitcpio -p linux-zen
 
