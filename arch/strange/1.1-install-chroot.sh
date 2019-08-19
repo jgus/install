@@ -135,8 +135,11 @@ chmod a+x ~/.runonce.sh
 
 # TODO
 # ZFS snapshots/replication
-# add users (with shell)
 # Sync
 # Steam
 # Wine?
 # Multiseat
+# Josh SSH key
+# Grub boot text
+# Better login manager
+# All kinds of KDE customization
