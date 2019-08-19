@@ -76,7 +76,7 @@ cat <<EOF >>/etc/initcpio/hooks/mount-keys
 #!/usr/bin/ash
 
 run_hook() {
-    ls -1 /dev/disk/by-id/*SanDisk*
+    ls -1 /dev/disk/by-id/*Fit*
     ls -1 /dev/disk/by-path/*usb*
     ls -1 /dev/disk/by-label
     mkdir -p /keys
@@ -89,7 +89,8 @@ run_cleanuphook() {
 EOF
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 ext2 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
 #sed -i 's|FILES=(\(.*\))|FILES=(\1 /boot/z.key)|g' /etc/mkinitcpio.conf
-sed -i 's/HOOKS=(\(.*\)block filesystems keyboard\(.*\))/HOOKS=(\1udev keyboard block mount-keys zfs filesystems\2)/g' /etc/mkinitcpio.conf
+#original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
+sed -i 's/HOOKS=(\(.*\) filesystems \(.*\) fsck)/HOOKS=(\1 mount-keys zfs filesystems \2)/g' /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
 mkinitcpio -p linux-zen
 
