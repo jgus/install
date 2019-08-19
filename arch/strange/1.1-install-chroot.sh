@@ -77,6 +77,7 @@ cat <<EOF >>/etc/initcpio/hooks/mount-keys
 
 run_hook() {
     ls -1 /dev/disk/by-id/*SanDisk*
+    ls -1 /dev/disk/by-path/*usb*
     ls -1 /dev/disk/by-label
     mkdir -p /keys
     mount -o ro /dev/disk/by-label/KEYS /keys
