@@ -152,6 +152,11 @@ EOF
 done
 usermod -a -G wheel josh
 
+mkdir -p /home/josh/.ssh
+curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
+chmod 400 /home/josh/.ssh/authorized_keys
+chown -R josh:josh /home/josh/.ssh
+
 cat <<EOF
 #####
 #

@@ -139,7 +139,6 @@ chmod a+x ~/.runonce.sh
 # Steam
 # Wine?
 # Multiseat
-# Josh SSH key
 # Grub boot text
 # Better login manager
 # All kinds of KDE customization
