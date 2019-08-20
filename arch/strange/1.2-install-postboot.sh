@@ -172,7 +172,7 @@ rm /etc/systemd/system/getty@tty1.service.d/override.conf
 
 echo "### Making a snapshot..."
 zfs snapshot boot@first-boot
-zfs snapshot z@first-boot
+zfs snapshot z/root@first-boot
 
 echo "### Done with post-boot install! Rebooting..."
 reboot

@@ -59,36 +59,10 @@ pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
 
 echo "### Configuring boot image..."
 # Initramfs
-cat <<EOF >>/etc/initcpio/install/mount-keys
-#!/bin/bash
-
-build() {
-    add_runscript
-}
-
-help() {
-    cat <<HELPEOF
-This hook mounts the key filesystem (for unlocking an encrypted root.)
-HELPEOF
-}
-EOF
-cat <<EOF >>/etc/initcpio/hooks/mount-keys
-#!/usr/bin/ash
-
-run_hook() {
-    ls -1 /sys/firmware/efi/efivars/*d719b2cb-3d3a-4596-a3bc-dad00e67656f*
-    #mkdir -p /keys
-    #mount -o ro /dev/disk/by-label/KEYS /keys
-}
-
-#run_cleanuphook() {
-#    umount /keys
-#}
-EOF
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 efivarfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
 #sed -i 's|FILES=(\(.*\))|FILES=(\1 /keys/13)|g' /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
-sed -i 's/HOOKS=(\(.*\))/HOOKS=(base udev autodetect modconf block mount-keys zfs filesystems keyboard)/g' /etc/mkinitcpio.conf
+sed -i 's/HOOKS=(\(.*\))/HOOKS=(base udev autodetect modconf block zfs filesystems keyboard)/g' /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
 mkinitcpio -p linux-zen
 
@@ -159,13 +133,3 @@ set -e
 /install/1.2-install-postboot.sh
 EOF
 chmod a+x ~/.runonce.sh
-
-# TODO
-# ZFS snapshots/replication
-# Sync
-# Steam
-# Wine?
-# Multiseat
-# Grub boot text
-# Better login manager
-# All kinds of KDE customization

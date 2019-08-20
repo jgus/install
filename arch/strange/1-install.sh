@@ -164,7 +164,7 @@ umount -R /target
 zfs unmount -a
 
 zfs snapshot boot@install
-zfs snapshot z@install
+zfs snapshot z/root@install
 
 zpool export boot
 zpool export z
