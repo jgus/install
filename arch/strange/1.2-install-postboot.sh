@@ -63,6 +63,7 @@ zfs create -o mountpoint=/var/lib/docker z/docker
 mkinitcpio -p linux-zen
 
 echo "### Installing Packages..."
+sed -i 's/#Color/Color/g' /etc/pacman.conf
 PACKAGES=(
     # Xorg
     xorg
@@ -71,9 +72,18 @@ PACKAGES=(
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs
     # Applications
-    # google-chrome vlc ffmpeg-full
+    vlc
+    # Misc
+    ccache
 )
 pacman -S --needed --noconfirm "${PACKAGES[@]}"
+
+echo "### Configuring makepkg..."
+sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
+cat <<EOF >>/etc/makepkg.conf 
+MAKEFLAGS="-j$(nproc)"
+BUILDDIR=/tmp/makepkg
+EOF
 
 echo "### Configuring Xorg..."
 #cp /usr/share/X11/xorg.conf.d/* /etc/X11/xorg.conf.d/
@@ -136,8 +146,11 @@ echo "### Configuring LightDM..."
 systemctl enable lightdm.service
 
 echo "### Adding users..."
-cat <<EOF >>/etc/sudoers.d/wheel
+cat <<EOF >/etc/sudoers.d/wheel
 %wheel ALL=(ALL) ALL
+EOF
+cat <<EOF >/etc/sudoers.d/builder
+builder ALL=(ALL) NOPASSWD: /usr/bin/pacman
 EOF
 useradd -D --shell /bin/zsh
 groupadd gustafson
@@ -157,6 +170,16 @@ curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
 chown -R josh:josh /home/josh/.ssh
 
+useradd --user-group --home-dir /var/cache/builder --create-home --system builder
+chmod ug+ws /var/cache/builder
+setfacl -m u::rwx,g::rwx /var/cache/builder
+
+echo "### Installing Yay..."
+cd /var/cache/builder
+sudo -u builder git clone https://aur.archlinux.org/yay.git
+cd yay
+sudo -u builder makepkg -si --needed --noconfirm
+
 cat <<EOF
 #####
 #
@@ -173,6 +196,15 @@ rm /etc/systemd/system/getty@tty1.service.d/override.conf
 echo "### Making a snapshot..."
 zfs snapshot boot@first-boot
 zfs snapshot z/root@first-boot
+
+echo "### Installing AUR Packages (interactive)..."
+AUR_PACKAGES=(
+    google-chrome
+    #ffmpeg-full
+)
+sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
+zfs snapshot boot@aur-pacakges-installed
+zfs snapshot z/root@aur-pacakges-installed
 
 echo "### Done with post-boot install! Rebooting..."
 reboot
