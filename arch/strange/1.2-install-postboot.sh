@@ -67,10 +67,8 @@ sed -i 's/#Color/Color/g' /etc/pacman.conf
 PACKAGES=(
     # Xorg
     xorg
-    # LightDM
-    lightdm lightdm-gtk-greeter
     # KDE
-    plasma-meta kde-applications-meta xdg-user-dirs
+    plasma-meta kde-applications-meta xdg-user-dirs sddm
     # Applications
     vlc
     # Misc
@@ -142,8 +140,8 @@ Section "Screen"
 EndSection
 EOF
 
-echo "### Configuring LightDM..."
-systemctl enable lightdm.service
+echo "### Configuring KDE..."
+systemctl enable sddm.service
 
 echo "### Adding users..."
 cat <<EOF >/etc/sudoers.d/wheel
