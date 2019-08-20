@@ -68,7 +68,7 @@ PACKAGES=(
     # Xorg
     xorg
     # KDE
-    plasma-meta kde-applications-meta xdg-user-dirs sddm
+    plasma-meta kde-applications-meta xdg-user-dirs sddm sddm-kcm
     # Applications
     vlc
     # Misc
