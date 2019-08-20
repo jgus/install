@@ -18,6 +18,7 @@ done
 zpool destroy boot || true
 zpool destroy z || true
 
+EFI_DEVS=()
 BOOT_DEVS=()
 Z_DEVS=()
 SWAP_DEVS=()
@@ -33,11 +34,18 @@ do
     parted -s "${DEVICE}" -- mkpart primary 512MiB 1024MiB
     parted -s "${DEVICE}" -- mkpart primary 1024MiB 211GiB
     parted -s "${DEVICE}" -- mkpart primary 211GiB 100%
+    EFI_DEVS+=("${DEVICE}-part1")
     BOOT_DEVS+=("${DEVICE}-part2")
     Z_DEVS+=("${DEVICE}-part3")
     SWAP_DEVS+=("${DEVICE}-part4")
 done
 sleep 1
+
+echo "### Formatting EFI partitions..."
+for i in "${!EFI_DEVS[@]}"
+do
+    mkfs.fat -F 32 -n "UEFI${i}" "${EFI_DEVS[$i]}"
+done
 
 echo "### Creating zpool boot..."
 zpool create \
@@ -121,7 +129,7 @@ zfs set mountpoint=/boot boot
 for i in 0 1 2 3
 do
     mkdir -p "/target/efi/${i}"
-    mount "/dev/disk/by-label/UEFI-${i}" "/target/efi/${i}"
+    mount "/dev/disk/by-label/UEFI${i}" "/target/efi/${i}"
 done
 mkdir -p /target/install
 cp -rf "$(cd "$(dirname "$0")" ; pwd)"/* /target/install
@@ -139,10 +147,10 @@ pacstrap /target base linux-zen
 cat <<EOF >>/target/etc/fstab
 z/root              	/         	zfs       	rw,noatime,xattr,noacl	0 0
 
-LABEL=UEFI-0        	/efi/0    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
-LABEL=UEFI-1        	/efi/1    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
-LABEL=UEFI-2        	/efi/2    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
-LABEL=UEFI-3        	/efi/3    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
+LABEL=UEFI0        	/efi/0    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
+LABEL=UEFI1        	/efi/1    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
+LABEL=UEFI2        	/efi/2    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
+LABEL=UEFI3        	/efi/3    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
 
 /dev/disk/by-label/SWAP0 	none      	swap      	defaults,pri=100  	0 0
 /dev/disk/by-label/SWAP1 	none      	swap      	defaults,pri=100  	0 0
