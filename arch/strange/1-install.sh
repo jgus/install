@@ -170,4 +170,4 @@ zpool export boot
 zpool export z
 
 echo "### Done installing! Rebooting..."
-#reboot
+reboot
