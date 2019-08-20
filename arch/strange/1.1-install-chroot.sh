@@ -41,7 +41,7 @@ pacman-key -r F75D9D76
 pacman-key --lsign-key F75D9D76
 PACKAGES=(
     # Kernel
-    linux-headers linux-zen linux-zen-headers dkms base-devel
+    linux-zen-headers dkms base-devel
     # Drivers
     nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
     # Bootloader
@@ -55,6 +55,8 @@ PACKAGES=(
     # OpenSSH
     openssh
 )
+# remove default kernel (we don't want to bother building modules for it)
+pacman -Rs --noconfirm linux
 pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
 
 echo "### Configuring boot image..."
