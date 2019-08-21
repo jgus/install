@@ -26,6 +26,14 @@ cat <<EOF >/etc/hosts
 EOF
 
 echo "### Configuring network..."
+cat <<EOF >/etc/netctl/bridge
+Description="Bridge Connection"
+Interface=br0
+Connection=bridge
+BindsToInterfaces=(eno1 enp11s0)
+IP=dhcp
+EOF
+netctl enable bridge
 systemctl enable dhcpcd.service
 
 echo "### Installing pacakages..."
