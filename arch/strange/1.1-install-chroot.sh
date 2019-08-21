@@ -27,15 +27,7 @@ EOF
 
 echo "### Configuring network..."
 systemctl disable dhcpcd.service
-cat <<EOF >/etc/netctl/bridge
-Description="Bridge Connection"
-Interface=br0
-Connection=bridge
-BindsToInterfaces=(eno1 enp11s0)
-IP=no
-ExecUpPost="ip link set dev br0 address $(cat /sys/class/net/eno1/address); IP=dhcp; ip_set"
-ExecDownPre="IP=dhcp"
-EOF
+#/etc/netctl/bridge
 netctl enable bridge
 
 echo "### Installing pacakages..."
@@ -91,22 +83,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "### Configuring nVidia updates..."
 mkdir -p /etc/pacman.d/hooks
-cat <<EOF >>/etc/pacman.d/hooks/nvidia.hook
-[Trigger]
-Operation=Install
-Operation=Upgrade
-Operation=Remove
-Type=Package
-Target=nvidia-dkms
-Target=linux-zen
-
-[Action]
-Description=Update Nvidia module in initcpio
-Depends=mkinitcpio
-When=PostTransaction
-NeedsTargets
-Exec=/bin/sh -c 'while read -r trg; do case $trg in linux) exit 0; esac; done; /usr/bin/mkinitcpio -P'
-EOF
+#/etc/pacman.d/hooks/nvidia.hook
 
 echo "### Configuring Zsh..."
 chsh -s /bin/zsh
@@ -123,25 +100,7 @@ chmod 400 /root/.ssh/authorized_keys
 
 echo "### Preparing post-boot install..."
 mkdir -p /etc/systemd/system/getty@tty1.service.d
-cat <<EOF >>/etc/systemd/system/getty@tty1.service.d/override.conf
-[Service]
-ExecStart=
-ExecStart=-/usr/bin/agetty --autologin root --noclear %I $TERM
-EOF
-
-cat <<EOF >>~/.zlogin
-if [[ -x ~/.runonce.sh ]]
-then
-    rm -f ~/.running.sh
-    mv ~/.runonce.sh ~/.running.sh
-    ~/.running.sh
-    rm -f ~/.running.sh
-fi
-EOF
-
-cat <<EOF >>~/.runonce.sh
-#!/bin/bash
-set -e
-/install/1.2-install-postboot.sh
-EOF
+#/etc/systemd/system/getty@tty1.service.d/override.conf
+#/root/.zlogin
+#/root/.runonce.sh
 chmod a+x ~/.runonce.sh

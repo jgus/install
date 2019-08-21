@@ -144,19 +144,7 @@ echo "### Pacstrapping..."
 pacstrap /target base linux-zen
 
 #genfstab -U /target >> /target/etc/fstab
-cat <<EOF >>/target/etc/fstab
-z/root              	/         	zfs       	rw,noatime,xattr,noacl	0 0
-
-LABEL=UEFI0        	/efi/0    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
-LABEL=UEFI1        	/efi/1    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
-LABEL=UEFI2        	/efi/2    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
-LABEL=UEFI3        	/efi/3    	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
-
-/dev/disk/by-label/SWAP0 	none      	swap      	defaults,pri=100  	0 0
-/dev/disk/by-label/SWAP1 	none      	swap      	defaults,pri=100  	0 0
-/dev/disk/by-label/SWAP2 	none      	swap      	defaults,pri=100  	0 0
-/dev/disk/by-label/SWAP3 	none      	swap      	defaults,pri=100  	0 0
-EOF
+rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/files/ /target
 
 mkdir -p /target/etc/zfs
 cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
@@ -171,8 +159,10 @@ echo "### Unmounting..."
 umount -R /target
 zfs unmount -a
 
-zfs snapshot boot@install
-zfs snapshot z/root@install
+for pool in boot z/root
+do
+    zfs snapshot ${pool}@pre-boot-install
+done
 
 zpool export boot
 zpool export z
