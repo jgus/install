@@ -160,6 +160,7 @@ done
 echo "### Installing AUR Packages (interactive)..."
 AUR_PACKAGES=(
     google-chrome
+    visual-studio-code-bin
     #ffmpeg-full
 )
 sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
