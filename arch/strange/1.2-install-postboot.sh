@@ -59,7 +59,7 @@ echo "### Adding users..."
 #/etc/sudoers.d/wheel
 #/etc/sudoers.d/builder
 useradd -D --shell /bin/zsh
-groupadd gustafson
+useradd --user-group --create-home --system gustafson
 for u in josh kayleigh john william lyra
 do
     useradd --groups gustafson --user-group --create-home "${u}"
