@@ -26,15 +26,17 @@ cat <<EOF >/etc/hosts
 EOF
 
 echo "### Configuring network..."
+systemctl disable dhcpcd.service
 cat <<EOF >/etc/netctl/bridge
 Description="Bridge Connection"
 Interface=br0
 Connection=bridge
 BindsToInterfaces=(eno1 enp11s0)
-IP=dhcp
+IP=no
+ExecUpPost="ip link set dev br0 address $(cat /sys/class/net/eno1/address); IP=dhcp; ip_set"
+ExecDownPre="IP=dhcp"
 EOF
 netctl enable bridge
-systemctl enable dhcpcd.service
 
 echo "### Installing pacakages..."
 cat <<EOF >>/etc/pacman.conf
