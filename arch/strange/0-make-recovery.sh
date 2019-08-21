@@ -85,7 +85,7 @@ pacman-key --init
 pacman-key -r F75D9D76
 pacman-key --lsign-key F75D9D76
 pacman -Sy
-cd ~/install/arch/strange
+cd ~/install
 git pull
 EOF
     chmod a+x ~/archiso/airootfs/root/.runonce.sh
