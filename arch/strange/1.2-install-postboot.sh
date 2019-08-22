@@ -31,6 +31,8 @@ sed -i 's/#Color/Color/g' /etc/pacman.conf
 PACKAGES=(
     # Misc
     ccache
+    # ZFS Snapshots
+    zfs-snap-manager
     # Samba
     samba
     # Xorg
@@ -50,6 +52,10 @@ cat <<EOF >>/etc/makepkg.conf
 MAKEFLAGS="-j$(nproc)"
 BUILDDIR=/tmp/makepkg
 EOF
+
+echo "### Configuring ZFS Snapshots..."
+#/etc/zfssnapmanager.cfg
+systemctl enable zfs-snap-manager.service
 
 echo "### Configuring Samba..."
 BEAST_SHARES=(
