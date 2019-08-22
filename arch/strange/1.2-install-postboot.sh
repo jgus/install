@@ -140,6 +140,12 @@ sudo -u builder git clone https://aur.archlinux.org/yay.git
 cd yay
 sudo -u builder makepkg -si --needed --noconfirm
 
+echo "### Configuring Environment..."
+cat <<EOF >>/etc/profile
+export EDITOR=nano
+alias yay='sudo -u builder yay'
+EOF
+
 cat <<EOF
 #####
 #
