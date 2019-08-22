@@ -1,14 +1,15 @@
 #!/bin/sh
 set -e
 
-# System
 SYSTEM_DEVICES=(
     ata-SanDisk_SDSSDX240GG25_130811402135
     ata-SanDisk_SDSSDX240GG25_131102400461
     ata-SanDisk_SDSSDX240GG25_131102401287
     ata-SanDisk_SDSSDX240GG25_131102402736
     )
+BULK_DEVICE=ata-WDC_WD60EFRX-68MYMN1_WD-WX11DA4DJ3CN
 
+# System
 echo "### Cleaning up prior partitions..."
 umount -R /target || true
 for i in /dev/disk/by-label/SWAP*
@@ -17,6 +18,7 @@ do
 done
 zpool destroy boot || true
 zpool destroy z || true
+zpool destroy bulk || true
 
 EFI_DEVS=()
 BOOT_DEVS=()
@@ -84,6 +86,9 @@ zpool create \
     -O encryption=on \
     -O keyformat=raw \
     -O keylocation=file:///sys/firmware/efi/efivars/keyfile-d719b2cb-3d3a-4596-a3bc-dad00e67656f \
+    -O aclinherit=passthrough \
+    -O acltype=posixacl \
+    -O xattr=sa \
     -m none \
     -f \
     z raidz "${Z_DEVS[@]}"
@@ -104,7 +109,21 @@ do
 done
 
 # Bulk
-# ata-WDC_WD60EFRX-68MYMN1_WD-WX11DA4DJ3CN
+zpool create \
+    -o ashift=12 \
+    -O atime=off \
+    -O compression=lz4 \
+    -O encryption=on \
+    -O keyformat=raw \
+    -O keylocation=file:///sys/firmware/efi/efivars/keyfile-d719b2cb-3d3a-4596-a3bc-dad00e67656f \
+    -O aclinherit=passthrough \
+    -O acltype=posixacl \
+    -O xattr=sa \
+    -m none \
+    -f \
+    bulk "${BULK_DEVICE}"
+zfs unmount -a
+zpool export bulk
 
 echo "### Done partitioning!"
 
@@ -119,13 +138,15 @@ mkdir -p /target
 zpool import -R /target -l z
 zpool set cachefile=/etc/zfs/zpool.cache z
 zfs set mountpoint=/ z/root
-# zfs set mountpoint=/home z/home
-# zfs set mountpoint=/var/lib/docker z/docker
 zfs mount -a
 mkdir -p /target/boot
 zpool import -R /target boot
 zpool set cachefile=/etc/zfs/zpool.cache boot
 zfs set mountpoint=/boot boot
+mkdir -p /target/bulk
+zpool import -R /target -l bulk
+zpool set cachefile=/etc/zfs/zpool.cache bulk
+zfs set mountpoint=/bulk bulk
 for i in 0 1 2 3
 do
     mkdir -p "/target/efi/${i}"

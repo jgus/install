@@ -130,11 +130,19 @@ curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
 chown -R josh:josh /home/josh/.ssh
 
+chown -R gustafson:gustafson /bulk
+chmod 775 /bulk
+chmod g+s /bulk
+setfacl -d -m group:gustafson:rwx /bulk
+
+echo "### Configuring Steam..."
+mkdir /bulk/steam
+chown gustafson:gustafson /bulk/steam
+
+echo "### Installing Yay..."
 useradd --user-group --home-dir /var/cache/builder --create-home --system builder
 chmod ug+ws /var/cache/builder
 setfacl -m u::rwx,g::rwx /var/cache/builder
-
-echo "### Installing Yay..."
 cd /var/cache/builder
 sudo -u builder git clone https://aur.archlinux.org/yay.git
 cd yay
