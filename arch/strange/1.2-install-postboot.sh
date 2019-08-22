@@ -31,8 +31,6 @@ sed -i 's/#Color/Color/g' /etc/pacman.conf
 PACKAGES=(
     # Misc
     ccache
-    # ZFS Snapshots
-    zfs-snap-manager
     # Samba
     samba
     # Xorg
@@ -52,10 +50,6 @@ cat <<EOF >>/etc/makepkg.conf
 MAKEFLAGS="-j$(nproc)"
 BUILDDIR=/tmp/makepkg
 EOF
-
-echo "### Configuring ZFS Snapshots..."
-#/etc/zfssnapmanager.cfg
-systemctl enable zfs-snap-manager.service
 
 echo "### Configuring Samba..."
 BEAST_SHARES=(
@@ -219,9 +213,16 @@ echo "### Installing AUR Packages (interactive)..."
 AUR_PACKAGES=(
     google-chrome
     visual-studio-code-bin
+    zfs-snap-manager
     #ffmpeg-full
 )
 sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
+
+echo "### Configuring ZFS Snapshots..."
+#/etc/zfssnapmanager.cfg
+systemctl enable zfs-snap-manager.service
+
+echo "### Making a snapshot..."
 for pool in boot z/root z/home z/docker
 do
     zfs snapshot ${pool}@aur-pacakges-installed
