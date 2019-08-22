@@ -31,6 +31,8 @@ sed -i 's/#Color/Color/g' /etc/pacman.conf
 PACKAGES=(
     # Misc
     ccache
+    # Samba
+    samba
     # Xorg
     xorg
     # KDE
@@ -48,6 +50,40 @@ cat <<EOF >>/etc/makepkg.conf
 MAKEFLAGS="-j$(nproc)"
 BUILDDIR=/tmp/makepkg
 EOF
+
+echo "### Configuring Samba..."
+BEAST_SHARES=(
+    #Backup
+    Brown
+    #Comics
+    #Local Backup
+    Media
+    #Media-Storage
+    #Minecraft
+    Music
+    #Peer
+    #Photos
+    #Photos-Incoming
+    #Private
+    #Proxmox-Images
+    Published
+    Software
+    Storage
+    Temp
+    Tools
+    #Users
+)
+mkdir /beast
+cat <<EOF >>/etc/fstab
+
+# Beast
+EOF
+for share in "${BEAST_SHARES[@]}"
+do
+    mkdir /beast/${share}
+    echo "//beast/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/beast 0 0" >>/etc/fstab
+done
+
 
 echo "### Configuring Xorg..."
 #cp /usr/share/X11/xorg.conf.d/* /etc/X11/xorg.conf.d/

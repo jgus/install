@@ -175,6 +175,9 @@ cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
 mkdir -p /target/etc/zsh
 cp /etc/zsh/* /target/etc/zsh
 
+"$(cd "$(dirname "$0")/.." ; pwd)/read-secrets.sh" /target/tmp/machine-secrets
+rsync -ar /target/tmp/machine-secrets/files/ /target || true
+
 echo "### Running further install in the chroot..."
 arch-chroot /target /install/1.1-install-chroot.sh
 
