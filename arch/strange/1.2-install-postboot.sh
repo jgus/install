@@ -29,14 +29,16 @@ mkinitcpio -p linux-zen
 echo "### Installing Packages..."
 sed -i 's/#Color/Color/g' /etc/pacman.conf
 PACKAGES=(
+    # Misc
+    ccache
     # Xorg
     xorg
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs sddm sddm-kcm
     # Applications
     vlc
-    # Misc
-    ccache
+    # Steam
+    steam steam-native-runtime ttf-liberation
 )
 pacman -S --needed --noconfirm "${PACKAGES[@]}"
 
