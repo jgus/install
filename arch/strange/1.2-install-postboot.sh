@@ -44,6 +44,32 @@ PACKAGES=(
 )
 pacman -S --needed --noconfirm "${PACKAGES[@]}"
 
+echo "### Adding users..."
+#/etc/sudoers.d/wheel
+#/etc/sudoers.d/builder
+useradd -D --shell /bin/zsh
+useradd --user-group --create-home --system gustafson
+for u in josh kayleigh john william lyra
+do
+    useradd --groups gustafson --user-group --create-home "${u}"
+    cat <<EOF | passwd "${u}"
+changeme
+changeme
+EOF
+    passwd -e "${u}"
+done
+usermod -a -G wheel josh
+
+mkdir -p /home/josh/.ssh
+curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
+chmod 400 /home/josh/.ssh/authorized_keys
+chown -R josh:josh /home/josh/.ssh
+
+chown -R gustafson:gustafson /bulk
+chmod 775 /bulk
+chmod g+s /bulk
+setfacl -d -m group:gustafson:rwx /bulk
+
 echo "### Configuring makepkg..."
 sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
 cat <<EOF >>/etc/makepkg.conf 
@@ -144,32 +170,6 @@ EOF
 
 echo "### Configuring KDE..."
 systemctl enable sddm.service
-
-echo "### Adding users..."
-#/etc/sudoers.d/wheel
-#/etc/sudoers.d/builder
-useradd -D --shell /bin/zsh
-useradd --user-group --create-home --system gustafson
-for u in josh kayleigh john william lyra
-do
-    useradd --groups gustafson --user-group --create-home "${u}"
-    cat <<EOF | passwd "${u}"
-changeme
-changeme
-EOF
-    passwd -e "${u}"
-done
-usermod -a -G wheel josh
-
-mkdir -p /home/josh/.ssh
-curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
-chmod 400 /home/josh/.ssh/authorized_keys
-chown -R josh:josh /home/josh/.ssh
-
-chown -R gustafson:gustafson /bulk
-chmod 775 /bulk
-chmod g+s /bulk
-setfacl -d -m group:gustafson:rwx /bulk
 
 echo "### Configuring Steam..."
 mkdir /bulk/steam
