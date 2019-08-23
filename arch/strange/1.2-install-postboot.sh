@@ -214,6 +214,7 @@ AUR_PACKAGES=(
     google-chrome
     visual-studio-code-bin
     zfs-snap-manager
+    docker nvidia-container-toolkit
     #ffmpeg-full
 )
 sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
@@ -221,6 +222,13 @@ sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 echo "### Configuring ZFS Snapshots..."
 #/etc/zfssnapmanager.cfg
 systemctl enable zfs-snap-manager.service
+
+echo "### Configuring Docker..."
+#/etc/docker/daemon.json
+systemctl enable docker.service
+systemctl start docker.service
+docker volume create portainer_data
+docker run -d --restart always -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
 
 echo "### Making a snapshot..."
 for pool in boot z/root z/home z/docker
