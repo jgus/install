@@ -1,5 +1,5 @@
 [Unit]
-Description=Regular zfs replication of  %i
+Description=Regular zfs replication
 
 [Timer]
 OnCalendar=*-*-* 4:00:00
