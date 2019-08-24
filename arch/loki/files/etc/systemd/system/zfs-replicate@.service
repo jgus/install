@@ -1,0 +1,8 @@
+[Unit]
+Description=zfs replication of %i
+
+[Service]
+Nice=19
+IOSchedulingClass=idle
+KillSignal=SIGINT
+ExecStart=/root/opt/bin/loki/sync-to-beast.sh %i

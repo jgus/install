@@ -1,8 +1,8 @@
 [Unit]
-Description=Monthly zpool scrub on %i
+Description=Regular zfs replication of  %i
 
 [Timer]
-OnCalendar=monthly
+OnCalendar=*-*-* 4:00:00
 AccuracySec=1h
 Persistent=true
 
