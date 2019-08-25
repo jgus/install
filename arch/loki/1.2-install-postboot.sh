@@ -62,8 +62,8 @@ changeme
 EOF
     passwd -e "${u}"
 done
-usermod -a -G wheel josh
 
+usermod -a -G wheel josh
 mkdir -p /home/josh/.ssh
 curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
@@ -73,6 +73,17 @@ chown -R gustafson:gustafson /bulk
 chmod 775 /bulk
 chmod g+s /bulk
 setfacl -d -m group:gustafson:rwx /bulk
+
+for U in Kayleigh John William Lyra
+do
+    u=$(echo "${U}" | awk '{print tolower($0)}')
+    chown -R ${u}:${u} /bulk/Kids/${U}
+    ln -s /bulk/Kids/${U} /home/${u}/Documents
+    mkdir -p /home/${u}/Pictures
+    ln -s /bulk/Photos/Favorites /home/${u}/Pictures/Favorites
+    ln -s /beast/Published/Photos /home/${u}/Pictures/Family
+    chown -R ${u}:${u} /home/${u}
+done
 
 echo "### Configuring makepkg..."
 sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
