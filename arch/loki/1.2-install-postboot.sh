@@ -37,7 +37,11 @@ PACKAGES=(
     xorg
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs sddm sddm-kcm
+    # Wine
+    wine wine_gecko wine-mono winetricks
     # Applications
+    libreoffice-still hunspell hunspell-en_US hypen hypen-en libmythes mythes-en
+    gimp
     vlc
     # Steam
     steam steam-native-runtime ttf-liberation
@@ -161,10 +165,11 @@ done
 
 echo "### Installing AUR Packages (interactive)..."
 AUR_PACKAGES=(
-    google-chrome
-    visual-studio-code-bin
     zfs-snap-manager
     docker nvidia-container-toolkit
+    google-chrome
+    visual-studio-code-bin
+    minecraft-launcher
     #ffmpeg-full
 )
 sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
