@@ -43,6 +43,7 @@ PACKAGES=(
     wine wine_gecko wine-mono winetricks
     # Applications
     libreoffice-still hunspell hunspell-en_US hypen hypen-en libmythes mythes-en
+    scribus
     gimp
     vlc
     # Steam
