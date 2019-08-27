@@ -30,13 +30,15 @@ echo "### Installing Packages..."
 sed -i 's/#Color/Color/g' /etc/pacman.conf
 PACKAGES=(
     # Misc
-    ccache
+    ccache rsync
     # Samba
     samba
     # Xorg
     xorg
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs sddm sddm-kcm
+    # Printing
+    cups cups-pdf ghostscript gsfonts
     # Wine
     wine wine_gecko wine-mono winetricks
     # Applications
@@ -135,6 +137,9 @@ cp -r /usr/share/X11/xorg.conf.d /etc/X11/
 
 echo "### Configuring KDE..."
 systemctl enable sddm.service
+
+echo "### Configuring Printing..."
+systemctl enable org.cups.cupsd.service
 
 echo "### Configuring Steam..."
 mkdir /bulk/steam
