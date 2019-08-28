@@ -51,6 +51,8 @@ PACKAGES=(
     vlc
     # Steam
     steam steam-native-runtime ttf-liberation
+    # KVM
+    qemu-headless qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager
 )
 AUR_PACKAGES=(
     zfs-snap-manager
@@ -114,6 +116,8 @@ zgenhostid $(hostid)
 
 zfs create -o mountpoint=/home z/home
 zfs create -o mountpoint=/var/lib/docker z/docker
+zfs create -o mountpoint=/var/lib/libvirt/images z/images
+zfs create z/images/scratch
 
 mkinitcpio -p linux-zen
 
@@ -222,6 +226,13 @@ then
     chown gustafson:gustafson /bulk/steam
 fi
 
+echo "### Configuring KVM..."
+# TODO - check kernel modules? https://wiki.archlinux.org/index.php/KVM#Kernel_support
+systemctl enable libvirtd.service
+virsh net-define "$(cd "$(dirname "$0")" ; pwd)/libvirt/internal-network.xml"
+virsh net-autostart internal
+virsh net-start internal
+
 echo "### Installing Yay..."
 useradd --user-group --home-dir /var/cache/builder --create-home --system builder
 chmod ug+ws /var/cache/builder
@@ -251,7 +262,7 @@ rm -rf /install
 rm /etc/systemd/system/getty@tty1.service.d/override.conf
 
 echo "### Making a snapshot..."
-for pool in boot z/root z/home z/docker
+for pool in boot z/root z/home z/docker z/images
 do
     zfs snapshot ${pool}@post-boot-install
 done
@@ -271,7 +282,7 @@ docker volume create portainer_data
 docker run --name portainer -d --restart always -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
 
 echo "### Making a snapshot..."
-for pool in boot z/root z/home z/docker
+for pool in boot z/root z/home z/docker z/images
 do
     zfs snapshot ${pool}@aur-pacakges-installed
 done

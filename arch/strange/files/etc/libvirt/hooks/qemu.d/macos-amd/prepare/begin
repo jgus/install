@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+if [ -f /tmp/macos-amd-ephemeral.img ]
+then
+    exit 0;
+fi
+
+apt -y install hfsprogs
+
+truncate -s 64G /tmp/macos-amd-ephemeral.img
+DEVICE=$(losetup -f --show /tmp/macos-amd-ephemeral.img)
+parted ${DEVICE} mklabel gpt
+parted ${DEVICE} mkpart primary hfs+ 1 100%
+mkfs.hfs -v Ephemeral ${DEVICE}p1
+mkdir -p /tmp/macos-amd-ephemeral
+mount ${DEVICE}p1 /tmp/macos-amd-ephemeral
+#mkdir -p /tmp/macos-amd-ephemeral/build
+#mkdir -p /tmp/macos-amd-ephemeral/build/loom-native
+#mkdir -p /tmp/macos-amd-ephemeral/build/loom-native-2
+#mkdir -p /tmp/macos-amd-ephemeral/clion
+#mkdir -p /tmp/macos-amd-ephemeral/clion/loom-native
+#mkdir -p /tmp/macos-amd-ephemeral/clion/loom-native-2
+chmod -R 777 /tmp/macos-amd-ephemeral
+umount /tmp/macos-amd-ephemeral
+losetup -d ${DEVICE}
