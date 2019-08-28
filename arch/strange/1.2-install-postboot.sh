@@ -8,7 +8,7 @@ set -e
 OTHER_USERS=()
 PACKAGES=(
     # Misc
-    ccache rsync p7zip
+    ccache rsync p7zip tmux
     # UPS
     apcupsd
     # Sensors
