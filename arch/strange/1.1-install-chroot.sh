@@ -92,7 +92,11 @@ echo "### Configuring RNG..."
 systemctl enable rngd.service
 
 echo "### Configuring SSH..."
-echo "PasswordAuthentication no" >>/etc/ssh/sshd_config
+cat << EOF >>/etc/ssh/sshd_config
+PasswordAuthentication no
+AllowAgentForwarding yes
+AllowTcpForwarding yes
+EOF
 systemctl enable sshd.socket
 mkdir -p /root/.ssh
 curl https://github.com/jgus.keys >> /root/.ssh/authorized_keys
