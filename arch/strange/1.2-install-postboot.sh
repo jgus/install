@@ -3,6 +3,7 @@ set -e
 
 # TODO
 # vnc?
+# https://wiki.archlinux.org/index.php/Fan_speed_control#Fancontrol_(lm-sensors)
 
 OTHER_USERS=()
 PACKAGES=(
@@ -10,6 +11,8 @@ PACKAGES=(
     ccache rsync p7zip
     # UPS
     apcupsd
+    # Sensors
+    lm_sensors nvme-cli
     # Samba
     samba
     # Xorg
@@ -176,6 +179,9 @@ EOF
 
 echo "### Configuring UPS..."
 systemctl enable apcupsd.service
+
+echo "### Configuring Sensors..."
+sensors-detect --auto
 
 echo "### Configuring Samba..."
 mkdir /beast

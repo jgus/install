@@ -5,6 +5,8 @@ OTHER_USERS=(Kayleigh John William Lyra)
 PACKAGES=(
     # Misc
     ccache rsync p7zip
+    # Sensors
+    lm_sensors nvme-cli
     # Samba
     samba
     # Xorg
@@ -172,6 +174,9 @@ cat <<EOF >>/etc/makepkg.conf
 MAKEFLAGS="-j$(nproc)"
 BUILDDIR=/tmp/makepkg
 EOF
+
+echo "### Configuring Sensors..."
+sensors-detect --auto
 
 echo "### Configuring Samba..."
 mkdir /beast
