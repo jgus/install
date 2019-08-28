@@ -7,6 +7,8 @@ SYSTEM_DEVICES=(
     ata-SanDisk_SDSSDX240GG25_131102401287
     ata-SanDisk_SDSSDX240GG25_131102402736
     )
+SYSTEM_Z_TYPE=raidz
+Z_PART_END="211GiB"
 BULK_DEVICE=ata-WDC_WD60EFRX-68MYMN1_WD-WX11DA4DJ3CN
 
 # System
@@ -34,8 +36,8 @@ do
     parted -s "${DEVICE}" -- mkpart primary 4MiB 512MiB
     parted -s "${DEVICE}" -- set 1 esp on
     parted -s "${DEVICE}" -- mkpart primary 512MiB 1024MiB
-    parted -s "${DEVICE}" -- mkpart primary 1024MiB 211GiB
-    parted -s "${DEVICE}" -- mkpart primary 211GiB 100%
+    parted -s "${DEVICE}" -- mkpart primary 1024MiB "${Z_PART_END}"
+    parted -s "${DEVICE}" -- mkpart primary "${Z_PART_END}" 100%
     EFI_DEVS+=("${DEVICE}-part1")
     BOOT_DEVS+=("${DEVICE}-part2")
     Z_DEVS+=("${DEVICE}-part3")
@@ -74,7 +76,7 @@ zpool create \
     -O compression=lz4 \
     -m none \
     -f \
-    boot raidz "${BOOT_DEVS[@]}"
+    boot ${SYSTEM_Z_TYPE} "${BOOT_DEVS[@]}"
 zfs unmount -a
 zpool export boot
 
@@ -91,7 +93,7 @@ zpool create \
     -O xattr=sa \
     -m none \
     -f \
-    z raidz "${Z_DEVS[@]}"
+    z ${SYSTEM_Z_TYPE} "${Z_DEVS[@]}"
 zfs create z/root
 zfs create -o canmount=off z/root/var
 zfs create z/root/var/cache
@@ -109,21 +111,24 @@ do
 done
 
 # Bulk
-zpool create \
-    -o ashift=12 \
-    -O atime=off \
-    -O compression=lz4 \
-    -O encryption=on \
-    -O keyformat=raw \
-    -O keylocation=file:///sys/firmware/efi/efivars/keyfile-d719b2cb-3d3a-4596-a3bc-dad00e67656f \
-    -O aclinherit=passthrough \
-    -O acltype=posixacl \
-    -O xattr=sa \
-    -m none \
-    -f \
-    bulk "${BULK_DEVICE}"
-zfs unmount -a
-zpool export bulk
+if [[ "${BULK_DEVICE}" != "" ]]
+then
+    zpool create \
+        -o ashift=12 \
+        -O atime=off \
+        -O compression=lz4 \
+        -O encryption=on \
+        -O keyformat=raw \
+        -O keylocation=file:///sys/firmware/efi/efivars/keyfile-d719b2cb-3d3a-4596-a3bc-dad00e67656f \
+        -O aclinherit=passthrough \
+        -O acltype=posixacl \
+        -O xattr=sa \
+        -m none \
+        -f \
+        bulk "${BULK_DEVICE}"
+    zfs unmount -a
+    zpool export bulk
+fi
 
 echo "### Done partitioning!"
 
@@ -143,11 +148,14 @@ mkdir -p /target/boot
 zpool import -R /target boot
 zpool set cachefile=/etc/zfs/zpool.cache boot
 zfs set mountpoint=/boot boot
-mkdir -p /target/bulk
-zpool import -R /target -l bulk
-zpool set cachefile=/etc/zfs/zpool.cache bulk
-zfs set mountpoint=/bulk bulk
-for i in 0 1 2 3
+if [[ "${BULK_DEVICE}" != "" ]]
+then
+    mkdir -p /target/bulk
+    zpool import -R /target -l bulk
+    zpool set cachefile=/etc/zfs/zpool.cache bulk
+    zfs set mountpoint=/bulk bulk
+fi
+for i in "${!EFI_DEVS[@]}"
 do
     mkdir -p "/target/efi/${i}"
     mount "/dev/disk/by-label/UEFI${i}" "/target/efi/${i}"
@@ -166,15 +174,29 @@ curl -s "https://www.archlinux.org/mirrorlist/?country=US&protocol=https&use_mir
 echo "### Pacstrapping..."
 pacstrap /target base linux-zen
 
-#genfstab -U /target >> /target/etc/fstab
+echo "### Copying preset files..."
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/files/ /target
 
+echo "### Configuring fstab..."
+#genfstab -U /target >> /target/etc/fstab
+echo "z/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
+for i in "${!EFI_DEVS[@]}"
+do
+    echo "LABEL=UEFI${i} /efi/${i} vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
+done
+for i in "${!EFI_DEVS[@]}"
+do
+    echo "LABEL=SWAP${i} none swap defaults,pri=100 0 0" >> /target/etc/fstab
+done
+
+echo "### Copying ZFS files..."
 mkdir -p /target/etc/zfs
 cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
 
 mkdir -p /target/etc/zsh
 cp /etc/zsh/* /target/etc/zsh
 
+echo "### Copying NVRAM-stored files..."
 "$(cd "$(dirname "$0")/.." ; pwd)/read-secrets.sh" /target/tmp/machine-secrets
 rsync -ar /target/tmp/machine-secrets/files/ /target || true
 
@@ -185,13 +207,19 @@ echo "### Unmounting..."
 umount -R /target
 zfs unmount -a
 
+echo "### Snapshotting..."
 for pool in boot z/root
 do
     zfs snapshot ${pool}@pre-boot-install
 done
 
+echo "### Exporting..."
 zpool export boot
 zpool export z
+if [[ "${BULK_DEVICE}" != "" ]]
+then
+    zpool export bulk
+fi
 
 echo "### Done installing! Rebooting..."
 reboot

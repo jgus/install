@@ -1,33 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "### Post-boot ZFS config..."
-zfs load-key -a
-zpool set cachefile=/etc/zfs/zpool.cache boot
-zpool set cachefile=/etc/zfs/zpool.cache z
-zfs mount -a
-
-#/etc/systemd/system/zfs-load-key.service
-#/etc/systemd/system/zfs-scrub@.timer
-#/etc/systemd/system/zfs-scrub@.service
-
-systemctl enable zfs.target
-systemctl enable zfs-import-cache
-systemctl enable zfs-mount
-systemctl enable zfs-import.target
-systemctl enable zfs-load-key.service
-systemctl enable zfs-scrub@boot.timer
-systemctl enable zfs-scrub@z.timer
-
-zgenhostid $(hostid)
-
-zfs create -o mountpoint=/home z/home
-zfs create -o mountpoint=/var/lib/docker z/docker
-
-mkinitcpio -p linux-zen
-
-echo "### Installing Packages..."
-sed -i 's/#Color/Color/g' /etc/pacman.conf
+OTHER_USERS=(Kayleigh John William Lyra)
 PACKAGES=(
     # Misc
     ccache rsync
@@ -49,53 +23,14 @@ PACKAGES=(
     # Steam
     steam steam-native-runtime ttf-liberation
 )
-pacman -S --needed --noconfirm "${PACKAGES[@]}"
-
-echo "### Adding users..."
-#/etc/sudoers.d/wheel
-#/etc/sudoers.d/builder
-useradd -D --shell /bin/zsh
-useradd --user-group --create-home --system gustafson
-for u in josh kayleigh john william lyra
-do
-    useradd --groups gustafson --user-group --create-home "${u}"
-    cat <<EOF | passwd "${u}"
-changeme
-changeme
-EOF
-    passwd -e "${u}"
-done
-
-usermod -a -G wheel josh
-mkdir -p /home/josh/.ssh
-curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
-chmod 400 /home/josh/.ssh/authorized_keys
-chown -R josh:josh /home/josh/.ssh
-
-chown -R gustafson:gustafson /bulk
-chmod 775 /bulk
-chmod g+s /bulk
-setfacl -d -m group:gustafson:rwx /bulk
-
-for U in Kayleigh John William Lyra
-do
-    u=$(echo "${U}" | awk '{print tolower($0)}')
-    chown -R ${u}:${u} /bulk/Kids/${U}
-    ln -s /bulk/Kids/${U} /home/${u}/Documents
-    mkdir -p /home/${u}/Pictures
-    ln -s /bulk/Photos/Favorites /home/${u}/Pictures/Favorites
-    ln -s /beast/Published/Photos /home/${u}/Pictures/Family
-    chown -R ${u}:${u} /home/${u}
-done
-
-echo "### Configuring makepkg..."
-sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
-cat <<EOF >>/etc/makepkg.conf 
-MAKEFLAGS="-j$(nproc)"
-BUILDDIR=/tmp/makepkg
-EOF
-
-echo "### Configuring Samba..."
+AUR_PACKAGES=(
+    zfs-snap-manager
+    docker nvidia-container-toolkit
+    google-chrome
+    visual-studio-code-bin
+    minecraft-launcher
+    #ffmpeg-full
+)
 BEAST_SHARES=(
     #Backup
     Brown
@@ -117,6 +52,107 @@ BEAST_SHARES=(
     Tools
     #Users
 )
+SEAT1_DEVICES=(
+    /sys/devices/pci0000:00/0000:00:03.0/0000:02:00.0/drm/card1
+    /sys/devices/pci0000:00/0000:00:03.0/0000:02:00.1/sound/card1
+    /sys/devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.3/4-1.3:1.1/0003:046D:C534.000B/0003:046D:4023.000C/input/input47
+    /sys/devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.3/4-1.3:1.1/0003:046D:C534.000B/0003:046D:4054.000D/input/input48
+)
+
+echo "### Post-boot ZFS config..."
+zfs load-key -a
+zpool set cachefile=/etc/zfs/zpool.cache boot
+zpool set cachefile=/etc/zfs/zpool.cache z
+if [[ -d /bulk ]]
+then
+    zpool set cachefile=/etc/zfs/zpool.cache bulk
+fi
+zfs mount -a
+
+#/etc/systemd/system/zfs-load-key.service
+#/etc/systemd/system/zfs-scrub@.timer
+#/etc/systemd/system/zfs-scrub@.service
+
+systemctl enable zfs.target
+systemctl enable zfs-import-cache
+systemctl enable zfs-mount
+systemctl enable zfs-import.target
+systemctl enable zfs-load-key.service
+systemctl enable zfs-scrub@boot.timer
+systemctl enable zfs-scrub@z.timer
+if [[ -d /bulk ]]
+then
+    systemctl enable zfs-scrub@bulk.timer
+fi
+
+zgenhostid $(hostid)
+
+zfs create -o mountpoint=/home z/home
+zfs create -o mountpoint=/var/lib/docker z/docker
+
+mkinitcpio -p linux-zen
+
+echo "### Installing Packages..."
+sed -i 's/#Color/Color/g' /etc/pacman.conf
+pacman -S --needed --noconfirm "${PACKAGES[@]}"
+
+echo "### Adding users..."
+#/etc/sudoers.d/wheel
+#/etc/sudoers.d/builder
+
+useradd -D --shell /bin/zsh
+
+useradd --user-group --create-home --system gustafson
+if [[ -d /bulk ]]
+then
+    chown -R gustafson:gustafson /bulk
+    chmod 775 /bulk
+    chmod g+s /bulk
+    setfacl -d -m group:gustafson:rwx /bulk
+fi
+
+for U in Josh "${OTHER_USERS[@]}"
+do
+    u=$(echo "${U}" | awk '{print tolower($0)}')
+    useradd --groups gustafson --user-group --create-home "${u}"
+    cat <<EOF | passwd "${u}"
+changeme
+changeme
+EOF
+    passwd -e "${u}"
+    mkdir -p /home/${u}/Pictures
+    if [[ -d /bulk ]]
+    then
+        ln -s /bulk/Photos/Favorites /home/${u}/Pictures/Favorites
+    fi
+    ln -s /beast/Published/Photos /home/${u}/Pictures/Family
+    chown -R ${u}:${u} /home/${u}
+done
+for U in "${OTHER_USERS[@]}"
+do
+    u=$(echo "${U}" | awk '{print tolower($0)}')
+    if [[ -d /bulk ]]
+    then
+        chown -R ${u}:${u} /bulk/Kids/${U}
+        ln -s /bulk/Kids/${U} /home/${u}/Documents
+    fi
+    chown -R ${u}:${u} /home/${u}
+done
+
+usermod -a -G wheel josh
+mkdir -p /home/josh/.ssh
+curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
+chmod 400 /home/josh/.ssh/authorized_keys
+chown -R josh:josh /home/josh/.ssh
+
+echo "### Configuring makepkg..."
+sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
+cat <<EOF >>/etc/makepkg.conf 
+MAKEFLAGS="-j$(nproc)"
+BUILDDIR=/tmp/makepkg
+EOF
+
+echo "### Configuring Samba..."
 mkdir /beast
 cat <<EOF >>/etc/fstab
 
@@ -128,13 +164,12 @@ do
     echo "//beast/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/beast 0 0" >>/etc/fstab
 done
 
-
 echo "### Configuring Xorg..."
-loginctl attach seat1 /sys/devices/pci0000:00/0000:00:03.0/0000:02:00.0/drm/card1
-loginctl attach seat1 /sys/devices/pci0000:00/0000:00:03.0/0000:02:00.1/sound/card1
-loginctl attach seat1 /sys/devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.3/4-1.3:1.1/0003:046D:C534.000B/0003:046D:4023.000C/input/input47
-loginctl attach seat1 /sys/devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.3/4-1.3:1.1/0003:046D:C534.000B/0003:046D:4054.000D/input/input48
 cp -r /usr/share/X11/xorg.conf.d /etc/X11/
+for d in "${SEAT1_DEVICES[@]}"
+do
+    loginctl attach seat1 "${d}"
+done
 
 echo "### Configuring KDE..."
 systemctl enable sddm.service
@@ -143,8 +178,11 @@ echo "### Configuring Printing..."
 systemctl enable org.cups.cupsd.service
 
 echo "### Configuring Steam..."
-mkdir /bulk/steam
-chown gustafson:gustafson /bulk/steam
+if [[ -d /bulk ]]
+then
+    mkdir /bulk/steam
+    chown gustafson:gustafson /bulk/steam
+fi
 
 echo "### Installing Yay..."
 useradd --user-group --home-dir /var/cache/builder --create-home --system builder
@@ -181,14 +219,6 @@ do
 done
 
 echo "### Installing AUR Packages (interactive)..."
-AUR_PACKAGES=(
-    zfs-snap-manager
-    docker nvidia-container-toolkit
-    google-chrome
-    visual-studio-code-bin
-    minecraft-launcher
-    #ffmpeg-full
-)
 sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 
 echo "### Configuring ZFS Snapshots..."
