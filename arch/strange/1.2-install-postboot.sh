@@ -1,10 +1,15 @@
 #!/bin/bash
 set -e
 
+# TODO
+# vnc?
+
 OTHER_USERS=()
 PACKAGES=(
     # Misc
     ccache rsync p7zip
+    # UPS
+    apcupsd
     # Samba
     samba
     # Xorg
@@ -168,6 +173,9 @@ cat <<EOF >>/etc/makepkg.conf
 MAKEFLAGS="-j$(nproc)"
 BUILDDIR=/tmp/makepkg
 EOF
+
+echo "### Configuring UPS..."
+systemctl enable apcupsd.service
 
 echo "### Configuring Samba..."
 mkdir /beast
