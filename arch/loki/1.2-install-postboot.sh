@@ -4,19 +4,40 @@ set -e
 OTHER_USERS=(Kayleigh John William Lyra)
 PACKAGES=(
     # Misc
-    ccache rsync
+    ccache rsync p7zip
     # Samba
     samba
     # Xorg
     xorg
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs sddm sddm-kcm
+    # Fonts
+    adobe-source-code-pro-fonts 
+    adobe-source-sans-pro-fonts 
+    font-bh-ttf
+    gnu-free-fonts 
+    noto-fonts 
+    ttf-anonymous-pro 
+    ttf-bitstream-vera 
+    ttf-croscore 
+    ttf-dejavu 
+    ttf-droid 
+    ttf-fantasque-sans-mono 
+    ttf-fira-code 
+    ttf-fira-mono 
+    ttf-gentium
+    ttf-hack 
+    ttf-inconsolata 
+    ttf-liberation 
+    ttf-linux-libertine 
+    ttf-roboto 
+    ttf-ubuntu-font-family 
     # Printing
     cups cups-pdf ghostscript gsfonts
     # Wine
     wine wine_gecko wine-mono winetricks
     # Applications
-    libreoffice-still hunspell hunspell-en_US hypen hypen-en libmythes mythes-en
+    libreoffice-still hunspell hunspell-en_US libmythes mythes-en
     scribus
     gimp
     vlc
@@ -163,6 +184,7 @@ do
     mkdir /beast/${share}
     echo "//beast/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/beast 0 0" >>/etc/fstab
 done
+mount -a
 
 echo "### Configuring Xorg..."
 cp -r /usr/share/X11/xorg.conf.d /etc/X11/
@@ -170,6 +192,12 @@ for d in "${SEAT1_DEVICES[@]}"
 do
     loginctl attach seat1 "${d}"
 done
+
+echo "### Fetching MS Fonts..."
+cd /tmp
+7z e "/beast/Software/MSDN/Windows/Windows 10/Win10_1809Oct_English_x64.iso" sources/install.wim
+7z e install.wim 1/Windows/{Fonts/"*".{ttf,ttc},System32/Licenses/neutral/"*"/"*"/license.rtf} -y -o/usr/share/fonts/WindowsFonts
+chmod 755 /usr/share/fonts/WindowsFonts
 
 echo "### Configuring KDE..."
 systemctl enable sddm.service
