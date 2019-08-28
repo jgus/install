@@ -65,7 +65,7 @@ pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
 
 echo "### Configuring boot image..."
 # Initramfs
-sed -i 's/MODULES=(\(.*\))/MODULES=(\1 efivarfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
+sed -i 's/MODULES=(\(.*\))/MODULES=(\1 efivarfs vfio_pci vfio vfio_iommu_type1 vfio_virqfd nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
 sed -i 's/HOOKS=(\(.*\))/HOOKS=(base udev autodetect modconf block zfs filesystems keyboard)/g' /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
@@ -78,7 +78,7 @@ do
     ZPOOL_VDEV_NAME_PATH=1 grub-install --target=x86_64-efi --efi-directory="/efi/${i}" --bootloader-id="GRUB-${i}"
 done
 popd
-sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 nvidia-drm.modeset=1 zfs=z/root"|g' /etc/default/grub
+sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 nvidia-drm.modeset=1 zfs=z/root intel_iommu=on iommu=pt"|g' /etc/default/grub
 #echo "GRUB_GFXPAYLOAD_LINUX=3840x1600x32" >>/etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 

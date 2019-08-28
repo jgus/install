@@ -52,7 +52,7 @@ PACKAGES=(
     # Steam
     steam steam-native-runtime ttf-liberation
     # KVM
-    qemu-headless qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager
+    qemu-headless qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager ovmf
 )
 AUR_PACKAGES=(
     zfs-snap-manager
@@ -85,6 +85,8 @@ BEAST_SHARES=(
     Users
 )
 SEAT1_DEVICES=()
+VFIO_IDS="1002:67ff,1002:aae0,10de:1b06,10de:10ef"
+
 
 echo "### Post-boot ZFS config..."
 zfs load-key -a
@@ -232,6 +234,13 @@ systemctl enable libvirtd.service
 virsh net-define "$(cd "$(dirname "$0")" ; pwd)/libvirt/internal-network.xml"
 virsh net-autostart internal
 virsh net-start internal
+echo "options vfio_pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio_pci.conf
+cat << EOF >> /etc/libvirt/qemu.conf
+nvram = [
+	"/usr/share/ovmf/x64/OVMF_CODE.fd:/usr/share/ovmf/x64/OVMF_VARS.fd"
+]
+EOF
+# TODO - hook for images on startup/shutdown?
 
 echo "### Installing Yay..."
 useradd --user-group --home-dir /var/cache/builder --create-home --system builder
