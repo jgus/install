@@ -184,7 +184,8 @@ do
 done
 for i in "${!EFI_DEVS[@]}"
 do
-    echo "LABEL=SWAP${i} none swap defaults,pri=100 0 0" >> /target/etc/fstab
+    echo "swap${i} ${EFI_DEVS[i]} /dev/urandom swap,cipher=aes-xts-plain64,size=256" >>/etc/crypttab
+    echo "/dev/mapper/swap${i} none swap defaults,pri=100 0 0" >> /target/etc/fstab
 done
 
 echo "### Copying ZFS files..."
