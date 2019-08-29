@@ -192,9 +192,6 @@ echo "### Copying ZFS files..."
 mkdir -p /target/etc/zfs
 cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
 
-mkdir -p /target/etc/zsh
-cp /etc/zsh/* /target/etc/zsh
-
 echo "### Copying NVRAM-stored files..."
 "$(cd "$(dirname "$0")/.." ; pwd)/read-secrets.sh" /target/tmp/machine-secrets
 rsync -ar /target/tmp/machine-secrets/files/ /target || true

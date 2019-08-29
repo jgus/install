@@ -13,7 +13,7 @@ PACKAGES=(
     # ZFS
     zfs-dkms
     # General
-    git zsh
+    git zsh grml-zsh-config
     # RNG
     rng-tools
     # OpenSSH
