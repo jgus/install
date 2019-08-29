@@ -1,0 +1,13 @@
+[Unit]
+Description=LibVirt Snapshots
+BindsTo=libvirtd.service
+Before=libvirtd.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/zfs snapshot z/images@$(/usr/bin/date +%Y%m%dT%H%M%S)-libvirt-start
+RemainAfterExit=true
+ExecStop=/usr/bin/zfs snapshot z/images@$(/usr/bin/date +%Y%m%dT%H%M%S)-libvirt-stop
+
+[Install]
+WantedBy=libvirtd.service
