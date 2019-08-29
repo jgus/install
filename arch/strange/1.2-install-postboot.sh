@@ -40,7 +40,9 @@ PACKAGES=(
     ttf-liberation 
     ttf-linux-libertine 
     ttf-roboto 
-    ttf-ubuntu-font-family 
+    ttf-ubuntu-font-family
+    # Color
+    displaycal colord colord-kde
     # Printing
     cups cups-pdf ghostscript gsfonts
     # Wine
