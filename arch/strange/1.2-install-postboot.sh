@@ -9,6 +9,7 @@ OTHER_USERS=()
 PACKAGES=(
     # Misc
     ccache rsync p7zip tmux
+    clang llvm lldb gcc gdb cmake ninja
     # UPS
     apcupsd
     # Sensors
@@ -45,10 +46,14 @@ PACKAGES=(
     # Wine
     wine wine_gecko wine-mono winetricks
     # Applications
+    copyq
     libreoffice-still hunspell hunspell-en_US libmythes mythes-en
     scribus
     gimp
     vlc
+    mkvtoolnix-cli mkvtoolnix-gui
+    youtube-dl
+    speedtest-cli
     # Steam
     steam steam-native-runtime ttf-liberation
     # KVM
@@ -61,6 +66,12 @@ AUR_PACKAGES=(
     google-chrome
     visual-studio-code-bin
     makemkv
+    clion clion-gdb clion-jre clion-lldb
+    android-studio 
+    gitahead guitar
+    bcompare bcompare-kde5
+    slack-desktop
+    zoom
     #minecraft-launcher
     #ffmpeg-full
 )
