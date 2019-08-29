@@ -4,7 +4,7 @@ set -e
 OTHER_USERS=(Kayleigh John William Lyra)
 PACKAGES=(
     # Misc
-    ccache rsync p7zip
+    ccache rsync p7zip tmux
     # Sensors
     lm_sensors nvme-cli
     # Samba
@@ -230,6 +230,7 @@ echo "### Configuring Environment..."
 cat <<EOF >>/etc/profile
 export EDITOR=nano
 alias yay='sudo -u builder yay'
+alias yayinst='sudo -u builder yay -Syu --needed'
 EOF
 
 cat <<EOF
@@ -261,6 +262,7 @@ systemctl enable zfs-snap-manager.service
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
 systemctl enable docker.service
+systemctl enable docker-snapshot.service
 systemctl start docker.service
 docker volume create portainer_data
 docker run --name portainer -d --restart always -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
