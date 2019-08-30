@@ -58,6 +58,10 @@ PACKAGES=(
     speedtest-cli
     # Steam
     steam steam-native-runtime ttf-liberation
+    # Games
+    dosbox
+    scummvm
+    retroarch
     # KVM
     qemu-headless qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager ovmf
 )
