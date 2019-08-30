@@ -304,6 +304,7 @@ echo "### Configuring ZFS Snapshots..."
 zfs set com.sun:auto-snapshot=true boot
 zfs set com.sun:auto-snapshot=true z
 zfs set com.sun:auto-snapshot=false z/root/var
+zfs set com.sun:auto-snapshot=false z/images/scratch
 sed -i 's/--keep=[[:digit:]]\+/--keep=12/g' /usr/lib/systemd/system/zfs-auto-snapshot-monthly.service
 sed -i 's/--keep=[[:digit:]]\+/--keep=12/g' /usr/lib/systemd/system/zfs-auto-snapshot-weekly.service
 sed -i 's/--keep=[[:digit:]]\+/--keep=28/g' /usr/lib/systemd/system/zfs-auto-snapshot-daily.service

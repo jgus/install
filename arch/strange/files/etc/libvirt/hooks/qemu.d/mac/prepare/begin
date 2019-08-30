@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
+MACHINE=mac
+IMAGES=(${MACHINE} ${MACHINE}-data)
+
 LABEL=$(date +%Y%m%dT%H%M%S)-start
 
-for s in mac mac-data
+for s in "${IMAGES[@]}"
 do
     zfs snapshot z/images/${s}@${LABEL}
 done

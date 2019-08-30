@@ -16,12 +16,15 @@ MISC="${@:4}"
 
 BASEDIR="$(dirname $0)"
 
-HOOKPATH="${BASEDIR}/qemu.d/${GUEST_NAME}/${HOOK_NAME}/${STATE_NAME}"
-
 set -e # If a script exits with an error, we should as well.
 
-if [ -f "${HOOKPATH}" ]; then
-    eval "${HOOKPATH}" "$@"
-elif [ -d "${HOOKPATH}" ]; then
-    find -L "${HOOKPATH}" -maxdepth 1 -type f -executable -exec {} "$@" \;
-fi
+for HOOKPATH in ${BASEDIR}/qemu.d/{_,${GUEST_NAME}}/{_,${HOOK_NAME}}/{_,${STATE_NAME}}
+do
+    if [ -f "${HOOKPATH}" ]
+    then
+        eval "${HOOKPATH}" "$@"
+    elif [ -d "${HOOKPATH}" ]
+    then
+        find -L "${HOOKPATH}" -maxdepth 1 -type f -executable -exec {} "$@" \;
+    fi
+done
