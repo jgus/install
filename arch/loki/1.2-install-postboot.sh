@@ -47,7 +47,7 @@ PACKAGES=(
     steam steam-native-runtime ttf-liberation
 )
 AUR_PACKAGES=(
-    zfs-snap-manager
+    zfs-auto-snapshot
     docker nvidia-container-toolkit
     google-chrome
     visual-studio-code-bin
@@ -256,8 +256,19 @@ echo "### Installing AUR Packages (interactive)..."
 sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 
 echo "### Configuring ZFS Snapshots..."
-#/etc/zfssnapmanager.cfg
-systemctl enable zfs-snap-manager.service
+zfs set com.sun:auto-snapshot=true boot
+zfs set com.sun:auto-snapshot=true bulk
+zfs set com.sun:auto-snapshot=true z
+zfs set com.sun:auto-snapshot=false z/root/var
+sed -i 's/--keep=[[:digit:]]\+/--keep=12/g' /usr/lib/systemd/system/zfs-auto-snapshot-monthly.service
+sed -i 's/--keep=[[:digit:]]\+/--keep=12/g' /usr/lib/systemd/system/zfs-auto-snapshot-weekly.service
+sed -i 's/--keep=[[:digit:]]\+/--keep=28/g' /usr/lib/systemd/system/zfs-auto-snapshot-daily.service
+sed -i 's/--keep=[[:digit:]]\+/--keep=36/g' /usr/lib/systemd/system/zfs-auto-snapshot-hourly.service
+sed -i 's/--keep=[[:digit:]]\+/--keep=32/g' /usr/lib/systemd/system/zfs-auto-snapshot-frequent.service
+for i in monthly weekly daily hourly frequent
+do
+    systemctl enable zfs-auto-snapshot-${i}.timer
+done
 
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
