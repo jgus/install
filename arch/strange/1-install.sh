@@ -85,7 +85,7 @@ zpool create \
     -O compression=lz4 \
     -O encryption=on \
     -O keyformat=raw \
-    -O keylocation=file:///sys/firmware/efi/efivars/keyfile-d719b2cb-3d3a-4596-a3bc-dad00e67656f \
+    -O keylocation=file:///sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b \
     -O aclinherit=passthrough \
     -O acltype=posixacl \
     -O xattr=sa \
@@ -117,7 +117,7 @@ then
         -O compression=lz4 \
         -O encryption=on \
         -O keyformat=raw \
-        -O keylocation=file:///sys/firmware/efi/efivars/keyfile-d719b2cb-3d3a-4596-a3bc-dad00e67656f \
+        -O keylocation=file:///sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b \
         -O aclinherit=passthrough \
         -O acltype=posixacl \
         -O xattr=sa \
