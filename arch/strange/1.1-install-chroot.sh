@@ -73,9 +73,10 @@ mkinitcpio -p linux-zen
 
 echo "### Installing bootloader..."
 pushd /efi
+export ZPOOL_VDEV_NAME_PATH=1
 for i in *
 do
-    ZPOOL_VDEV_NAME_PATH=1 grub-install --target=x86_64-efi --efi-directory="/efi/${i}" --bootloader-id="GRUB-${i}"
+    grub-install --target=x86_64-efi --efi-directory="/efi/${i}" --bootloader-id="GRUB-${i}"
 done
 popd
 sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 nvidia-drm.modeset=1 zfs=z/root intel_iommu=on iommu=pt"|g' /etc/default/grub
