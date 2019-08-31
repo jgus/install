@@ -5,4 +5,4 @@ Description=zfs replication
 Nice=19
 IOSchedulingClass=idle
 KillSignal=SIGINT
-ExecStart=/root/opt/bin/loki/sync-to-beast.sh
+ExecStart=/root/opt/bin/strange/sync-to-beast.sh

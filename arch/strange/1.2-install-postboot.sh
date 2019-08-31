@@ -301,15 +301,11 @@ echo "### Installing AUR Packages (interactive)..."
 sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 
 echo "### Configuring ZFS Snapshots..."
+# /etc/systemd/system/zfs-auto-snapshot-*.service.d
 zfs set com.sun:auto-snapshot=true boot
 zfs set com.sun:auto-snapshot=true z
 zfs set com.sun:auto-snapshot=false z/root/var
 zfs set com.sun:auto-snapshot=false z/images/scratch
-sed -i 's/--keep=[[:digit:]]\+/--keep=12/g' /usr/lib/systemd/system/zfs-auto-snapshot-monthly.service
-sed -i 's/--keep=[[:digit:]]\+/--keep=12/g' /usr/lib/systemd/system/zfs-auto-snapshot-weekly.service
-sed -i 's/--keep=[[:digit:]]\+/--keep=28/g' /usr/lib/systemd/system/zfs-auto-snapshot-daily.service
-sed -i 's/--keep=[[:digit:]]\+/--keep=36/g' /usr/lib/systemd/system/zfs-auto-snapshot-hourly.service
-sed -i 's/--keep=[[:digit:]]\+/--keep=32/g' /usr/lib/systemd/system/zfs-auto-snapshot-frequent.service
 for i in monthly weekly daily hourly frequent
 do
     systemctl enable zfs-auto-snapshot-${i}.timer
