@@ -1,5 +1,6 @@
 [Match]
-Name=en*
+#MACAddress=d8:50:e6:c4:19:a9 d8:50:e6:c2:dd:f5
+MACAddress=d8:50:e6:c4:19:a9
 
 [Network]
 Bridge=br0
