@@ -45,8 +45,8 @@ EOF
 
 echo "### Configuring network..."
 systemctl disable dhcpcd.service
-#/etc/netctl/bridge
-netctl enable bridge
+#/etc/systemd/network/
+systemctl enable systemd-networkd.service
 
 echo "### Installing pacakages..."
 cat <<EOF >>/etc/pacman.conf

@@ -1,7 +1,0 @@
-Description="Bridge Connection"
-Interface=br0
-Connection=bridge
-BindsToInterfaces=(eno1 enp11s0)
-IP=no
-ExecUpPost="ip link set dev br0 address $(cat /sys/class/net/eno1/address); IP=dhcp; ip_set"
-ExecDownPre="IP=dhcp"
