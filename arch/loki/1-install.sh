@@ -45,13 +45,13 @@ do
 done
 sleep 1
 
-echo "### Formatting EFI partitions..."
+echo "### Formatting EFI partitions... (${EFI_DEVS[@]})"
 for i in "${!EFI_DEVS[@]}"
 do
     mkfs.fat -F 32 -n "UEFI${i}" "${EFI_DEVS[$i]}"
 done
 
-echo "### Creating zpool boot..."
+echo "### Creating zpool boot... (${BOOT_DEVS[@]})"
 zpool create \
     -d \
     -o feature@allocation_classes=enabled \
@@ -80,7 +80,7 @@ zpool create \
 zfs unmount -a
 zpool export boot
 
-echo "### Creating zpool z..."
+echo "### Creating zpool z... (${Z_DEVS[@]})"
 zpool create \
     -o ashift=12 \
     -O atime=off \
@@ -104,7 +104,7 @@ zfs unmount -a
 zpool set bootfs=z/root z
 zpool export z
 
-echo "### Setting up swap..."
+echo "### Setting up swap... (${SWAP_DEVS[@]})"
 for i in "${!SWAP_DEVS[@]}"
 do
     mkswap -L"SWAP${i}" "${SWAP_DEVS[$i]}"
@@ -186,7 +186,7 @@ do
 done
 for i in "${!SWAP_DEVS[@]}"
 do
-    echo "swap${i} ${SWAP_DEVS[i]} /dev/urandom swap,cipher=aes-xts-plain64,size=256" >>/etc/crypttab
+    echo "swap${i} ${SWAP_DEVS[i]} /dev/urandom swap,cipher=aes-xts-plain64,size=256" >>/target/etc/crypttab
     echo "/dev/mapper/swap${i} none swap defaults,pri=100 0 0" >> /target/etc/fstab
 done
 
