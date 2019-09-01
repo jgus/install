@@ -7,8 +7,6 @@ PACKAGES=(
     ccache rsync p7zip tmux
     # Sensors
     lm_sensors nvme-cli
-    # Samba
-    samba
     # Xorg
     xorg
     # KDE
@@ -53,27 +51,6 @@ AUR_PACKAGES=(
     visual-studio-code-bin
     minecraft-launcher
     #ffmpeg-full
-)
-BEAST_SHARES=(
-    #Backup
-    Brown
-    #Comics
-    #Local Backup
-    Media
-    #Media-Storage
-    #Minecraft
-    Music
-    #Peer
-    #Photos
-    #Photos-Incoming
-    #Private
-    #Proxmox-Images
-    Published
-    Software
-    Storage
-    Temp
-    Tools
-    #Users
 )
 SEAT1_DEVICES=(
     /sys/devices/pci0000:00/0000:00:03.0/0000:02:00.0/drm/card1
@@ -177,19 +154,6 @@ EOF
 
 echo "### Configuring Sensors..."
 sensors-detect --auto
-
-echo "### Configuring Samba..."
-mkdir /beast
-cat <<EOF >>/etc/fstab
-
-# Beast
-EOF
-for share in "${BEAST_SHARES[@]}"
-do
-    mkdir /beast/${share}
-    echo "//beast/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/beast 0 0" >>/etc/fstab
-done
-mount -a
 
 echo "### Configuring Xorg..."
 cp -r /usr/share/X11/xorg.conf.d /etc/X11/

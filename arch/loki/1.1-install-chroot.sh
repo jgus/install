@@ -18,6 +18,29 @@ PACKAGES=(
     rng-tools
     # OpenSSH
     openssh
+    # Samba
+    samba
+)
+BEAST_SHARES=(
+    #Backup
+    Brown
+    #Comics
+    #Local Backup
+    Media
+    #Media-Storage
+    #Minecraft
+    Music
+    #Peer
+    #Photos
+    #Photos-Incoming
+    #Private
+    #Proxmox-Images
+    Published
+    Software
+    Storage
+    Temp
+    Tools
+    #Users
 )
 
 # Password
@@ -103,6 +126,18 @@ systemctl enable sshd.socket
 mkdir -p /root/.ssh
 curl https://github.com/jgus.keys >> /root/.ssh/authorized_keys
 chmod 400 /root/.ssh/authorized_keys
+
+echo "### Configuring Samba..."
+mkdir /beast
+cat <<EOF >>/etc/fstab
+
+# Beast
+EOF
+for share in "${BEAST_SHARES[@]}"
+do
+    mkdir /beast/${share}
+    echo "//beast/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/beast 0 0" >>/etc/fstab
+done
 
 echo "### Preparing post-boot install..."
 #/etc/systemd/system/getty@tty1.service.d/override.conf

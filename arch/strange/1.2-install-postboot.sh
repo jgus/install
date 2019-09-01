@@ -14,8 +14,6 @@ PACKAGES=(
     apcupsd
     # Sensors
     lm_sensors nvme-cli
-    # Samba
-    samba
     # Xorg
     xorg
     # KDE
@@ -81,27 +79,6 @@ AUR_PACKAGES=(
     zoom
     #minecraft-launcher
     #ffmpeg-full
-)
-BEAST_SHARES=(
-    Backup
-    Brown
-    Comics
-    #Local Backup
-    Media
-    #Media-Storage
-    #Minecraft
-    Music
-    Peer
-    Photos
-    Photos-Incoming
-    Private
-    #Proxmox-Images
-    Published
-    Software
-    Storage
-    Temp
-    Tools
-    Users
 )
 SEAT1_DEVICES=()
 VFIO_IDS="1002:67ff,1002:aae0,10de:1b06,10de:10ef"
@@ -207,19 +184,6 @@ systemctl enable apcupsd.service
 
 echo "### Configuring Sensors..."
 sensors-detect --auto
-
-echo "### Configuring Samba..."
-mkdir /beast
-cat <<EOF >>/etc/fstab
-
-# Beast
-EOF
-for share in "${BEAST_SHARES[@]}"
-do
-    mkdir /beast/${share}
-    echo "//beast/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/beast 0 0" >>/etc/fstab
-done
-mount -a
 
 echo "### Configuring Xorg..."
 cp -r /usr/share/X11/xorg.conf.d /etc/X11/
