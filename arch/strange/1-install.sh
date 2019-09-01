@@ -163,7 +163,7 @@ cp -rf "$(cd "$(dirname "$0")" ; pwd)"/* /target/install
 mkdir -p /target/tmp
 mount -t tmpfs tmpfs /target/tmp
 
-exec > >(tee -a /target/var/log/install.log) 2>&1
+exec 2>&1 > >(tee -a /target/var/log/install.log)
 echo "### Starting Log..."
 df -h
 mount | grep target

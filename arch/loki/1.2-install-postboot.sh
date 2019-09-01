@@ -60,7 +60,7 @@ SEAT1_DEVICES=(
 )
 
 
-exec > >(tee -a /var/log/install.log) 2>&1
+exec 2>&1 > >(tee -a /var/log/install.log)
 echo "### Starting Log..."
 
 echo "### Post-boot ZFS config..."
