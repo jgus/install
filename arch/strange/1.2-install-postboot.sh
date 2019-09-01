@@ -84,7 +84,7 @@ SEAT1_DEVICES=()
 VFIO_IDS="1002:67ff,1002:aae0,10de:1b06,10de:10ef"
 
 
-exec 2>&1 > >(tee -a /var/log/install.log)
+exec > >(tee -a /var/log/install.log) 2>&1
 echo "### Starting Log..."
 
 echo "### Post-boot ZFS config..."
