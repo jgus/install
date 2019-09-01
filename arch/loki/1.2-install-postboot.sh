@@ -59,6 +59,10 @@ SEAT1_DEVICES=(
     /sys/devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.3/4-1.3:1.1/0003:046D:C534.000B/0003:046D:4054.000D/input/input48
 )
 
+
+exec &> >(tee -a /var/log/install.log)
+echo "### Starting Log..."
+
 echo "### Post-boot ZFS config..."
 zfs load-key -a
 zpool set cachefile=/etc/zfs/zpool.cache boot

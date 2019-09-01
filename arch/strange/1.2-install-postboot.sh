@@ -84,6 +84,9 @@ SEAT1_DEVICES=()
 VFIO_IDS="1002:67ff,1002:aae0,10de:1b06,10de:10ef"
 
 
+exec &> >(tee -a /var/log/install.log)
+echo "### Starting Log..."
+
 echo "### Post-boot ZFS config..."
 zfs load-key -a
 zpool set cachefile=/etc/zfs/zpool.cache boot
