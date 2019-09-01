@@ -43,24 +43,24 @@ PACKAGES=(
     displaycal colord colord-kde
     # Printing
     cups cups-pdf ghostscript gsfonts
-    # Wine
-    wine wine_gecko wine-mono winetricks
-    # Applications
-    copyq
-    libreoffice-still hunspell hunspell-en_US libmythes mythes-en
-    scribus
-    gimp
-    vlc
-    mkvtoolnix-cli mkvtoolnix-gui
-    youtube-dl
-    speedtest-cli
-    # Steam
-    steam steam-native-runtime ttf-liberation
-    # Games
-    dosbox
-    scummvm
-    retroarch
-    dolphin-emu
+    # # Wine
+    # wine wine_gecko wine-mono winetricks
+    # # Applications
+    # copyq
+    # libreoffice-still hunspell hunspell-en_US libmythes mythes-en
+    # scribus
+    # gimp
+    # vlc
+    # mkvtoolnix-cli mkvtoolnix-gui
+    # youtube-dl
+    # speedtest-cli
+    # # Steam
+    # steam steam-native-runtime ttf-liberation
+    # # Games
+    # dosbox
+    # scummvm
+    # retroarch
+    # dolphin-emu
     # KVM
     qemu-headless qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager ovmf
 )
@@ -70,15 +70,15 @@ AUR_PACKAGES=(
     docker nvidia-container-toolkit
     google-chrome
     visual-studio-code-bin
-    makemkv
-    clion clion-gdb clion-jre clion-lldb
-    android-studio 
-    gitahead guitar
-    bcompare bcompare-kde5
-    slack-desktop
-    zoom
-    #minecraft-launcher
-    #ffmpeg-full
+    # makemkv
+    # clion clion-gdb clion-jre clion-lldb
+    # android-studio 
+    # gitahead guitar
+    # bcompare bcompare-kde5
+    # slack-desktop
+    # zoom
+    # #minecraft-launcher
+    # #ffmpeg-full
 )
 SEAT1_DEVICES=()
 VFIO_IDS="1002:67ff,1002:aae0,10de:1b06,10de:10ef"
