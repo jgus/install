@@ -60,9 +60,6 @@ SEAT1_DEVICES=(
 )
 
 
-exec >> /var/log/install.log 2>&1 && tail /var/log/install.log
-echo "### Starting Log..."
-
 echo "### Post-boot ZFS config..."
 zfs load-key -a
 zpool set cachefile=/etc/zfs/zpool.cache boot
