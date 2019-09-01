@@ -18,27 +18,27 @@ PACKAGES=(
     xorg
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs sddm sddm-kcm
-    # Fonts
-    adobe-source-code-pro-fonts 
-    adobe-source-sans-pro-fonts 
-    font-bh-ttf
-    gnu-free-fonts 
-    noto-fonts 
-    ttf-anonymous-pro 
-    ttf-bitstream-vera 
-    ttf-croscore 
-    ttf-dejavu 
-    ttf-droid 
-    ttf-fantasque-sans-mono 
-    ttf-fira-code 
-    ttf-fira-mono 
-    ttf-gentium
-    ttf-hack 
-    ttf-inconsolata 
-    ttf-liberation 
-    ttf-linux-libertine 
-    ttf-roboto 
-    ttf-ubuntu-font-family
+    # # Fonts
+    # adobe-source-code-pro-fonts 
+    # adobe-source-sans-pro-fonts 
+    # font-bh-ttf
+    # gnu-free-fonts 
+    # noto-fonts 
+    # ttf-anonymous-pro 
+    # ttf-bitstream-vera 
+    # ttf-croscore 
+    # ttf-dejavu 
+    # ttf-droid 
+    # ttf-fantasque-sans-mono 
+    # ttf-fira-code 
+    # ttf-fira-mono 
+    # ttf-gentium
+    # ttf-hack 
+    # ttf-inconsolata 
+    # ttf-liberation 
+    # ttf-linux-libertine 
+    # ttf-roboto 
+    # ttf-ubuntu-font-family
     # Color
     displaycal colord colord-kde
     # Printing
@@ -195,11 +195,11 @@ do
     loginctl attach seat1 "${d}"
 done
 
-echo "### Fetching MS Fonts..."
-cd /tmp
-7z e "/beast/Software/MSDN/Windows/Windows 10/Win10_1809Oct_English_x64.iso" sources/install.wim
-7z e install.wim 1/Windows/{Fonts/"*".{ttf,ttc},System32/Licenses/neutral/"*"/"*"/license.rtf} -y -o/usr/share/fonts/WindowsFonts
-chmod 755 /usr/share/fonts/WindowsFonts
+# echo "### Fetching MS Fonts..."
+# cd /tmp
+# 7z e "/beast/Software/MSDN/Windows/Windows 10/Win10_1809Oct_English_x64.iso" sources/install.wim
+# 7z e install.wim 1/Windows/{Fonts/"*".{ttf,ttc},System32/Licenses/neutral/"*"/"*"/license.rtf} -y -o/usr/share/fonts/WindowsFonts
+# chmod 755 /usr/share/fonts/WindowsFonts
 
 echo "### Configuring KDE..."
 systemctl enable sddm.service
