@@ -232,9 +232,8 @@ done
 
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
-systemctl enable docker.service
+systemctl enable --now docker.service
 systemctl enable docker-snapshot.service
-systemctl start docker.service
 docker volume create portainer_data
 docker run --name portainer -d --restart always -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
 
