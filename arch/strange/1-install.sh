@@ -182,9 +182,9 @@ for i in "${!EFI_DEVS[@]}"
 do
     echo "LABEL=UEFI${i} /efi/${i} vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
 done
-for i in "${!EFI_DEVS[@]}"
+for i in "${!SWAP_DEVS[@]}"
 do
-    echo "swap${i} ${EFI_DEVS[i]} /dev/urandom swap,cipher=aes-xts-plain64,size=256" >>/etc/crypttab
+    echo "swap${i} ${SWAP_DEVS[i]} /dev/urandom swap,cipher=aes-xts-plain64,size=256" >>/etc/crypttab
     echo "/dev/mapper/swap${i} none swap defaults,pri=100 0 0" >> /target/etc/fstab
 done
 
