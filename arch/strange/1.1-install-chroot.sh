@@ -23,25 +23,25 @@ PACKAGES=(
     samba
 )
 BEAST_SHARES=(
-    Backup
-    Brown
-    Comics
+    #Backup
+    #Brown
+    #Comics
     #Local Backup
-    Media
+    #Media
     #Media-Storage
     #Minecraft
-    Music
-    Peer
-    Photos
-    Photos-Incoming
-    Private
+    #Music
+    #Peer
+    #Photos
+    #Photos-Incoming
+    #Private
     #Proxmox-Images
-    Published
+    #Published
     Software
-    Storage
+    #Storage
     Temp
-    Tools
-    Users
+    #Tools
+    #Users
 )
 
 # Password

@@ -10,6 +10,8 @@ PACKAGES=(
     # Misc
     ccache rsync p7zip tmux
     clang llvm lldb gcc gdb cmake ninja
+    # Samba
+    smbnetfs
     # UPS
     apcupsd
     # Sensors
@@ -158,7 +160,7 @@ EOF
     then
         ln -s /bulk/Photos/Favorites /home/${u}/Pictures/Favorites
     fi
-    ln -s /beast/Published/Photos /home/${u}/Pictures/Family
+    #ln -s /beast/Published/Photos /home/${u}/Pictures/Family
     chown -R ${u}:${u} /home/${u}
 done
 for U in "${OTHER_USERS[@]}"
