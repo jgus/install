@@ -80,7 +80,13 @@ AUR_PACKAGES=(
     # #minecraft-launcher
     # #ffmpeg-full
 )
-SEAT1_DEVICES=()
+SEAT1_DEVICES=(
+    /sys/devices/pci0000:00/0000:00:1c.6/0000:05:00.0/0000:06:00.0/drm/card0
+    /sys/devices/pci0000:00/0000:00:1c.6/0000:05:00.0/0000:06:00.0/graphics/fb0
+    /sys/devices/pci0000:00/0000:00:14.0/usb1
+    /sys/devices/pci0000:00/0000:00:1f.3/sound/card0
+    /sys/devices/platform/pcspkr/input/input29
+)
 VFIO_IDS="1002:67ff,1002:aae0,10de:1b06,10de:10ef"
 
 
