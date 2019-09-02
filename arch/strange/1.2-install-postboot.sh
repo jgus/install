@@ -192,7 +192,6 @@ echo "### Configuring Sensors..."
 sensors-detect --auto
 
 echo "### Configuring Xorg..."
-cp -r /usr/share/X11/xorg.conf.d /etc/X11/
 for d in "${SEAT1_DEVICES[@]}"
 do
     loginctl attach seat1 "${d}"
