@@ -70,7 +70,7 @@ AUR_PACKAGES=(
     docker nvidia-container-toolkit
     google-chrome
     visual-studio-code-bin
-    # makemkv
+    makemkv ccextractor
     # clion clion-gdb clion-jre clion-lldb
     # android-studio 
     # gitahead guitar
