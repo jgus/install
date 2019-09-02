@@ -43,26 +43,26 @@ PACKAGES=(
     displaycal colord colord-kde
     # Printing
     cups cups-pdf ghostscript gsfonts
-    # # Wine
-    # wine wine_gecko wine-mono winetricks
-    # # Applications
-    # copyq
-    # libreoffice-still hunspell hunspell-en_US libmythes mythes-en
-    # scribus
-    # gimp
-    # vlc
-    # mkvtoolnix-cli mkvtoolnix-gui
-    # youtube-dl
-    # speedtest-cli
-    # # Steam
-    # steam steam-native-runtime ttf-liberation
-    # # Games
-    # dosbox
-    # scummvm
-    # retroarch
-    # dolphin-emu
+    # Wine
+    wine wine_gecko wine-mono winetricks
+    # Applications
+    copyq
+    libreoffice-still hunspell hunspell-en_US libmythes mythes-en
+    scribus
+    gimp
+    vlc
+    mkvtoolnix-cli mkvtoolnix-gui
+    youtube-dl
+    speedtest-cli
+    # Steam
+    steam steam-native-runtime ttf-liberation
+    # Games
+    dosbox
+    scummvm
+    retroarch
+    dolphin-emu
     # KVM
-    qemu-headless qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager ovmf
+    qemu qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager ovmf
 )
 AUR_PACKAGES=(
     zfs-auto-snapshot
