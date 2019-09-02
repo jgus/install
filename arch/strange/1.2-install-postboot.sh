@@ -87,7 +87,6 @@ SEAT1_DEVICES=(
     /sys/devices/pci0000:00/0000:00:1f.3/sound/card0
     /sys/devices/platform/pcspkr/input/input29
 )
-VFIO_IDS="1002:67ff,1002:aae0,10de:1b06,10de:10ef"
 
 
 echo "### Post-boot ZFS config..."
@@ -224,7 +223,6 @@ systemctl enable libvirtd-snapshot.service
 virsh net-define "$(cd "$(dirname "$0")" ; pwd)/libvirt/internal-network.xml"
 virsh net-autostart internal
 virsh net-start internal
-echo "options vfio_pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio_pci.conf
 cat << EOF >> /etc/libvirt/qemu.conf
 nvram = [
 	"/usr/share/ovmf/x64/OVMF_CODE.fd:/usr/share/ovmf/x64/OVMF_VARS.fd"

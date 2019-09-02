@@ -3,6 +3,7 @@ set -e
 
 TIME_ZONE=America/Denver
 HOSTNAME=strange
+VFIO_IDS="1002:67ff,1002:aae0"
 PACKAGES=(
     # Kernel
     linux-zen-headers dkms base-devel
@@ -86,6 +87,9 @@ pacman-key --lsign-key F75D9D76
 # remove default kernel (we don't want to bother building modules for it)
 pacman -Rs --noconfirm linux
 pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
+
+echo "### Configuring VFIO..."
+echo "options vfio_pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio.conf
 
 echo "### Configuring boot image..."
 # Initramfs
