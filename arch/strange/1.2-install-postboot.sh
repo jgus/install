@@ -15,7 +15,7 @@ PACKAGES=(
     # Sensors
     lm_sensors nvme-cli
     # Xorg
-    xorg lightdm lightdm-gtk-greeter
+    xorg lightdm lightdm-gtk-greeter tigervnc
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs
     # # Fonts
@@ -204,6 +204,18 @@ done
 # chmod 755 /usr/share/fonts/WindowsFonts
 
 echo "### Configuring LightDM..."
+cat << EOF >>/etc/lightdm/lightdm.conf
+
+### Local Config
+
+[VNCServer]
+enabled=true
+command=Xvnc -rfbauth /etc/vncpasswd
+port=5900
+width=1440
+height=900
+depth=24
+EOF
 systemctl enable lightdm.service
 
 echo "### Configuring Printing..."
