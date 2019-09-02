@@ -172,6 +172,9 @@ do
     chown -R ${u}:${u} /home/${u}
 done
 
+zfs create -o canmount=off z/home/josh
+zfs create z/home/josh/sync
+
 usermod -a -G wheel josh
 usermod -a -G libvirt josh
 mkdir -p /home/josh/.ssh
@@ -185,6 +188,10 @@ cat <<EOF >>/etc/makepkg.conf
 MAKEFLAGS="-j$(nproc)"
 BUILDDIR=/tmp/makepkg
 EOF
+
+echo "### Configuring Samba..."
+# /etc/samba/smb.conf
+systemctl enable smb.service
 
 echo "### Configuring UPS..."
 systemctl enable apcupsd.service
@@ -297,7 +304,8 @@ echo "### Configuring Docker..."
 systemctl enable --now docker.service
 systemctl enable docker-snapshot.service
 docker volume create portainer_data
-docker run --name portainer -d --restart always -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
+docker create --name portainer --restart always -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
+docker start portainer
 
 echo "### Making a snapshot..."
 for pool in boot z/root z/home z/docker z/images
