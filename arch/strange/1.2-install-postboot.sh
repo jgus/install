@@ -86,6 +86,7 @@ SEAT1_DEVICES=(
     /sys/devices/pci0000:00/0000:00:14.0/usb1
     /sys/devices/pci0000:00/0000:00:1f.3/sound/card0
     /sys/devices/platform/pcspkr/input/input29
+    /sys/devices/pci0000:00/0000:00:1c.0/0000:03:00.0/usb3
 )
 
 
