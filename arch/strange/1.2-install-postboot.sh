@@ -15,9 +15,9 @@ PACKAGES=(
     # Sensors
     lm_sensors nvme-cli
     # Xorg
-    xorg
+    xorg lightdm lightdm-gtk-greeter
     # KDE
-    plasma-meta kde-applications-meta xdg-user-dirs sddm sddm-kcm
+    plasma-meta kde-applications-meta xdg-user-dirs
     # # Fonts
     # adobe-source-code-pro-fonts 
     # adobe-source-sans-pro-fonts 
@@ -203,8 +203,8 @@ done
 # 7z e install.wim 1/Windows/{Fonts/"*".{ttf,ttc},System32/Licenses/neutral/"*"/"*"/license.rtf} -y -o/usr/share/fonts/WindowsFonts
 # chmod 755 /usr/share/fonts/WindowsFonts
 
-echo "### Configuring KDE..."
-systemctl enable sddm.service
+echo "### Configuring LightDM..."
+systemctl enable lightdm.service
 
 echo "### Configuring Printing..."
 systemctl enable org.cups.cupsd.service
