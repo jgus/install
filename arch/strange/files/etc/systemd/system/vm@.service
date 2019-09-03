@@ -1,5 +1,6 @@
 [Unit]
 Description=VM %i
+Wants=libvirtd.service
 After=libvirtd.service
 
 [Service]
@@ -9,4 +10,4 @@ RemainAfterExit=true
 ExecStop=/var/lib/libvirt/images/%i-stop.sh
 
 [Install]
-Wants=libvirtd.service
+WantedBy=multi-user.target
