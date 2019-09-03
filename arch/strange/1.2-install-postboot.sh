@@ -78,15 +78,15 @@ AUR_PACKAGES=(
     google-chrome
     # VS Code
     visual-studio-code-bin
-    # MakeMKV
-    makemkv ccextractor
+    # Office Communication
+    slack-desktop zoom
     # CLion
     clion clion-gdb clion-jre clion-lldb
     # android-studio 
     # gitahead guitar
     # bcompare bcompare-kde5
-    # slack-desktop
-    # zoom
+    # MakeMKV
+    makemkv ccextractor
     # #minecraft-launcher
     # #ffmpeg-full
 )
