@@ -43,8 +43,6 @@ PACKAGES=(
     ttf-ubuntu-font-family
     # Color
     displaycal colord colord-kde
-    # Printing
-    cups cups-pdf ghostscript gsfonts
     # Wine
     wine wine_gecko wine-mono winetricks
     # Applications
@@ -68,13 +66,22 @@ PACKAGES=(
     qemu qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager ovmf
 )
 AUR_PACKAGES=(
+    # ZFS
     zfs-auto-snapshot
+    # Filesystems
     hfsprogs
+    # Printing
+    cups cups-pdf ghostscript gsfonts cndrvcups-lb-bin
+    # Docker
     docker nvidia-container-toolkit
+    # Chrome
     google-chrome
+    # VS Code
     visual-studio-code-bin
+    # MakeMKV
     makemkv ccextractor
-    # clion clion-gdb clion-jre clion-lldb
+    # CLion
+    clion clion-gdb clion-jre clion-lldb
     # android-studio 
     # gitahead guitar
     # bcompare bcompare-kde5

@@ -32,8 +32,6 @@ PACKAGES=(
     ttf-linux-libertine 
     ttf-roboto 
     ttf-ubuntu-font-family 
-    # Printing
-    cups cups-pdf ghostscript gsfonts
     # Wine
     wine wine_gecko wine-mono winetricks
     # Applications
@@ -45,10 +43,19 @@ PACKAGES=(
     steam steam-native-runtime ttf-liberation
 )
 AUR_PACKAGES=(
+    # ZFS
     zfs-auto-snapshot
+    # Filesystems
+    hfsprogs
+    # Printing
+    cups cups-pdf ghostscript gsfonts cndrvcups-lb-bin
+    # Docker
     docker nvidia-container-toolkit
+    # Chrome
     google-chrome
+    # VS Code
     visual-studio-code-bin
+    # Minecraft
     minecraft-launcher
     #ffmpeg-full
 )
