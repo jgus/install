@@ -5,9 +5,9 @@ Before=libvirtd.service
 
 [Service]
 Type=oneshot
-ExecStart=bash -c "/usr/bin/zfs snapshot z/images@$(/usr/bin/date +%%Y%%m%%dT%%H%%M%%S)-libvirt-start"
+ExecStart=/var/lib/libvirt/images/snapshot-start.sh
 RemainAfterExit=true
-ExecStop=bash -c "/usr/bin/zfs snapshot z/images@$(/usr/bin/date +%%Y%%m%%dT%%H%%M%%S)-libvirt-stop"
+ExecStop=/var/lib/libvirt/images/snapshot-stop.sh
 
 [Install]
 WantedBy=libvirtd.service

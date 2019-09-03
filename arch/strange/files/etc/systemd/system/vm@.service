@@ -1,0 +1,12 @@
+[Unit]
+Description=VM %i
+After=libvirtd.service
+
+[Service]
+Type=oneshot
+ExecStart=/var/lib/libvirt/images/%i-start.sh
+RemainAfterExit=true
+ExecStop=/var/lib/libvirt/images/%i-stop.sh
+
+[Install]
+Wants=libvirtd.service
