@@ -8,7 +8,7 @@ set -e
 OTHER_USERS=()
 PACKAGES=(
     # Misc
-    ccache rsync p7zip tmux
+    ccache rsync p7zip tmux git-lfs
     clang llvm lldb gcc gdb cmake ninja
     # Samba
     smbnetfs
@@ -82,8 +82,9 @@ AUR_PACKAGES=(
     slack-desktop zoom
     # CLion
     clion clion-gdb clion-jre clion-lldb
+    # Git
+    gitahead qgit
     # android-studio 
-    # gitahead guitar
     # bcompare bcompare-kde5
     # MakeMKV
     makemkv ccextractor
