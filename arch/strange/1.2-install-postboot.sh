@@ -76,16 +76,14 @@ AUR_PACKAGES=(
     docker nvidia-container-toolkit
     # Chrome
     google-chrome
-    # VS Code
-    visual-studio-code-bin
     # Office Communication
     slack-desktop zoom
-    # CLion
-    clion clion-gdb clion-jre clion-lldb
-    # Git
+    # Development
+    visual-studio-code-bin
     gitahead qgit
-    # android-studio 
-    # bcompare bcompare-kde5
+    bcompare bcompare-kde5
+    clion clion-gdb clion-jre clion-lldb
+    android-studio
     # MakeMKV
     makemkv ccextractor
     # #minecraft-launcher
