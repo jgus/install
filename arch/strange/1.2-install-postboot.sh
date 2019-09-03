@@ -10,8 +10,8 @@ PACKAGES=(
     # Misc
     ccache rsync p7zip tmux git-lfs
     clang llvm lldb gcc gdb cmake ninja
-    # Samba
-    smbnetfs
+    # Filesystems
+    smbnetfs sshfs
     # UPS
     apcupsd
     # Sensors
@@ -55,8 +55,6 @@ PACKAGES=(
     mkvtoolnix-cli mkvtoolnix-gui
     youtube-dl
     speedtest-cli
-    # Steam
-    steam steam-native-runtime ttf-liberation
     # Games
     dosbox
     scummvm
@@ -86,6 +84,8 @@ AUR_PACKAGES=(
     android-studio
     # MakeMKV
     makemkv ccextractor
+    # Steam
+    steam steam-native-runtime ttf-liberation steam-fonts
     # #minecraft-launcher
     # #ffmpeg-full
 )
@@ -182,7 +182,13 @@ do
 done
 
 zfs create -o canmount=off z/home/josh
-zfs create z/home/josh/sync
+for $i in sync steam
+do
+    zfs create z/home/josh/${i}
+    chown josh:josh /home/josh/${i}
+done
+zfs create -o mountpoint=/git z/git
+chown josh:josh /git`
 
 usermod -a -G wheel josh
 usermod -a -G libvirt josh
