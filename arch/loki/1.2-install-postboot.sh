@@ -39,8 +39,6 @@ PACKAGES=(
     scribus
     gimp
     vlc
-    # Steam
-    steam steam-native-runtime ttf-liberation
 )
 AUR_PACKAGES=(
     # ZFS
@@ -55,6 +53,8 @@ AUR_PACKAGES=(
     google-chrome
     # VS Code
     visual-studio-code-bin
+    # Steam
+    steam steam-native-runtime ttf-liberation steam-fonts
     # Minecraft
     minecraft-launcher
     #ffmpeg-full
@@ -164,7 +164,6 @@ echo "### Configuring Sensors..."
 sensors-detect --auto
 
 echo "### Configuring Xorg..."
-cp -r /usr/share/X11/xorg.conf.d /etc/X11/
 for d in "${SEAT1_DEVICES[@]}"
 do
     loginctl attach seat1 "${d}"
@@ -243,7 +242,8 @@ echo "### Configuring Docker..."
 systemctl enable --now docker.service
 systemctl enable docker-snapshot.service
 docker volume create portainer_data
-docker run --name portainer -d --restart always -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
+docker create --name portainer --restart always -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
+docker start portainer
 
 echo "### Making a snapshot..."
 for pool in boot z/root z/home z/docker
