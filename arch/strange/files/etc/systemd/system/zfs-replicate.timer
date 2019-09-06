@@ -2,7 +2,7 @@
 Description=Regular zfs replication
 
 [Timer]
-OnCalendar=*-*-* 4:00:00
+OnCalendar=*-*-* 4:00
 AccuracySec=1h
 Persistent=true
 
