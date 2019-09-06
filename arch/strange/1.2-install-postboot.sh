@@ -11,7 +11,7 @@ PACKAGES=(
     ccache rsync p7zip tmux git-lfs
     clang llvm lldb gcc gdb cmake ninja
     # Filesystems
-    smbnetfs sshfs
+    smbnetfs sshfs fuseiso
     # UPS
     apcupsd
     # Sensors
@@ -321,6 +321,7 @@ systemctl enable docker-snapshot.service
 docker volume create portainer_data
 docker create --name portainer --restart always -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
 docker start portainer
+usermod -a -G docker josh
 
 echo "### Making a snapshot..."
 for pool in boot z/root z/home z/docker z/images
