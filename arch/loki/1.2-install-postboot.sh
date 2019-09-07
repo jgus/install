@@ -47,6 +47,7 @@ AUR_PACKAGES=(
     hfsprogs
     # Printing
     cups cups-pdf ghostscript gsfonts cndrvcups-lb-bin
+    #sane xsane
     # Docker
     docker nvidia-container-toolkit
     # Chrome
@@ -180,6 +181,9 @@ systemctl enable sddm.service
 
 echo "### Configuring Printing..."
 systemctl enable org.cups.cupsd.service
+# cat << EOF >> /etc/sane.d/pixma.conf
+# mfnp://printer.gustafson.me:8610
+# EOF
 
 echo "### Configuring Steam..."
 if [[ -d /bulk ]]
