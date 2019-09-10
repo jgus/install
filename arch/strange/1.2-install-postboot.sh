@@ -79,10 +79,12 @@ AUR_PACKAGES=(
     # Office Communication
     slack-desktop zoom
     # Development
+    python2 python2-virtualenv
     visual-studio-code-bin
-    gitahead qgit
+    gitahead qgit giggle gitg gitextensions
     bcompare bcompare-kde5
     clion clion-gdb clion-jre clion-lldb
+    #openblas-lapack-openmp
     android-studio
     # MakeMKV
     makemkv ccextractor
