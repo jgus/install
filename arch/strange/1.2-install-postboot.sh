@@ -18,6 +18,7 @@ PACKAGES=(
     lm_sensors nvme-cli
     # Xorg
     xorg lightdm lightdm-gtk-greeter tigervnc
+    piper
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs
     # Fonts
@@ -219,6 +220,7 @@ echo "### Configuring Sensors..."
 sensors-detect --auto
 
 echo "### Configuring Xorg..."
+systemctl enable ratbagd.service
 for d in "${SEAT1_DEVICES[@]}"
 do
     loginctl attach seat1 "${d}"
