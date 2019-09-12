@@ -53,6 +53,8 @@ PACKAGES=(
     scribus
     gimp
     vlc
+    strawberry gstreamer gst-libav gst-plugins-base gst-plugins-good gst-plugins-ugly
+    rhythmbox
     mkvtoolnix-cli mkvtoolnix-gui
     youtube-dl
     speedtest-cli
