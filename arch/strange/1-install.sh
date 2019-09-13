@@ -188,6 +188,7 @@ do
     echo "swap${i} ${SWAP_DEVS[i]} /dev/urandom swap,cipher=aes-xts-plain64,size=256" >>/target/etc/crypttab
     echo "/dev/mapper/swap${i} none swap defaults,pri=100 0 0" >> /target/etc/fstab
 done
+echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime,size=184G 0 0" >> /target/etc/fstab
 
 echo "### Copying ZFS files..."
 mkdir -p /target/etc/zfs
