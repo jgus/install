@@ -199,6 +199,9 @@ chown josh:josh /git`
 
 usermod -a -G wheel josh
 usermod -a -G libvirt josh
+mkdir -p /home/josh/.config/libvirt
+echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
+chown -R josh:josh /home/josh/.config/libvirt
 mkdir -p /home/josh/.ssh
 curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
