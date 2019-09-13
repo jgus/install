@@ -230,16 +230,52 @@ done
 echo "### Installing AUR Packages (interactive)..."
 sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 
-echo "### Configuring ZFS Snapshots..."
-# /etc/systemd/system/zfs-auto-snapshot-*.service.d
-zfs set com.sun:auto-snapshot=true boot
-zfs set com.sun:auto-snapshot=true bulk
-zfs set com.sun:auto-snapshot=true z
-zfs set com.sun:auto-snapshot=false z/root/var
-for i in monthly weekly daily hourly frequent
-do
-    systemctl enable zfs-auto-snapshot-${i}.timer
-done
+# echo "### Configuring ZFS Snapshots..."
+# # /etc/systemd/system/zfs-auto-snapshot-*.service.d
+# zfs set com.sun:auto-snapshot=true boot
+# zfs set com.sun:auto-snapshot=true z
+# zfs set com.sun:auto-snapshot=false z/root/var
+# zfs set com.sun:auto-snapshot=false z/images/scratch
+# for i in monthly weekly daily hourly frequent
+# do
+#     systemctl enable zfs-auto-snapshot-${i}.timer
+# done
+
+# echo "### Configuring ClamAV..."
+# sed -i 's/^User/#User/g' /etc/pacman.conf
+# cat << EOF >> /etc/clamav/clamd.conf
+
+# ### Local Settings
+# User root
+# MaxThreads 16
+# MaxDirectoryRecursion 30
+# VirusEvent /etc/clamav/detected.sh
+
+# ExcludePath ^/proc/
+# ExcludePath ^/sys/
+# ExcludePath ^/dev/
+# ExcludePath ^/run/
+# ExcludePath ^/beast/
+# ExcludePath ^/home/josh/smb/
+
+# ScanOnAccess true
+# OnAccessMountPath /
+# OnAccessExcludePath /proc/
+# OnAccessExcludePath /sys/
+# OnAccessExcludePath /dev/
+# OnAccessExcludePath /run/
+# OnAccessExcludePath /var/log/
+# OnAccessExcludePath /beast/
+# OnAccessExcludePath /home/josh/smb/
+# OnAccessExtraScanning true
+# OnAccessExcludeRootUID yes
+
+# EOF
+# freshclam
+# clamav-unofficial-sigs.sh
+# systemctl enable clamav-freshclam.service
+# systemctl enable clamav-unofficial-sigs.timer
+# systemctl enable clamav-daemon.service
 
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
