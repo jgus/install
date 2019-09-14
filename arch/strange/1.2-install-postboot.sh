@@ -367,6 +367,8 @@ systemctl enable --now docker.service
 systemctl enable docker-snapshot.service
 docker volume create portainer_data
 systemctl enable portainer.service
+docker volume create syncthing_config
+systemctl enable syncthing.service
 usermod -a -G docker josh
 
 echo "### Making a snapshot..."
