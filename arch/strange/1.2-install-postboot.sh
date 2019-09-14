@@ -220,6 +220,20 @@ EOF
 echo "### Configuring Samba..."
 # /etc/samba/smb.conf
 systemctl enable smb.service
+mkdir -p /home/josh/.config/systemd/user
+cat << EOF >> /home/josh/.config/systemd/user/smbnetfs.service
+[Unit]
+Description=smbnetfs
+
+[Service]
+ExecStart=/usr/bin/smbnetfs %h/smb
+ExecStop=/bin/fusermount -u %h/smb
+
+[Install]
+WantedBy=default.target
+EOF
+chown -R josh:josh /home/josh/.config
+sudo -u josh systemctl --user enable smbnetfs
 
 echo "### Configuring UPS..."
 systemctl enable apcupsd.service
