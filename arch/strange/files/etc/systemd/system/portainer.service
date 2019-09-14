@@ -8,7 +8,12 @@ TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
 ExecStartPre=/usr/bin/docker pull portainer/portainer
-ExecStart=/usr/bin/docker run --rm --name %n -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
+ExecStart=/usr/bin/docker run --rm --name %n \
+    -p 8000:8000 \
+    -p 9000:9000 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v portainer_data:/data \
+    portainer/portainer
 Restart=always
  
 [Install]

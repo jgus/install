@@ -8,7 +8,20 @@ TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
 ExecStartPre=/usr/bin/docker pull linuxserver/plex
-ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n --net host --gpus all --device /dev/dri:/dev/dri -e PUID=$$(/usr/bin/id -u plex) -e PGID=$$(/usr/bin/id -g plex) -e VERSION=latest -v plex_config:/config -v plex_media:/media -v plex_music:/music -v plex_published:/published -v /bulk/plex:/bulk --tmpfs /transcode linuxserver/plex"
+ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
+    --net host \
+    --gpus all \
+    --device /dev/dri:/dev/dri \
+    -e PUID=$$(/usr/bin/id -u plex) \
+    -e PGID=$$(/usr/bin/id -g plex) \
+    -e VERSION=latest \
+    -v plex_config:/config \
+    -v plex_media:/media \
+    -v plex_music:/music \
+    -v plex_published:/published \
+    -v /bulk/plex:/bulk \
+    --tmpfs /transcode \
+    linuxserver/plex"
 Restart=always
  
 [Install]
