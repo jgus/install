@@ -49,6 +49,7 @@ PACKAGES=(
     wine wine_gecko wine-mono winetricks
     # Applications
     copyq
+    firefox
     remmina freerdp
     libreoffice-still hunspell hunspell-en_US libmythes mythes-en
     scribus
