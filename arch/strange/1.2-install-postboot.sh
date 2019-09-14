@@ -21,6 +21,7 @@ PACKAGES=(
     piper
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs
+    gnome gnome-extra gnome-shell-extension-dash-to-panel
     # Fonts
     adobe-source-code-pro-fonts
     adobe-source-sans-pro-fonts
