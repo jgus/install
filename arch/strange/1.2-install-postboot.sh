@@ -19,7 +19,6 @@ PACKAGES=(
     # Xorg
     xorg lightdm lightdm-gtk-greeter tigervnc
     piper
-    xscreensaver
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs
     gnome gnome-extra gnome-shell-extension-dash-to-panel
