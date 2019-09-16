@@ -282,7 +282,6 @@ then
 fi
 
 echo "### Configuring KVM..."
-# TODO - check kernel modules? https://wiki.archlinux.org/index.php/KVM#Kernel_support
 systemctl enable --now libvirtd.service
 systemctl enable libvirtd-snapshot.service
 virsh net-define "$(cd "$(dirname "$0")" ; pwd)/libvirt/internal-network.xml"
@@ -293,7 +292,6 @@ nvram = [
 	"/usr/share/ovmf/x64/OVMF_CODE.fd:/usr/share/ovmf/x64/OVMF_VARS.fd"
 ]
 EOF
-# TODO - hook for images on startup/shutdown?
 
 echo "### Installing Yay..."
 useradd --user-group --home-dir /var/cache/builder --create-home --system builder

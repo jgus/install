@@ -7,8 +7,7 @@
   <ip address='192.168.144.1' netmask='255.255.255.0'>
     <dhcp>
       <range start='192.168.144.128' end='192.168.144.254'/>
-      <host mac='52:54:00:db:ac:c1' name='mac' ip='192.168.144.2'/>
-      <host mac='52:54:00:44:81:ce' name='win-apps' ip='192.168.144.3'/>
+      <host mac='52:54:00:a6:de:eb' name='win-srv' ip='192.168.144.4'/>
     </dhcp>
   </ip>
 </network>

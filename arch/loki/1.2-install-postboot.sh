@@ -39,6 +39,8 @@ PACKAGES=(
     scribus
     gimp
     vlc
+    # KVM
+    qemu qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager ovmf
 )
 AUR_PACKAGES=(
     # ZFS
@@ -98,6 +100,8 @@ zgenhostid $(hostid)
 
 zfs create -o mountpoint=/home z/home
 zfs create -o mountpoint=/var/lib/docker z/docker
+zfs create -o mountpoint=/var/lib/libvirt/images z/images
+zfs create z/images/scratch
 
 mkinitcpio -p linux-zen
 
@@ -149,6 +153,10 @@ do
 done
 
 usermod -a -G wheel josh
+usermod -a -G libvirt josh
+mkdir -p /home/josh/.config/libvirt
+echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
+chown -R josh:josh /home/josh/.config/libvirt
 mkdir -p /home/josh/.ssh
 curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
@@ -192,6 +200,18 @@ then
     chown gustafson:gustafson /bulk/steam
 fi
 
+echo "### Configuring KVM..."
+systemctl enable --now libvirtd.service
+systemctl enable libvirtd-snapshot.service
+virsh net-define "$(cd "$(dirname "$0")" ; pwd)/libvirt/internal-network.xml"
+virsh net-autostart internal
+virsh net-start internal
+cat << EOF >> /etc/libvirt/qemu.conf
+nvram = [
+	"/usr/share/ovmf/x64/OVMF_CODE.fd:/usr/share/ovmf/x64/OVMF_VARS.fd"
+]
+EOF
+
 echo "### Installing Yay..."
 useradd --user-group --home-dir /var/cache/builder --create-home --system builder
 chmod ug+ws /var/cache/builder
@@ -222,7 +242,7 @@ rm -rf /install
 rm /etc/systemd/system/getty@tty1.service.d/override.conf
 
 echo "### Making a snapshot..."
-for pool in boot z/root z/home z/docker
+for pool in boot z/root z/home z/docker z/images
 do
     zfs snapshot ${pool}@post-boot-install
 done
@@ -289,7 +309,7 @@ systemctl enable plex.service
 usermod -a -G docker josh
 
 echo "### Making a snapshot..."
-for pool in boot z/root z/home z/docker
+for pool in boot z/root z/home z/docker z/images
 do
     zfs snapshot ${pool}@aur-pacakges-installed
 done
