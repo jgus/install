@@ -21,7 +21,7 @@ PACKAGES=(
     piper
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs
-    gnome gnome-extra gnome-shell-extension-dash-to-panel
+    gdm
     # Fonts
     adobe-source-code-pro-fonts
     adobe-source-sans-pro-fonts
@@ -270,29 +270,6 @@ EOF
 
 echo "### Configuring GNOME..."
 systemctl enable gdm.service
-cat << EOF >>/home/josh/.config/systemd/user/random-wallpaper-gnome.service
-[Unit]
-Description=Wallpaper Randomizer
-
-[Service]
-Nice=19
-IOSchedulingClass=idle
-KillSignal=SIGINT
-ExecStart=/home/josh/opt/bin/strange/random-wallpaper-gnome.sh
-EOF
-cat << EOF >>/home/josh/.config/systemd/user/random-wallpaper-gnome.timer
-[Unit]
-Description=Wallpaper Randomizer Timer
-
-[Timer]
-OnCalendar=*-*-* *:00,05,10,15,20,25,30,35,40,45,50,55:00
-Persistent=true
-
-[Install]
-WantedBy=timers.target
-EOF
-chown -R josh:josh /home/josh/.config
-sudo -u josh systemctl --user enable random-wallpaper-gnome.timer
 
 echo "### Configuring Printing..."
 systemctl enable org.cups.cupsd.service
