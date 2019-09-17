@@ -12,26 +12,27 @@ PACKAGES=(
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs sddm sddm-kcm
     # Fonts
-    adobe-source-code-pro-fonts 
-    adobe-source-sans-pro-fonts 
+    adobe-source-code-pro-fonts
+    adobe-source-sans-pro-fonts
     font-bh-ttf
-    gnu-free-fonts 
-    noto-fonts 
-    ttf-anonymous-pro 
-    ttf-bitstream-vera 
-    ttf-croscore 
-    ttf-dejavu 
-    ttf-droid 
-    ttf-fantasque-sans-mono 
-    ttf-fira-code 
-    ttf-fira-mono 
+    gnu-free-fonts
+    noto-fonts
+    ttf-anonymous-pro
+    ttf-bitstream-vera
+    ttf-croscore
+    ttf-dejavu
+    ttf-droid
+    ttf-fantasque-sans-mono
+    ttf-fira-code
+    ttf-fira-mono
     ttf-gentium
-    ttf-hack 
-    ttf-inconsolata 
-    ttf-liberation 
-    ttf-linux-libertine 
-    ttf-roboto 
-    ttf-ubuntu-font-family 
+    ttf-hack
+    ttf-inconsolata
+    ttf-joypixels
+    ttf-liberation
+    ttf-linux-libertine
+    ttf-roboto
+    ttf-ubuntu-font-family
     # Wine
     wine wine_gecko wine-mono winetricks
     # Applications
@@ -177,6 +178,9 @@ for d in "${SEAT1_DEVICES[@]}"
 do
     loginctl attach seat1 "${d}"
 done
+
+echo "### Configuring Fonts..."
+ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
 
 echo "### Fetching MS Fonts..."
 cd /tmp

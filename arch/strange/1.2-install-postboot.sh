@@ -39,6 +39,7 @@ PACKAGES=(
     ttf-gentium
     ttf-hack
     ttf-inconsolata
+    ttf-joypixels
     ttf-liberation
     ttf-linux-libertine
     ttf-roboto
@@ -246,6 +247,9 @@ for d in "${SEAT1_DEVICES[@]}"
 do
     loginctl attach seat1 "${d}"
 done
+
+echo "### Configuring Fonts..."
+ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
 
 echo "### Fetching MS Fonts..."
 cd /tmp
