@@ -276,6 +276,7 @@ EOF
 
 echo "### Configuring GNOME..."
 systemctl enable gdm.service
+systemctl enable xvnc.socket
 
 echo "### Configuring Printing..."
 systemctl enable org.cups.cupsd.service
