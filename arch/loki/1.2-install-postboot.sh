@@ -40,6 +40,8 @@ PACKAGES=(
     scribus
     gimp
     vlc
+    # Java
+    jdk-openjdk jdk8-openjdk
     # KVM
     qemu qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager ovmf
 )
@@ -61,7 +63,6 @@ AUR_PACKAGES=(
     steam steam-native-runtime ttf-liberation steam-fonts
     # Minecraft
     minecraft-launcher
-    #ffmpeg-full
 )
 SEAT1_DEVICES=(
     /sys/devices/pci0000:00/0000:00:03.0/0000:02:00.0/drm/card1

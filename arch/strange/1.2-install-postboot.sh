@@ -61,6 +61,8 @@ PACKAGES=(
     mkvtoolnix-cli mkvtoolnix-gui
     youtube-dl
     speedtest-cli
+    # Java
+    jdk-openjdk jdk8-openjdk
     # Games
     dosbox
     scummvm
@@ -96,8 +98,8 @@ AUR_PACKAGES=(
     makemkv ccextractor
     # Steam
     steam steam-native-runtime ttf-liberation steam-fonts
-    # #minecraft-launcher
-    # #ffmpeg-full
+    # Minecraft
+    minecraft-launcher
 )
 SEAT1_DEVICES=(
     /sys/devices/pci0000:00/0000:00:1c.6/0000:05:00.0/0000:06:00.0/drm/card0
