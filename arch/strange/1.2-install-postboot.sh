@@ -19,6 +19,7 @@ PACKAGES=(
     # Xorg
     xorg lightdm lightdm-gtk-greeter tigervnc
     piper
+    xbanish
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs
     gdm
@@ -249,6 +250,8 @@ for d in "${SEAT1_DEVICES[@]}"
 do
     loginctl attach seat1 "${d}"
 done
+echo "xbanish &" >>/home/josh/.xinitrc
+chown josh:josh /home/josh/.xinitrc
 
 echo "### Configuring Fonts..."
 ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
