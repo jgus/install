@@ -122,7 +122,7 @@ PasswordAuthentication no
 AllowAgentForwarding yes
 AllowTcpForwarding yes
 EOF
-systemctl enable sshd.socket
+systemctl enable sshd.service
 mkdir -p /root/.ssh
 curl https://github.com/jgus.keys >> /root/.ssh/authorized_keys
 chmod 400 /root/.ssh/authorized_keys
