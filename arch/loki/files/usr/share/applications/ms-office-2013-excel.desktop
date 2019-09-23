@@ -1,0 +1,8 @@
+[Desktop Entry]
+Categories=Office;Spreadsheet;
+Exec=xfreerdp /u:gustafson /p:zcm9XtK2vEkMFyMN /drive:home,${HOME} +fonts /app:"||Microsoft Excel" /v:win-srv
+GenericName=Spreadsheet
+Icon=Excel-2013.png
+Name=Excel 2013
+Type=Application
+Version=1.0

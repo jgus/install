@@ -36,6 +36,7 @@ PACKAGES=(
     # Wine
     wine wine_gecko wine-mono winetricks
     # Applications
+    freerdp
     libreoffice-still hunspell hunspell-en_US libmythes mythes-en
     scribus
     gimp
