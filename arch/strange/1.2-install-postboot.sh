@@ -250,8 +250,12 @@ for d in "${SEAT1_DEVICES[@]}"
 do
     loginctl attach seat1 "${d}"
 done
-echo "xbanish &" >>/home/josh/.xinitrc
+cat << EOF >>/home/josh/.xinitrc
+#!/bin/sh
+xbanish &
+EOF
 chown josh:josh /home/josh/.xinitrc
+chmod a+x /home/josh/.xinitrc
 
 echo "### Configuring Fonts..."
 ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
