@@ -64,7 +64,7 @@ PACKAGES=(
     speedtest-cli
     darktable hugin perl-image-exiftool opencl-nvidia
     # Java
-    jdk-openjdk jdk8-openjdk
+    jdk-openjdk jdk8-openjdk icedtea-web
     # Games
     dosbox
     scummvm
