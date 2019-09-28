@@ -11,6 +11,7 @@ PACKAGES=(
     ccache rsync p7zip tmux git-lfs
     clang llvm lldb gcc gdb cmake ninja
     opencl-nvidia ocl-icd cuda clinfo
+    xmlstarlet
     # Filesystems
     smbnetfs sshfs fuseiso
     # UPS
