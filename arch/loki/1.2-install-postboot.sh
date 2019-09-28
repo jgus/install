@@ -5,6 +5,7 @@ OTHER_USERS=(Kayleigh John William Lyra)
 PACKAGES=(
     # Misc
     ccache rsync p7zip tmux
+    opencl-nvidia ocl-icd cuda clinfo
     # Sensors
     lm_sensors nvme-cli
     # Xorg
