@@ -10,6 +10,7 @@ PACKAGES=(
     # Misc
     ccache rsync p7zip tmux git-lfs
     clang llvm lldb gcc gdb cmake ninja
+    opencl-nvidia ocl-icd cuda clinfo
     # Filesystems
     smbnetfs sshfs fuseiso
     # UPS
@@ -62,7 +63,7 @@ PACKAGES=(
     mkvtoolnix-cli mkvtoolnix-gui
     youtube-dl
     speedtest-cli
-    darktable hugin perl-image-exiftool opencl-nvidia
+    darktable hugin perl-image-exiftool
     # Java
     jdk-openjdk jdk8-openjdk icedtea-web
     # Games
