@@ -1,0 +1,25 @@
+[Unit]
+Description=Syncthing
+After=docker.service
+Requires=docker.service
+ 
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=/usr/bin/docker pull linuxserver/syncthing
+ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
+    -p 8384:8384 \
+    -p 22000:22000 \
+    -p 21027:21027/udp \
+    -e PUID=$$(/usr/bin/id -u josh) \
+    -e PGID=$$(/usr/bin/id -g josh) \
+    -e TZ=America/Denver \
+    -v syncthing_config:/config \
+    -v /home/josh/sync:/sync \
+    -v /git:/git \
+    linuxserver/syncthing"
+Restart=always
+ 
+[Install]
+WantedBy=multi-user.target

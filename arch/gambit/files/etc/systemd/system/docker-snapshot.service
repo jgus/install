@@ -1,0 +1,13 @@
+[Unit]
+Description=Docker Snapshots
+BindsTo=docker.service
+Before=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=bash -c "/usr/bin/zfs snapshot z/docker@$(/usr/bin/date +%%Y%%m%%dT%%H%%M%%S)-docker-start"
+RemainAfterExit=true
+ExecStop=bash -c "/usr/bin/zfs snapshot z/docker@$(/usr/bin/date +%%Y%%m%%dT%%H%%M%%S)-docker-stop"
+
+[Install]
+WantedBy=docker.service

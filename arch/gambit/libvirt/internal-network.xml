@@ -1,0 +1,14 @@
+<network connections='1'>
+  <name>internal</name>
+  <uuid>f02c8360-6607-4333-a700-ec1e4455bf8c</uuid>
+  <bridge name='virbr1' stp='on' delay='0'/>
+  <mac address='52:54:00:ac:38:06'/>
+  <domain name='internal'/>
+  <ip address='192.168.144.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.144.128' end='192.168.144.254'/>
+      <host mac='52:54:00:db:ac:c1' name='mac' ip='192.168.144.2'/>
+      <host mac='52:54:00:44:81:ce' name='win-apps' ip='192.168.144.3'/>
+    </dhcp>
+  </ip>
+</network>

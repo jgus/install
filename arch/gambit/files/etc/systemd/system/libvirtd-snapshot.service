@@ -1,0 +1,13 @@
+[Unit]
+Description=LibVirt Snapshots
+BindsTo=libvirtd.service
+Before=libvirtd.service
+
+[Service]
+Type=oneshot
+ExecStart=/var/lib/libvirt/images/snapshot-start.sh
+RemainAfterExit=true
+ExecStop=/var/lib/libvirt/images/snapshot-stop.sh
+
+[Install]
+WantedBy=libvirtd.service
