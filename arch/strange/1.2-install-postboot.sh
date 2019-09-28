@@ -65,6 +65,7 @@ PACKAGES=(
     youtube-dl
     speedtest-cli
     darktable hugin perl-image-exiftool
+    audacity
     # Java
     jdk-openjdk jdk8-openjdk icedtea-web
     # Games
