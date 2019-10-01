@@ -8,18 +8,17 @@ set -e
 OTHER_USERS=()
 PACKAGES=(
     # Misc
-    ccache rsync p7zip tmux git-lfs
-    clang llvm lldb gcc gdb cmake ninja
+    wget rsync p7zip tmux
     # Filesystems
     smbnetfs sshfs fuseiso
     # Sensors
     lm_sensors nvme-cli
+    # Docker
+    docker
 )
 AUR_PACKAGES=(
     # ZFS
     zfs-auto-snapshot
-    # Docker
-    docker nvidia-container-toolkit
 )
 
 
@@ -62,7 +61,6 @@ pacman -S --needed --noconfirm "${PACKAGES[@]}"
 
 echo "### Adding users..."
 #/etc/sudoers.d/wheel
-#/etc/sudoers.d/builder
 
 useradd -D --shell /bin/zsh
 
@@ -109,21 +107,12 @@ do
     zfs create z/home/josh/${i}
     chown josh:josh /home/josh/${i}
 done
-zfs create -o mountpoint=/git z/git
-chown josh:josh /git`
 
 usermod -a -G wheel josh
 mkdir -p /home/josh/.ssh
 curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
 chown -R josh:josh /home/josh/.ssh
-
-echo "### Configuring makepkg..."
-sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
-cat << EOF >>/etc/makepkg.conf 
-MAKEFLAGS="-j$(nproc)"
-BUILDDIR=/tmp/makepkg
-EOF
 
 echo "### Configuring Samba..."
 # /etc/samba/smb.conf
@@ -145,21 +134,41 @@ sudo -u josh systemctl --user enable smbnetfs
 
 echo "### Configuring Sensors..."
 sensors-detect --auto
-echo "### Installing Yay..."
-useradd --user-group --home-dir /var/cache/builder --create-home --system builder
-chmod ug+ws /var/cache/builder
-setfacl -m u::rwx,g::rwx /var/cache/builder
-cd /var/cache/builder
-sudo -u builder git clone https://aur.archlinux.org/yay.git
-cd yay
-sudo -u builder makepkg -si --needed --noconfirm
 
 echo "### Configuring Environment..."
 cat <<EOF >>/etc/profile
 export EDITOR=nano
-alias yay='sudo -u builder yay'
-alias yayinst='sudo -u builder yay -Syu --needed'
 EOF
+
+echo "### Configuring Docker..."
+#/etc/docker/daemon.json
+systemctl enable --now docker.service
+systemctl enable docker-snapshot.service
+docker volume create portainer_data
+systemctl enable portainer.service
+docker volume create syncthing_config
+systemctl enable syncthing.service
+usermod -a -G docker josh
+
+echo "### Configuring ZFS Snapshots..."
+# /etc/systemd/system/zfs-auto-snapshot-*.service.d
+
+cd /tmp
+ZFS_AUTO_SNAPSHOT_VER="1.2.4"
+wget "https://github.com/zfsonlinux/zfs-auto-snapshot/archive/upstream/${ZFS_AUTO_SNAPSHOT_VER}.tar.gz"
+tar -xf "${ZFS_AUTO_SNAPSHOT_VER}.tar.gz"
+cp zfs-auto-snapshot-upstream-${ZFS_AUTO_SNAPSHOT_VER}/src/zfs-auto-snapshot.8 /usr/local/share/man/man8/zfs-auto-snapshot.8
+cp zfs-auto-snapshot-upstream-${ZFS_AUTO_SNAPSHOT_VER}/src/zfs-auto-snapshot.sh /usr/bin/zfs-auto-snapshot
+
+zfs set com.sun:auto-snapshot=true boot
+zfs set com.sun:auto-snapshot=true z
+zfs set com.sun:auto-snapshot=false z/root/var
+zfs set com.sun:auto-snapshot=false z/images/scratch
+for i in monthly weekly daily hourly frequent
+do
+    systemctl enable zfs-auto-snapshot-${i}.timer
+done
+
 
 cat <<EOF
 #####
@@ -178,25 +187,6 @@ echo "### Making a snapshot..."
 for pool in boot z/root z/home z/docker z/images
 do
     zfs snapshot ${pool}@post-boot-install
-done
-
-echo "### Installing AUR Packages (interactive)..."
-sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
-
-echo "### Configuring Docker..."
-#/etc/docker/daemon.json
-systemctl enable --now docker.service
-systemctl enable docker-snapshot.service
-docker volume create portainer_data
-systemctl enable portainer.service
-docker volume create syncthing_config
-systemctl enable syncthing.service
-usermod -a -G docker josh
-
-echo "### Making a snapshot..."
-for pool in boot z/root z/home z/docker z/images
-do
-    zfs snapshot ${pool}@aur-pacakges-installed
 done
 
 echo "### Done with post-boot install! Rebooting..."

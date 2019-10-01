@@ -352,14 +352,14 @@ sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 
 # echo "### Configuring ZFS Snapshots..."
 # # /etc/systemd/system/zfs-auto-snapshot-*.service.d
-# zfs set com.sun:auto-snapshot=true boot
-# zfs set com.sun:auto-snapshot=true z
-# zfs set com.sun:auto-snapshot=false z/root/var
-# zfs set com.sun:auto-snapshot=false z/images/scratch
-# for i in monthly weekly daily hourly frequent
-# do
-#     systemctl enable zfs-auto-snapshot-${i}.timer
-# done
+zfs set com.sun:auto-snapshot=true boot
+zfs set com.sun:auto-snapshot=true z
+zfs set com.sun:auto-snapshot=false z/root/var
+zfs set com.sun:auto-snapshot=false z/images/scratch
+for i in monthly weekly daily hourly frequent
+do
+    systemctl enable zfs-auto-snapshot-${i}.timer
+done
 
 # echo "### Configuring ClamAV..."
 # sed -i 's/^User/#User/g' /etc/pacman.conf

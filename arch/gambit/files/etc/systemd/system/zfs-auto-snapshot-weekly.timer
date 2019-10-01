@@ -1,0 +1,10 @@
+# See systemd.timers and systemd.time manpages for details
+[Unit]
+Description=ZFS weekly snapshot timer
+
+[Timer]
+OnCalendar=Sun *-*-* 3:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

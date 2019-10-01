@@ -2,11 +2,8 @@
 set -e
 
 TIME_ZONE=America/Denver
-HOSTNAME=strange
-VFIO_IDS=""
+HOSTNAME=gambit
 PACKAGES=(
-    # Drivers
-    nvidia nvidia-utils lib32-nvidia-utils
     # Bootloader
     intel-ucode grub efibootmgr
     # ZFS
@@ -84,15 +81,9 @@ pacman-key -r F75D9D76
 pacman-key --lsign-key F75D9D76
 pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
 
-echo "### Configuring VFIO..."
-if [[ "${VFIO_IDS}" != "" ]]
-then
-    echo "options vfio_pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio.conf
-fi
-
 echo "### Configuring boot image..."
 # Initramfs
-sed -i 's/MODULES=(\(.*\))/MODULES=(\1 efivarfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
+sed -i 's/MODULES=(\(.*\))/MODULES=(\1 efivarfs)/g' /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
 sed -i 's/HOOKS=(\(.*\))/HOOKS=(base udev autodetect modconf block zfs filesystems keyboard)/g' /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
@@ -106,12 +97,8 @@ do
     grub-install --target=x86_64-efi --efi-directory="/efi/${i}" --bootloader-id="GRUB-${i}"
 done
 popd
-sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 nvidia-drm.modeset=1 zfs=z/root intel_iommu=on iommu=pt"|g' /etc/default/grub
-#echo "GRUB_GFXPAYLOAD_LINUX=3840x1600x32" >>/etc/default/grub
+sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 zfs=z/root"|g' /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
-
-echo "### Configuring nVidia updates..."
-#/etc/pacman.d/hooks/nvidia.hook
 
 echo "### Configuring Zsh..."
 chsh -s /bin/zsh
