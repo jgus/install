@@ -14,6 +14,8 @@ PACKAGES=(
     xmlstarlet
     # Filesystems
     smbnetfs sshfs fuseiso
+    # Bluetooth
+    bluez bluez-utils
     # UPS
     apcupsd
     # Sensors
@@ -242,6 +244,14 @@ WantedBy=default.target
 EOF
 chown -R josh:josh /home/josh/.config
 sudo -u josh systemctl --user enable smbnetfs
+
+echo "### Configuring Bluetooth..."
+cat << EOF >> /etc/bluetooth/main.conf
+
+[Policy]
+AutoEnable=true
+EOF
+systemctl enable bluetooth.service
 
 echo "### Configuring UPS..."
 systemctl enable apcupsd.service
