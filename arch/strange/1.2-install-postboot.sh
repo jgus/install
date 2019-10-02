@@ -15,7 +15,7 @@ PACKAGES=(
     # Filesystems
     smbnetfs sshfs fuseiso
     # Bluetooth
-    bluez bluez-utils
+    bluez bluez-utils bluez-plugins
     # UPS
     apcupsd
     # Sensors
@@ -106,6 +106,7 @@ AUR_PACKAGES=(
     makemkv ccextractor
     # Steam
     steam steam-native-runtime ttf-liberation steam-fonts
+    xboxdrv evtest
     # Minecraft
     minecraft-launcher
 )
