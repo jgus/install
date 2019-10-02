@@ -87,7 +87,7 @@ AUR_PACKAGES=(
     # # Malware
     # clamav clamav-unofficial-sigs clamtk
     # Printing
-    cups cups-pdf ghostscript gsfonts cndrvcups-lb-bin
+    cups cups-pdf ghostscript gsfonts cnrdrvcups-lb
     # Docker
     docker nvidia-container-toolkit
     # Chrome

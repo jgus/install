@@ -53,7 +53,7 @@ AUR_PACKAGES=(
     # Filesystems
     hfsprogs
     # Printing
-    cups cups-pdf ghostscript gsfonts cndrvcups-lb-bin
+    cups cups-pdf ghostscript gsfonts cnrdrvcups-lb
     #sane xsane
     # Docker
     docker nvidia-container-toolkit
