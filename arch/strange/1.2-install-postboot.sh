@@ -80,6 +80,8 @@ PACKAGES=(
     qemu qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager ovmf
 )
 AUR_PACKAGES=(
+    # VPN
+    strongswan networkmanager-l2tp
     # ZFS
     zfs-auto-snapshot
     # Filesystems
@@ -361,8 +363,11 @@ done
 echo "### Installing AUR Packages (interactive)..."
 sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 
-# echo "### Configuring ZFS Snapshots..."
-# # /etc/systemd/system/zfs-auto-snapshot-*.service.d
+echo "### Configuring network..."
+systemctl enable NetworkManager.service
+
+echo "### Configuring ZFS Snapshots..."
+# /etc/systemd/system/zfs-auto-snapshot-*.service.d
 zfs set com.sun:auto-snapshot=true boot
 zfs set com.sun:auto-snapshot=true z
 zfs set com.sun:auto-snapshot=false z/root/var
