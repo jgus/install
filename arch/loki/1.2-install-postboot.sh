@@ -11,7 +11,9 @@ PACKAGES=(
     # Xorg
     xorg
     # KDE
-    plasma-meta kde-applications-meta xdg-user-dirs sddm sddm-kcm
+    plasma-meta kde-applications-meta xdg-user-dirs
+	sddm sddm-kcm
+    qt5-imageformats
     # Fonts
     adobe-source-code-pro-fonts
     adobe-source-sans-pro-fonts

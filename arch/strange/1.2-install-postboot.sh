@@ -21,12 +21,13 @@ PACKAGES=(
     # Sensors
     lm_sensors nvme-cli
     # Xorg
-    xorg lightdm lightdm-gtk-greeter tigervnc
+    xorg tigervnc
     piper
     xbanish
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs
     gdm
+    qt5-imageformats
     # Fonts
     adobe-source-code-pro-fonts
     adobe-source-sans-pro-fonts
