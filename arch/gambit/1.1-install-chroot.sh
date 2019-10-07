@@ -4,12 +4,15 @@ set -e
 TIME_ZONE=America/Denver
 HOSTNAME=gambit
 PACKAGES=(
+    # Kernel
+    linux-firmware
     # Bootloader
     intel-ucode grub efibootmgr
     # ZFS
     zfs
     # General
     git zsh grml-zsh-config
+    diffutils inetutils less logrotate man-db man-pages nano usbutils which
     # RNG
     rng-tools
     # OpenSSH
