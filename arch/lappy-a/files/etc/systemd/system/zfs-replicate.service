@@ -1,0 +1,8 @@
+[Unit]
+Description=zfs replication
+
+[Service]
+Nice=19
+IOSchedulingClass=idle
+KillSignal=SIGINT
+ExecStart=/root/opt/bin/lappy-a/sync-to-beast.sh
