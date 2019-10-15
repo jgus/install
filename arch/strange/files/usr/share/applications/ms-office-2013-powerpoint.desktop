@@ -1,8 +1,0 @@
-[Desktop Entry]
-Categories=Office;Presentation;
-Exec=xfreerdp /u:gustafson /p:zcm9XtK2vEkMFyMN /drive:home,${HOME} +fonts /app:"||Microsoft Powerpoint" /v:win-srv
-GenericName=Presentation
-Icon=Powerpoint-2013.png
-Name=Powerpoint 2013
-Type=Application
-Version=1.0

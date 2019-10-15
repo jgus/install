@@ -5,123 +5,8 @@ set -e
 # vnc?
 # https://wiki.archlinux.org/index.php/Fan_speed_control#Fancontrol_(lm-sensors)
 
-OTHER_USERS=()
-PACKAGES=(
-    # Misc
-    ccache rsync p7zip tmux git-lfs
-    clang llvm lldb gcc gdb cmake ninja
-    opencl-nvidia ocl-icd cuda clinfo
-    xmlstarlet
-    # Filesystems
-    smbnetfs sshfs fuseiso
-    # Bluetooth
-    bluez bluez-utils bluez-plugins
-    # UPS
-    apcupsd
-    # Sensors
-    lm_sensors nvme-cli
-    # Xorg
-    xorg tigervnc
-    piper
-    xbanish
-    # KDE
-    plasma-meta kde-applications-meta xdg-user-dirs
-    gdm
-    qt5-imageformats
-    # Fonts
-    adobe-source-code-pro-fonts
-    adobe-source-sans-pro-fonts
-    font-bh-ttf
-    gnu-free-fonts
-    noto-fonts
-    ttf-anonymous-pro
-    ttf-bitstream-vera
-    ttf-croscore
-    ttf-dejavu
-    ttf-droid
-    ttf-fantasque-sans-mono
-    ttf-fira-code
-    ttf-fira-mono
-    ttf-gentium
-    ttf-hack
-    ttf-inconsolata
-    ttf-joypixels
-    ttf-liberation
-    ttf-linux-libertine
-    ttf-roboto
-    ttf-ubuntu-font-family
-    # Color
-    displaycal colord colord-kde
-    # Wine
-    wine wine_gecko wine-mono winetricks
-    # Applications
-    copyq
-    firefox
-    remmina freerdp
-    libreoffice-still hunspell hunspell-en_US libmythes mythes-en
-    scribus
-    gimp
-    vlc
-    strawberry gstreamer gst-libav gst-plugins-base gst-plugins-good gst-plugins-ugly
-    rhythmbox
-    mkvtoolnix-cli mkvtoolnix-gui
-    youtube-dl
-    speedtest-cli
-    darktable hugin perl-image-exiftool
-    audacity
-    gparted
-    # Java
-    jdk-openjdk jdk8-openjdk icedtea-web
-    # Games
-    dosbox
-    scummvm
-    retroarch
-    dolphin-emu
-    # KVM
-    qemu qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager ovmf
-)
-AUR_PACKAGES=(
-    # VPN
-    strongswan networkmanager-l2tp
-    # ZFS
-    zfs-auto-snapshot
-    # Filesystems
-    hfsprogs
-    # # Malware
-    # clamav clamav-unofficial-sigs clamtk
-    # Printing
-    cups cups-pdf ghostscript gsfonts cnrdrvcups-lb
-    # Docker
-    docker nvidia-container-toolkit
-    # Chrome
-    google-chrome
-    # Office Communication
-    slack-desktop zoom
-    # Development
-    python2 python2-virtualenv
-    visual-studio-code-bin
-    gitahead qgit giggle gitg gitextensions
-    bcompare bcompare-kde5
-    clion clion-gdb clion-jre clion-lldb
-    #openblas-lapack-openmp
-    android-studio
-    # MakeMKV
-    makemkv ccextractor
-    # Steam
-    steam steam-native-runtime ttf-liberation steam-fonts
-    xboxdrv evtest
-    # Minecraft
-    minecraft-launcher
-)
-SEAT1_DEVICES=(
-    /sys/devices/pci0000:00/0000:00:1c.6/0000:05:00.0/0000:06:00.0/drm/card0
-    /sys/devices/pci0000:00/0000:00:1c.6/0000:05:00.0/0000:06:00.0/graphics/fb0
-    /sys/devices/pci0000:00/0000:00:14.0/usb1
-    /sys/devices/pci0000:00/0000:00:1f.3/sound/card0
-    /sys/devices/platform/pcspkr/input/input29
-    /sys/devices/pci0000:00/0000:00:1c.0/0000:03:00.0/usb3
-)
-
+HOSTNAME=$(hostname)
+source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 echo "### Post-boot ZFS config..."
 zfs load-key -a
@@ -186,12 +71,13 @@ changeme
 changeme
 EOF
     passwd -e "${u}"
+    mkdir -p /home/${u}/.config/systemd/user
     mkdir -p /home/${u}/Pictures
     if [[ -d /bulk ]]
     then
         ln -s /bulk/Photos/Favorites /home/${u}/Pictures/Favorites
     fi
-    #ln -s /beast/Published/Photos /home/${u}/Pictures/Family
+    ln -s /beast/Published/Photos /home/${u}/Pictures/Family
     chown -R ${u}:${u} /home/${u}
 done
 for U in "${OTHER_USERS[@]}"
@@ -212,13 +98,17 @@ do
     chown josh:josh /home/josh/${i}
 done
 zfs create -o mountpoint=/git z/git
-chown josh:josh /git`
+chown josh:josh /git
 
 usermod -a -G wheel josh
-usermod -a -G libvirt josh
-mkdir -p /home/josh/.config/libvirt
-echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
-chown -R josh:josh /home/josh/.config/libvirt
+
+if [[ which virsh ]]
+then
+    usermod -a -G libvirt josh
+    mkdir -p /home/josh/.config/libvirt
+    echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
+    chown -R josh:josh /home/josh/.config/libvirt
+fi
 mkdir -p /home/josh/.ssh
 curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
@@ -233,9 +123,11 @@ EOF
 
 echo "### Configuring Samba..."
 # /etc/samba/smb.conf
-systemctl enable smb.service
-mkdir -p /home/josh/.config/systemd/user
-cat << EOF >> /home/josh/.config/systemd/user/smbnetfs.service
+[[ -f /etc/samba/smb.conf ]] && systemctl enable smb.service
+
+if [[ which smbnetfs ]]
+then
+    cat << EOF >> /home/josh/.config/systemd/user/smbnetfs.service
 [Unit]
 Description=smbnetfs
 
@@ -246,35 +138,33 @@ ExecStop=/bin/fusermount -u %h/smb
 [Install]
 WantedBy=default.target
 EOF
-chown -R josh:josh /home/josh/.config
-sudo -u josh systemctl --user enable smbnetfs
+    chown -R josh:josh /home/josh/.config
+    sudo -u josh systemctl --user enable smbnetfs
+fi
 
 echo "### Configuring Bluetooth..."
-cat << EOF >> /etc/bluetooth/main.conf
+if [[ which bluetoothctl ]]
+then
+    cat << EOF >> /etc/bluetooth/main.conf
 
 [Policy]
 AutoEnable=true
 EOF
-systemctl enable bluetooth.service
+    systemctl enable bluetooth.service
+fi
 
 echo "### Configuring UPS..."
-systemctl enable apcupsd.service
+[[ which apcaccess ]] && systemctl enable apcupsd.service
 
 echo "### Configuring Sensors..."
 sensors-detect --auto
 
 echo "### Configuring Xorg..."
-systemctl enable ratbagd.service
+[[ which ratbagd ]] && systemctl enable ratbagd.service
 for d in "${SEAT1_DEVICES[@]}"
 do
     loginctl attach seat1 "${d}"
 done
-cat << EOF >>/home/josh/.xinitrc
-#!/bin/sh
-xbanish &
-EOF
-chown josh:josh /home/josh/.xinitrc
-chmod a+x /home/josh/.xinitrc
 
 echo "### Configuring Fonts..."
 ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
@@ -284,21 +174,6 @@ cd /tmp
 7z e "/beast/Software/MSDN/Windows/Windows 10/Win10_1809Oct_English_x64.iso" sources/install.wim
 7z e install.wim 1/Windows/{Fonts/"*".{ttf,ttc},System32/Licenses/neutral/"*"/"*"/license.rtf} -y -o/usr/share/fonts/WindowsFonts
 chmod 755 /usr/share/fonts/WindowsFonts
-
-echo "### Configuring LightDM..."
-cat << EOF >>/etc/lightdm/lightdm.conf
-
-### Local Config
-
-[VNCServer]
-enabled=true
-command=Xvnc -rfbauth /etc/vncpasswd
-port=5900
-width=1440
-height=900
-depth=24
-EOF
-#systemctl enable lightdm.service
 
 echo "### Configuring GNOME..."
 systemctl enable gdm.service
@@ -316,8 +191,7 @@ fi
 
 echo "### Configuring KVM..."
 systemctl enable --now libvirtd.service
-systemctl enable libvirtd-snapshot.service
-virsh net-define "$(cd "$(dirname "$0")" ; pwd)/libvirt/internal-network.xml"
+virsh net-define "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"
 virsh net-autostart internal
 virsh net-start internal
 cat << EOF >> /etc/libvirt/qemu.conf
@@ -417,12 +291,13 @@ done
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
 systemctl enable --now docker.service
-systemctl enable docker-snapshot.service
 docker volume create portainer_data
-systemctl enable portainer.service
 docker volume create syncthing_config
-systemctl enable syncthing.service
 usermod -a -G docker josh
+for i in "${!DOCKER_SERVICES[@]}"
+do
+    systemctl enable ${i}.service
+done
 
 echo "### Making a snapshot..."
 for pool in boot z/root z/home z/docker z/images

@@ -1,15 +1,8 @@
 #!/bin/sh
 set -e
 
-SYSTEM_DEVICES=(
-    ata-SanDisk_SDSSDX240GG25_130811402135
-    ata-SanDisk_SDSSDX240GG25_131102400461
-    ata-SanDisk_SDSSDX240GG25_131102401287
-    ata-SanDisk_SDSSDX240GG25_131102402736
-    )
-SYSTEM_Z_TYPE=raidz
-Z_PART_END="211GiB"
-BULK_DEVICE=ata-WDC_WD60EFRX-68MYMN1_WD-WX11DA4DJ3CN
+HOSTNAME=$1
+source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 # System
 echo "### Cleaning up prior partitions..."
@@ -176,7 +169,8 @@ echo "### Pacstrapping..."
 pacstrap /target base linux-zen
 
 echo "### Copying preset files..."
-rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/files/ /target
+rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/common/files/ /target
+rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/files/ /target
 
 echo "### Configuring fstab..."
 #genfstab -U /target >> /target/etc/fstab
@@ -190,7 +184,7 @@ do
     echo "swap${i} ${SWAP_DEVS[i]} /dev/urandom swap,cipher=aes-xts-plain64,size=256" >>/target/etc/crypttab
     echo "/dev/mapper/swap${i} none swap defaults,pri=100 0 0" >> /target/etc/fstab
 done
-echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime,size=64G 0 0" >> /target/etc/fstab
+echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime,size=${TMP_SIZE} 0 0" >> /target/etc/fstab
 
 echo "### Copying ZFS files..."
 mkdir -p /target/etc/zfs
@@ -201,7 +195,7 @@ echo "### Copying NVRAM-stored files..."
 rsync -ar /target/tmp/machine-secrets/files/ /target || true
 
 echo "### Running further install in the chroot..."
-arch-chroot /target /install/1.1-install-chroot.sh
+arch-chroot /target /install/1.1-install-chroot.sh ${HOSTNAME}
 
 echo "### Unmounting..."
 umount -R /target

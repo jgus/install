@@ -1,48 +1,8 @@
 #!/bin/sh
 set -e
 
-TIME_ZONE=America/Denver
-HOSTNAME=loki
-PACKAGES=(
-    # Kernel
-    linux-zen-headers linux-firmware dkms base-devel
-    # Drivers
-    nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
-    # Bootloader
-    intel-ucode grub efibootmgr
-    # ZFS
-    zfs-dkms
-    # General
-    git zsh grml-zsh-config
-    diffutils inetutils less logrotate man-db man-pages nano usbutils which
-    # RNG
-    rng-tools
-    # OpenSSH
-    openssh
-    # Samba
-    samba
-)
-BEAST_SHARES=(
-    #Backup
-    Brown
-    #Comics
-    #Local Backup
-    Media
-    #Media-Storage
-    #Minecraft
-    Music
-    #Peer
-    #Photos
-    #Photos-Incoming
-    #Private
-    #Proxmox-Images
-    Published
-    Software
-    Storage
-    Temp
-    Tools
-    #Users
-)
+HOSTNAME=$1
+source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 # Password
 cat <<EOF | passwd
@@ -86,9 +46,17 @@ pacman-key -r F75D9D76
 pacman-key --lsign-key F75D9D76
 pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
 
+echo "### Configuring VFIO..."
+if [[ "${VFIO_IDS}" != "" ]]
+then
+    echo "options vfio_pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio.conf
+fi
+
 echo "### Configuring boot image..."
 # Initramfs
-sed -i 's/MODULES=(\(.*\))/MODULES=(\1 efivarfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
+sed -i 's/MODULES=(\(.*\))/MODULES=(\1 efivarfs)/g' /etc/mkinitcpio.conf
+[[ "${VFIO_IDS}" != "" ]] && sed -i 's/MODULES=(\(.*\))/MODULES=(\1 vfio_pci vfio vfio_iommu_type1 vfio_virqfd)/g' /etc/mkinitcpio.conf
+sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
 sed -i 's/HOOKS=(\(.*\))/HOOKS=(base udev autodetect modconf block zfs filesystems keyboard)/g' /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
@@ -102,7 +70,9 @@ do
     grub-install --target=x86_64-efi --efi-directory="/efi/${i}" --bootloader-id="GRUB-${i}"
 done
 popd
-sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 nvidia-drm.modeset=1 zfs=z/root"|g' /etc/default/grub
+sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 zfs=z/root"|g' /etc/default/grub
+[[ "${VFIO_IDS}" != "" ]] && sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="\1 intel_iommu=on iommu=pt"|g' /etc/default/grub
+sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="\1 nvidia-drm.modeset=1"|g' /etc/default/grub
 #echo "GRUB_GFXPAYLOAD_LINUX=3840x1600x32" >>/etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
