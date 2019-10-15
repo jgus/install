@@ -65,7 +65,7 @@ EOF
 
     cat <<EOF >>~/archiso/airootfs/root/customize_airootfs.sh
 
-systemctl enable sshd.socket
+systemctl enable sshd.service
 EOF
 
     cat <<EOF >>~/archiso/airootfs/root/.zlogin
