@@ -42,6 +42,28 @@ Server = https://archzfs.com/\$repo/\$arch
 EOF
 
     cat << EOF >>~/archlive/packages.x86_64
+dhcpcd
+diffutils
+groff
+jfsutils
+libaio
+libpipeline
+linux-firmware
+logrotate
+lvm2
+man-db
+man-pages
+mdadm
+nano
+netctl
+openresolv
+reiserfsprogs
+s-nail
+thin-provisioning-tools
+usbutils
+vi
+which
+xfsprogs
 base-devel
 dkms
 linux-headers
