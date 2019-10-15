@@ -8,7 +8,7 @@ then
     exit 1
 fi
 
-if [[ ! -d ~/archiso/out ]]
+if [[ ! -d ~/archlive/out ]]
 then
     mount -o remount,size=8G /run/archiso/cowspace
 
@@ -19,7 +19,7 @@ then
     echo "### Adding packages..."
     if ! grep -q archzfs /etc/pacman.conf
     then
-        cat <<EOF >>/etc/pacman.conf
+        cat << EOF >>/etc/pacman.conf
 
 [archzfs]
 Server = https://archzfs.com/\$repo/\$arch
@@ -32,16 +32,16 @@ EOF
     systemctl start rngd.service
 
     echo "### Configuring image..."
-    rm -rf ~/archiso
-    cp -r /usr/share/archiso/configs/releng ~/archiso
+    rm -rf ~/archlive
+    cp -r /usr/share/archiso/configs/releng ~/archlive
 
-    cat <<EOF >>~/archiso/pacman.conf
+    cat << EOF >>~/archlive/pacman.conf
 
 [archzfs]
 Server = https://archzfs.com/\$repo/\$arch
 EOF
 
-    cat <<EOF >>~/archiso/packages.x86_64
+    cat << EOF >>~/archlive/packages.x86_64
 base-devel
 dkms
 linux-headers
@@ -50,25 +50,25 @@ pacman-contrib
 zfs-dkms
 EOF
 
-    for file in ~/archiso/efiboot/loader/entries/archiso-*.conf
-    do
-        sed -i 's/options \(.*\)/options nomodeset=1 \1/g' "${file}"
-    done
+    # for file in ~/archlive/efiboot/loader/entries/archiso-*.conf
+    # do
+    #     sed -i 's/options \(.*\)/options nomodeset=1 \1/g' "${file}"
+    # done
 
-    cd ~/archiso/airootfs/root
+    cd ~/archlive/airootfs/root
     git clone https://github.com/jgus/install
-    mkdir -p ~/archiso/airootfs/root/.ssh
-    touch ~/archiso/airootfs/root/.ssh/authorized_keys
-    chmod 600 ~/archiso/airootfs/root/.ssh/authorized_keys
-    curl https://github.com/jgus.keys >> ~/archiso/airootfs/root/.ssh/authorized_keys
-    chmod 400 ~/archiso/airootfs/root/.ssh/authorized_keys
+    mkdir -p ~/archlive/airootfs/root/.ssh
+    touch ~/archlive/airootfs/root/.ssh/authorized_keys
+    chmod 600 ~/archlive/airootfs/root/.ssh/authorized_keys
+    curl https://github.com/jgus.keys >> ~/archlive/airootfs/root/.ssh/authorized_keys
+    chmod 400 ~/archlive/airootfs/root/.ssh/authorized_keys
 
-    cat <<EOF >>~/archiso/airootfs/root/customize_airootfs.sh
+    cat << EOF >>~/archlive/airootfs/root/customize_airootfs.sh
 
 systemctl enable sshd.service
 EOF
 
-    cat <<EOF >>~/archiso/airootfs/root/.zlogin
+    cat << EOF >>~/archlive/airootfs/root/.zlogin
 if [[ -x ~/.runonce.sh ]]
 then
     rm -f ~/.running.sh
@@ -78,7 +78,7 @@ then
 fi
 EOF
 
-    cat <<EOF >>~/archiso/airootfs/root/.runonce.sh
+    cat << EOF >>~/archlive/airootfs/root/.runonce.sh
 #!/bin/bash
 set -e
 pacman-key --init
@@ -88,14 +88,14 @@ pacman -Sy
 cd ~/install
 git pull
 EOF
-    chmod a+x ~/archiso/airootfs/root/.runonce.sh
+    chmod a+x ~/archlive/airootfs/root/.runonce.sh
 
     echo "### Building image..."
-    cd ~/archiso
+    cd ~/archlive
     ./build.sh -v
 fi
 
-ISO=$(ls -1 ~/archiso/out/*)
+ISO=$(ls -1 ~/archlive/out/*)
 
 echo "### Wiping recovery device..."
 wipefs --all "${DEVICE}"
