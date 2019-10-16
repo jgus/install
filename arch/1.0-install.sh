@@ -2,8 +2,10 @@
 set -e
 
 HOSTNAME=$1
-EFI_SIZE=512MiB
+BOOT_SIZE=512MiB
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+
+BOOT_MODE=${BOOT_MODE:-efi}
 
 # System
 echo "### Cleaning up prior partitions..."
@@ -16,30 +18,32 @@ zpool destroy boot || true
 zpool destroy z || true
 zpool destroy bulk || true
 
-EFI_DEVS=()
+BOOT_DEVS=()
 Z_DEVS=()
 SWAP_DEVS=()
+TABLE_TYPE="gpt"
+[[ "${BOOT_MODE}" == "bios" ]] && TABLE_TYPE="msdos"
 for i in "${!SYSTEM_DEVICES[@]}"
 do
     DEVICE="/dev/disk/by-id/${SYSTEM_DEVICES[$i]}"
     echo "### Wiping and re-partitioning ${DEVICE}..."
     wipefs --all "${DEVICE}"
-    parted -s "${DEVICE}" -- mklabel gpt
+    parted -s "${DEVICE}" -- mklabel "${TABLE_TYPE}"
     while [ -L "${DEVICE}-part2" ] ; do : ; done
-    parted -s "${DEVICE}" -- mkpart primary 4MiB "${EFI_SIZE}"
-    parted -s "${DEVICE}" -- set 1 esp on
-    parted -s "${DEVICE}" -- mkpart primary "${EFI_SIZE}" "${Z_PART_END}"
+    parted -s "${DEVICE}" -- mkpart primary 4MiB "${BOOT_SIZE}"
+    [[ "${BOOT_MODE}" == "efi" ]] && parted -s "${DEVICE}" -- set 1 esp on
+    parted -s "${DEVICE}" -- mkpart primary "${BOOT_SIZE}" "${Z_PART_END}"
     parted -s "${DEVICE}" -- mkpart primary "${Z_PART_END}" 100%
-    EFI_DEVS+=("${DEVICE}-part1")
+    BOOT_DEVS+=("${DEVICE}-part1")
     Z_DEVS+=("${DEVICE}-part2")
     SWAP_DEVS+=("${DEVICE}-part3")
 done
 sleep 1
 
-echo "### Formatting EFI partitions... (${EFI_DEVS[@]})"
-for i in "${!EFI_DEVS[@]}"
+echo "### Formatting boot partitions... (${BOOT_DEVS[@]})"
+for i in "${!BOOT_DEVS[@]}"
 do
-    mkfs.fat -F 32 -n "UEFI${i}" "${EFI_DEVS[$i]}"
+    mkfs.fat -F 32 -n "BOOT${i}" "${BOOT_DEVS[$i]}"
 done
 
 echo "### Creating zpool z... (${Z_DEVS[@]})"
@@ -114,7 +118,7 @@ then
     zfs set mountpoint=/bulk bulk
 fi
 mkdir -p "/target/boot"
-mount "/dev/disk/by-label/UEFI0" "/target/boot"
+mount "/dev/disk/by-label/BOOT0" "/target/boot"
 mkdir -p /target/install
 cp -rf "$(cd "$(dirname "$0")" ; pwd)"/* /target/install
 mkdir -p /target/tmp
@@ -137,7 +141,7 @@ rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/files/ /target
 echo "### Configuring fstab..."
 #genfstab -U /target >> /target/etc/fstab
 echo "z/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
-echo "LABEL=UEFI0 /boot vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
+echo "LABEL=BOOT0 /boot vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
 for i in "${!SWAP_DEVS[@]}"
 do
     echo "swap${i} ${SWAP_DEVS[i]} /dev/urandom swap,cipher=aes-xts-plain64,size=256" >>/target/etc/crypttab
