@@ -113,11 +113,8 @@ then
     zpool set cachefile=/etc/zfs/zpool.cache bulk
     zfs set mountpoint=/bulk bulk
 fi
-for i in "${!EFI_DEVS[@]}"
-do
-    mkdir -p "/target/efi/${i}"
-    mount "/dev/disk/by-label/UEFI${i}" "/target/efi/${i}"
-done
+mkdir -p "/target/boot"
+mount "/dev/disk/by-label/UEFI0" "/target/boot"
 mkdir -p /target/install
 cp -rf "$(cd "$(dirname "$0")" ; pwd)"/* /target/install
 mkdir -p /target/tmp
@@ -140,10 +137,7 @@ rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/files/ /target
 echo "### Configuring fstab..."
 #genfstab -U /target >> /target/etc/fstab
 echo "z/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
-for i in "${!EFI_DEVS[@]}"
-do
-    echo "LABEL=UEFI${i} /efi/${i} vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
-done
+echo "LABEL=UEFI0 /boot vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
 for i in "${!SWAP_DEVS[@]}"
 do
     echo "swap${i} ${SWAP_DEVS[i]} /dev/urandom swap,cipher=aes-xts-plain64,size=256" >>/target/etc/crypttab

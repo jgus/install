@@ -4,8 +4,6 @@ set -e
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
-ln -s /efi/0 /boot
-
 # Password
 cat <<EOF | passwd
 changeme
@@ -69,8 +67,9 @@ KERNEL_PARAMS="loglevel=3 zfs=z/root"
 [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} intel_iommu=on iommu=pt"
 KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
 KERNEL_PARAMS="${KERNEL_PARAMS} initrd=/intel-ucode.img"
-efibootmgr --disk /dev/disk/by-id/"${SYSTEM_DEVICES[0]}" --part 1 --create --label "Arch Linux" --loader /vmlinuz-linux-zen --unicode "${KERNEL_PARAMS} initrd=\initramfs-linux-zen.img" --verbose
-efibootmgr --disk /dev/disk/by-id/"${SYSTEM_DEVICES[0]}" --part 1 --create --label "Arch Linux (Fallback)" --loader /vmlinuz-linux-zen --unicode "${KERNEL_PARAMS} initrd=\initramfs-linux-zen-fallback.img" --verbose
+efibootmgr --disk /dev/disk/by-id/"${SYSTEM_DEVICES[0]}" --create --label "Arch Linux" --loader /vmlinuz-linux-zen --unicode "${KERNEL_PARAMS} initrd=\initramfs-linux-zen.img"
+efibootmgr --disk /dev/disk/by-id/"${SYSTEM_DEVICES[0]}" --create --label "Arch Linux (Fallback)" --loader /vmlinuz-linux-zen --unicode "${KERNEL_PARAMS} initrd=\initramfs-linux-zen-fallback.img"
+efibootmgr --verbose
 
 echo "### Configuring nVidia updates..."
 #/etc/pacman.d/hooks/nvidia.hook
