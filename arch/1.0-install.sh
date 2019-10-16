@@ -2,6 +2,7 @@
 set -e
 
 HOSTNAME=$1
+EFI_SIZE=512MiB
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 # System
@@ -16,7 +17,6 @@ zpool destroy z || true
 zpool destroy bulk || true
 
 EFI_DEVS=()
-BOOT_DEVS=()
 Z_DEVS=()
 SWAP_DEVS=()
 for i in "${!SYSTEM_DEVICES[@]}"
@@ -26,15 +26,13 @@ do
     wipefs --all "${DEVICE}"
     parted -s "${DEVICE}" -- mklabel gpt
     while [ -L "${DEVICE}-part2" ] ; do : ; done
-    parted -s "${DEVICE}" -- mkpart primary 4MiB 512MiB
+    parted -s "${DEVICE}" -- mkpart primary 4MiB "${EFI_SIZE}"
     parted -s "${DEVICE}" -- set 1 esp on
-    parted -s "${DEVICE}" -- mkpart primary 512MiB 1024MiB
-    parted -s "${DEVICE}" -- mkpart primary 1024MiB "${Z_PART_END}"
+    parted -s "${DEVICE}" -- mkpart primary "${EFI_SIZE}" "${Z_PART_END}"
     parted -s "${DEVICE}" -- mkpart primary "${Z_PART_END}" 100%
     EFI_DEVS+=("${DEVICE}-part1")
-    BOOT_DEVS+=("${DEVICE}-part2")
-    Z_DEVS+=("${DEVICE}-part3")
-    SWAP_DEVS+=("${DEVICE}-part4")
+    Z_DEVS+=("${DEVICE}-part2")
+    SWAP_DEVS+=("${DEVICE}-part3")
 done
 sleep 1
 
@@ -43,35 +41,6 @@ for i in "${!EFI_DEVS[@]}"
 do
     mkfs.fat -F 32 -n "UEFI${i}" "${EFI_DEVS[$i]}"
 done
-
-echo "### Creating zpool boot... (${BOOT_DEVS[@]})"
-zpool create \
-    -d \
-    -o feature@allocation_classes=enabled \
-    -o feature@async_destroy=enabled      \
-    -o feature@bookmarks=enabled          \
-    -o feature@embedded_data=enabled      \
-    -o feature@empty_bpobj=enabled        \
-    -o feature@enabled_txg=enabled        \
-    -o feature@extensible_dataset=enabled \
-    -o feature@filesystem_limits=enabled  \
-    -o feature@hole_birth=enabled         \
-    -o feature@large_blocks=enabled       \
-    -o feature@lz4_compress=enabled       \
-    -o feature@project_quota=enabled      \
-    -o feature@resilver_defer=enabled     \
-    -o feature@spacemap_histogram=enabled \
-    -o feature@spacemap_v2=enabled        \
-    -o feature@userobj_accounting=enabled \
-    -o feature@zpool_checkpoint=enabled   \
-    -o ashift=12 \
-    -O atime=off \
-    -O compression=lz4 \
-    -m none \
-    -f \
-    boot ${SYSTEM_Z_TYPE} "${BOOT_DEVS[@]}"
-zfs unmount -a
-zpool export boot
 
 echo "### Creating zpool z... (${Z_DEVS[@]})"
 zpool create \
@@ -137,10 +106,6 @@ zpool import -R /target -l z
 zpool set cachefile=/etc/zfs/zpool.cache z
 zfs set mountpoint=/ z/root
 zfs mount -a
-mkdir -p /target/boot
-zpool import -R /target boot
-zpool set cachefile=/etc/zfs/zpool.cache boot
-zfs set mountpoint=/boot boot
 if [[ "${BULK_DEVICE}" != "" ]]
 then
     mkdir -p /target/bulk
@@ -202,13 +167,12 @@ umount -R /target
 zfs unmount -a
 
 echo "### Snapshotting..."
-for pool in boot z/root
+for pool in z/root
 do
     zfs snapshot ${pool}@pre-boot-install
 done
 
 echo "### Exporting..."
-zpool export boot
 zpool export z
 if [[ "${BULK_DEVICE}" != "" ]]
 then

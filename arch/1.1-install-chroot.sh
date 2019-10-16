@@ -53,6 +53,7 @@ then
 fi
 
 echo "### Configuring boot image..."
+ln -s /efi/0 /target/boot
 # Initramfs
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 efivarfs)/g' /etc/mkinitcpio.conf
 [[ "${VFIO_IDS}" != "" ]] && sed -i 's/MODULES=(\(.*\))/MODULES=(\1 vfio_pci vfio vfio_iommu_type1 vfio_virqfd)/g' /etc/mkinitcpio.conf
@@ -62,19 +63,12 @@ sed -i 's/HOOKS=(\(.*\))/HOOKS=(base udev autodetect modconf block zfs filesyste
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
 mkinitcpio -p linux-zen
 
-echo "### Installing bootloader..."
-pushd /efi
-export ZPOOL_VDEV_NAME_PATH=1
-for i in *
-do
-    grub-install --target=x86_64-efi --efi-directory="/efi/${i}" --bootloader-id="GRUB-${i}"
-done
-popd
-sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 zfs=z/root"|g' /etc/default/grub
-[[ "${VFIO_IDS}" != "" ]] && sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="\1 intel_iommu=on iommu=pt"|g' /etc/default/grub
-sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="\1 nvidia-drm.modeset=1"|g' /etc/default/grub
-#echo "GRUB_GFXPAYLOAD_LINUX=3840x1600x32" >>/etc/default/grub
-grub-mkconfig -o /boot/grub/grub.cfg
+echo "### Installing EFISTUB..."
+KERNEL_PARAMS="loglevel=3 zfs=z/root"
+[[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} intel_iommu=on iommu=pt"
+KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
+efibootmgr --disk "${SYSTEM_DEVICES[0]}" --part 1 --create --label "Arch Linux" --loader /vmlinuz-linux-zen --unicode "initrd=/intel-ucode.img initrd=\initramfs-linux-zen.img ${KERNEL_PARAMS}" --verbose
+efibootmgr --disk "${SYSTEM_DEVICES[0]}" --part 1 --create --label "Arch Linux (Fallback)" --loader /vmlinuz-linux-zen --unicode "initrd=/intel-ucode.img initrd=\initramfs-linux-zen-fallback.img ${KERNEL_PARAMS}" --verbose
 
 echo "### Configuring nVidia updates..."
 #/etc/pacman.d/hooks/nvidia.hook

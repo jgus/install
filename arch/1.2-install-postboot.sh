@@ -10,7 +10,6 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 echo "### Post-boot ZFS config..."
 zfs load-key -a
-zpool set cachefile=/etc/zfs/zpool.cache boot
 zpool set cachefile=/etc/zfs/zpool.cache z
 if [[ -d /bulk ]]
 then
@@ -27,7 +26,6 @@ systemctl enable zfs-import-cache
 systemctl enable zfs-mount
 systemctl enable zfs-import.target
 systemctl enable zfs-load-key.service
-systemctl enable zfs-scrub@boot.timer
 systemctl enable zfs-scrub@z.timer
 if [[ -d /bulk ]]
 then
@@ -230,7 +228,7 @@ rm -rf /install
 rm /etc/systemd/system/getty@tty1.service.d/override.conf
 
 echo "### Making a snapshot..."
-for pool in boot z/root z/home z/docker z/images
+for pool in z/root z/home z/docker z/images
 do
     zfs snapshot ${pool}@post-boot-install
 done
@@ -243,7 +241,6 @@ systemctl enable NetworkManager.service
 
 echo "### Configuring ZFS Snapshots..."
 # /etc/systemd/system/zfs-auto-snapshot-*.service.d
-zfs set com.sun:auto-snapshot=true boot
 zfs set com.sun:auto-snapshot=true z
 zfs set com.sun:auto-snapshot=false z/root/var
 zfs set com.sun:auto-snapshot=false z/images/scratch
@@ -300,7 +297,7 @@ do
 done
 
 echo "### Making a snapshot..."
-for pool in boot z/root z/home z/docker z/images
+for pool in z/root z/home z/docker z/images
 do
     zfs snapshot ${pool}@aur-pacakges-installed
 done
