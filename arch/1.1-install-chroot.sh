@@ -5,8 +5,40 @@ HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 BOOT_MODE=${BOOT_MODE:-efi}
+KERNEL=${KERNEL:-linux}
 
-PACKAGES+=(grub)
+PACKAGES+=(
+    # Base
+    diffutils logrotate man-db man-pages nano netctl usbutils vi which
+    # Kernel
+    linux-zen-headers linux-firmware dkms base-devel
+    # Bootloader
+    grub intel-ucode efibootmgr
+    # ZFS
+    zfs-dkms
+    # Sensors
+    lm_sensors nvme-cli
+    # General
+    git git-lfs zsh grml-zsh-config
+    diffutils inetutils less logrotate man-db man-pages nano usbutils which
+    # RNG
+    rng-tools
+    # OpenSSH
+    openssh
+    # Samba
+    samba
+    # Misc
+    ccache rsync p7zip tmux
+    )
+[[ "${HAS_NVIDIA}" == "1" ]] && PACKAGES+=(
+    # Drivers
+    nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
+    opencl-nvidia ocl-icd cuda clinfo
+     )
+[[ "${HAS_BLUETOOTH}" == "1" ]] && PACKAGES+=(
+    # Bluetooth
+    bluez bluez-utils bluez-plugins
+     )
 
 # Password
 cat <<EOF | passwd
@@ -60,16 +92,16 @@ echo "### Configuring boot image..."
 # Initramfs
 sed -i 's/MODULES=(\(.*\))/MODULES=(\1 efivarfs)/g' /etc/mkinitcpio.conf
 [[ "${VFIO_IDS}" != "" ]] && sed -i 's/MODULES=(\(.*\))/MODULES=(\1 vfio_pci vfio vfio_iommu_type1 vfio_virqfd)/g' /etc/mkinitcpio.conf
-sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
+[[ "${HAS_NVIDIA}" == "1" ]] && sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
 sed -i 's/HOOKS=(\(.*\))/HOOKS=(base udev autodetect modconf block zfs filesystems keyboard)/g' /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
-mkinitcpio -p linux-zen
+mkinitcpio -p ${KERNEL}
 
 echo "### Installing bootloader..."
 KERNEL_PARAMS="loglevel=3 zfs=z/root"
 [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} intel_iommu=on iommu=pt"
-KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
+[[ "${HAS_NVIDIA}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
 export ZPOOL_VDEV_NAME_PATH=1
 if [[ "${BOOT_MODE}" == "bios" ]]
 then

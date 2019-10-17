@@ -7,6 +7,7 @@ set -e
 
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+KERNEL=${KERNEL:-linux}
 
 echo "### Post-boot ZFS config..."
 zfs load-key -a
@@ -39,7 +40,7 @@ zfs create -o mountpoint=/var/lib/docker z/docker
 zfs create -o mountpoint=/var/lib/libvirt/images z/images
 zfs create z/images/scratch
 
-mkinitcpio -p linux-zen
+mkinitcpio -p ${KERNEL}
 
 echo "### Installing Packages..."
 sed -i 's/#Color/Color/g' /etc/pacman.conf
@@ -140,9 +141,9 @@ EOF
     sudo -u josh systemctl --user enable smbnetfs
 fi
 
-echo "### Configuring Bluetooth..."
 if [[ which bluetoothctl ]]
 then
+    echo "### Configuring Bluetooth..."
     cat << EOF >> /etc/bluetooth/main.conf
 
 [Policy]
@@ -187,16 +188,19 @@ then
     chown gustafson:gustafson /bulk/steam
 fi
 
-echo "### Configuring KVM..."
-systemctl enable --now libvirtd.service
-virsh net-define "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"
-virsh net-autostart internal
-virsh net-start internal
-cat << EOF >> /etc/libvirt/qemu.conf
+if [[ which virsh ]]
+then
+    echo "### Configuring KVM..."
+    systemctl enable --now libvirtd.service
+    virsh net-define "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"
+    virsh net-autostart internal
+    virsh net-start internal
+    cat << EOF >> /etc/libvirt/qemu.conf
 nvram = [
-	"/usr/share/ovmf/x64/OVMF_CODE.fd:/usr/share/ovmf/x64/OVMF_VARS.fd"
+    "/usr/share/ovmf/x64/OVMF_CODE.fd:/usr/share/ovmf/x64/OVMF_VARS.fd"
 ]
 EOF
+fi
 
 echo "### Installing Yay..."
 useradd --user-group --home-dir /var/cache/builder --create-home --system builder

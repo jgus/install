@@ -6,6 +6,7 @@ BOOT_SIZE=512MiB
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 BOOT_MODE=${BOOT_MODE:-efi}
+KERNEL=${KERNEL:-linux}
 
 # System
 echo "### Cleaning up prior partitions..."
@@ -132,7 +133,7 @@ pacman -Sy --needed --noconfirm pacman-contrib
 curl -s "https://www.archlinux.org/mirrorlist/?country=US&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
 
 echo "### Pacstrapping..."
-pacstrap /target base linux-zen dhcpcd openresolv
+pacstrap /target base ${KERNEL} dhcpcd openresolv
 
 echo "### Copying preset files..."
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/common/files/ /target
