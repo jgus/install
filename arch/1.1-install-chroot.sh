@@ -6,7 +6,7 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 BOOT_MODE=${BOOT_MODE:-efi}
 
-[[ "${BOOT_MODE}" == "bios" ]] && PACKAGES+=(grub)
+PACKAGES+=(grub)
 
 # Password
 cat <<EOF | passwd
@@ -73,15 +73,12 @@ KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
 if [[ "${BOOT_MODE}" == "bios" ]]
 then
     grub-install --target=i386-pc "${SYSTEM_DEVICES[0]}"
-    sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="${KERNEL_PARAMS}"|g' /etc/default/grub
-    #echo "GRUB_GFXPAYLOAD_LINUX=3840x1600x32" >>/etc/default/grub
-    grub-mkconfig -o /boot/grub/grub.cfg
 else
-    KERNEL_PARAMS="${KERNEL_PARAMS} initrd=/intel-ucode.img"
-    efibootmgr --disk /dev/disk/by-id/"${SYSTEM_DEVICES[0]}" --create --label "Arch Linux" --loader /vmlinuz-linux-zen --unicode "${KERNEL_PARAMS} initrd=\initramfs-linux-zen.img"
-    efibootmgr --disk /dev/disk/by-id/"${SYSTEM_DEVICES[0]}" --create --label "Arch Linux (Fallback)" --loader /vmlinuz-linux-zen --unicode "${KERNEL_PARAMS} initrd=\initramfs-linux-zen-fallback.img"
-    efibootmgr --verbose
+    grub-install --target=x86_64-efi --efi-directory="/boot" --bootloader-id="GRUB"
 fi
+sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="${KERNEL_PARAMS}"|g' /etc/default/grub
+#echo "GRUB_GFXPAYLOAD_LINUX=3840x1600x32" >>/etc/default/grub
+grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "### Configuring nVidia updates..."
 #/etc/pacman.d/hooks/nvidia.hook
