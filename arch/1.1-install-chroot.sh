@@ -70,6 +70,7 @@ echo "### Installing bootloader..."
 KERNEL_PARAMS="loglevel=3 zfs=z/root"
 [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} intel_iommu=on iommu=pt"
 KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
+export ZPOOL_VDEV_NAME_PATH=1
 if [[ "${BOOT_MODE}" == "bios" ]]
 then
     grub-install --target=i386-pc "${SYSTEM_DEVICES[0]}"
