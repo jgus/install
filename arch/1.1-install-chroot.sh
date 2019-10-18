@@ -89,10 +89,10 @@ then
 fi
 
 echo "### Configuring boot image..."
-# Initramfs
-sed -i 's/MODULES=(\(.*\))/MODULES=(\1 efivarfs)/g' /etc/mkinitcpio.conf
-[[ "${VFIO_IDS}" != "" ]] && sed -i 's/MODULES=(\(.*\))/MODULES=(\1 vfio_pci vfio vfio_iommu_type1 vfio_virqfd)/g' /etc/mkinitcpio.conf
-[[ "${HAS_NVIDIA}" == "1" ]] && sed -i 's/MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
+MODULES=(efivarfs)
+[[ "${VFIO_IDS}" != "" ]] && MODULES+=(vfio_pci vfio vfio_iommu_type1 vfio_virqfd)
+[[ "${HAS_NVIDIA}" == "1" ]] && MODULES+=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
+sed -i 's/MODULES=(\(.*\))/MODULES=(${MODULES[@]})/g' /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
 sed -i 's/HOOKS=(\(.*\))/HOOKS=(base udev autodetect modconf block zfs filesystems keyboard)/g' /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
