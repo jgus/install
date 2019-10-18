@@ -92,9 +92,9 @@ echo "### Configuring boot image..."
 MODULES=(efivarfs)
 [[ "${VFIO_IDS}" != "" ]] && MODULES+=(vfio_pci vfio vfio_iommu_type1 vfio_virqfd)
 [[ "${HAS_NVIDIA}" == "1" ]] && MODULES+=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
-sed -i 's/MODULES=(\(.*\))/MODULES=(${MODULES[@]})/g' /etc/mkinitcpio.conf
+sed -i "s/MODULES=(\(.*\))/MODULES=(${MODULES[@]})/g" /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
-sed -i 's/HOOKS=(\(.*\))/HOOKS=(base udev autodetect modconf block zfs filesystems keyboard)/g' /etc/mkinitcpio.conf
+sed -i "s/HOOKS=(\(.*\))/HOOKS=(base udev autodetect modconf block zfs filesystems keyboard)/g" /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
 mkinitcpio -p ${KERNEL}
 
@@ -109,7 +109,7 @@ then
 else
     grub-install --target=x86_64-efi --efi-directory="/boot" --bootloader-id="GRUB"
 fi
-sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="${KERNEL_PARAMS}"|g' /etc/default/grub
+sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"\(.*\)\"|GRUB_CMDLINE_LINUX_DEFAULT=\"${KERNEL_PARAMS}\"|g" /etc/default/grub
 #echo "GRUB_GFXPAYLOAD_LINUX=3840x1600x32" >>/etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
