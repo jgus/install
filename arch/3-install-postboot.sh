@@ -92,7 +92,7 @@ chown josh:josh /git
 
 usermod -a -G wheel josh
 
-if [[ which virsh ]]
+if which virsh
 then
     usermod -a -G libvirt josh
     mkdir -p /home/josh/.config/libvirt
@@ -115,7 +115,7 @@ echo "### Configuring Samba..."
 # /etc/samba/smb.conf
 [[ -f /etc/samba/smb.conf ]] && systemctl enable smb.service
 
-if [[ which smbnetfs ]]
+if which smbnetfs
 then
     cat << EOF >> /home/josh/.config/systemd/user/smbnetfs.service
 [Unit]
@@ -132,7 +132,7 @@ EOF
     sudo -u josh systemctl --user enable smbnetfs
 fi
 
-if [[ which bluetoothctl ]]
+if which bluetoothctl
 then
     echo "### Configuring Bluetooth..."
     cat << EOF >> /etc/bluetooth/main.conf
@@ -144,13 +144,13 @@ EOF
 fi
 
 echo "### Configuring UPS..."
-[[ which apcaccess ]] && systemctl enable apcupsd.service
+which apcaccess && systemctl enable apcupsd.service
 
 echo "### Configuring Sensors..."
 sensors-detect --auto
 
 echo "### Configuring Xorg..."
-[[ which ratbagd ]] && systemctl enable ratbagd.service
+which ratbagd && systemctl enable ratbagd.service
 for d in "${SEAT1_DEVICES[@]}"
 do
     loginctl attach seat1 "${d}"
@@ -179,7 +179,7 @@ then
     chown gustafson:gustafson /bulk/steam
 fi
 
-if [[ which virsh ]]
+if which virsh
 then
     echo "### Configuring KVM..."
     systemctl enable --now libvirtd.service
