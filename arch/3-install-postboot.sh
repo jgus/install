@@ -286,7 +286,7 @@ systemctl enable --now docker.service
 docker volume create portainer_data
 docker volume create syncthing_config
 usermod -a -G docker josh
-for i in "${!DOCKER_SERVICES[@]}"
+for i in "${DOCKER_SERVICES[@]}"
 do
     systemctl enable ${i}.service
 done
