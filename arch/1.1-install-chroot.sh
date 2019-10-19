@@ -92,9 +92,9 @@ echo "### Configuring boot image..."
 MODULES=(efivarfs)
 [[ "${VFIO_IDS}" != "" ]] && MODULES+=(vfio_pci vfio vfio_iommu_type1 vfio_virqfd)
 [[ "${HAS_NVIDIA}" == "1" ]] && MODULES+=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
-sed -i "s/MODULES=(\(.*\))/MODULES=(${MODULES[@]})/g" /etc/mkinitcpio.conf
+sed -i "s|MODULES=(\(.*\))|MODULES=(${MODULES[@]})|g" /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
-sed -i "s/HOOKS=(\(.*\))/HOOKS=(base udev autodetect modconf block zfs filesystems keyboard)/g" /etc/mkinitcpio.conf
+sed -i "s|HOOKS=(\(.*\))|HOOKS=(base udev autodetect modconf block zfs filesystems keyboard)|g" /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
 mkinitcpio -p ${KERNEL}
 
