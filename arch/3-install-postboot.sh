@@ -82,7 +82,7 @@ do
 done
 
 zfs create -o canmount=off z/home/josh
-for $i in sync steam
+for i in sync steam
 do
     zfs create z/home/josh/${i}
     chown josh:josh /home/josh/${i}
