@@ -228,9 +228,6 @@ done
 echo "### Installing AUR Packages (interactive)..."
 sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 
-echo "### Configuring network..."
-systemctl enable NetworkManager.service
-
 echo "### Configuring Printing..."
 systemctl enable org.cups.cupsd.service
 
