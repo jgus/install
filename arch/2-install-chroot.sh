@@ -67,7 +67,7 @@ echo "### Configuring network..."
 systemctl disable dhcpcd.service
 #/etc/systemd/network/
 systemctl enable systemd-networkd.service
-systemctl enable dhcpcd@br0.service
+#systemctl enable dhcpcd@br0.service
 
 echo "### Installing pacakages..."
 cat <<EOF >>/etc/pacman.conf

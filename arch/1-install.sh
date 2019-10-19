@@ -145,7 +145,7 @@ echo "z/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 echo "LABEL=BOOT0 /boot vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
 for i in "${!SWAP_DEVS[@]}"
 do
-    echo "swap${i} ${SWAP_DEVS[i]} /dev/urandom swap,cipher=aes-xts-plain64,size=256" >>/target/etc/crypttab
+    echo "swap${i} ${SWAP_DEVS[i]} /sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b swap,cipher=aes-xts-plain64,size=256" >>/target/etc/crypttab
     echo "/dev/mapper/swap${i} none swap defaults,pri=100 0 0" >> /target/etc/fstab
 done
 echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime,size=${TMP_SIZE} 0 0" >> /target/etc/fstab
