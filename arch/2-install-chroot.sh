@@ -100,9 +100,6 @@ sed -i "s|HOOKS=(\(.*\))|HOOKS=(base udev autodetect modconf block zfs filesyste
 mkinitcpio -p ${KERNEL}
 
 echo "### Installing bootloader..."
-KERNEL_PARAMS="loglevel=3 zfs=z/root"
-[[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} intel_iommu=on iommu=pt"
-[[ "${HAS_NVIDIA}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
 export ZPOOL_VDEV_NAME_PATH=1
 if [[ "${BOOT_MODE}" == "bios" ]]
 then
@@ -110,7 +107,15 @@ then
 else
     grub-install --target=x86_64-efi --efi-directory="/boot" --bootloader-id="GRUB"
 fi
+KERNEL_PARAMS="loglevel=3 zfs=z/root"
+[[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} intel_iommu=on iommu=pt"
+[[ "${HAS_NVIDIA}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
 sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"\(.*\)\"|GRUB_CMDLINE_LINUX_DEFAULT=\"${KERNEL_PARAMS}\"|g" /etc/default/grub
+sed -i "s|GRUB_TIMEOUT=.*|GRUB_TIMEOUT=0|g" /etc/default/grub
+cat << EOF >>/etc/default/grub
+GRUB_HIDDEN_TIMEOUT=0
+GRUB_HIDDEN_TIMEOUT_QUIET=true
+EOF
 #echo "GRUB_GFXPAYLOAD_LINUX=3840x1600x32" >>/etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
