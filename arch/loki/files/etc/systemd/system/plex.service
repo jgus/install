@@ -2,6 +2,8 @@
 Description=Plex Media Server
 After=docker.service
 Requires=docker.service
+After=NetworkManager-wait-online.service
+Requires=NetworkManager-wait-online.service
  
 [Service]
 TimeoutStartSec=0
