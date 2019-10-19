@@ -169,9 +169,6 @@ echo "### Configuring GNOME..."
 systemctl enable gdm.service
 systemctl enable xvnc.socket
 
-echo "### Configuring Printing..."
-systemctl enable org.cups.cupsd.service
-
 echo "### Configuring Steam..."
 if [[ -d /bulk ]]
 then
@@ -233,6 +230,9 @@ sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 
 echo "### Configuring network..."
 systemctl enable NetworkManager.service
+
+echo "### Configuring Printing..."
+systemctl enable org.cups.cupsd.service
 
 echo "### Configuring ZFS Snapshots..."
 # /etc/systemd/system/zfs-auto-snapshot-*.service.d
