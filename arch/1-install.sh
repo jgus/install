@@ -159,7 +159,7 @@ echo "### Copying NVRAM-stored files..."
 rsync -ar /target/tmp/machine-secrets/files/ /target || true
 
 echo "### Running further install in the chroot..."
-arch-chroot /target /install/1.1-install-chroot.sh ${HOSTNAME}
+arch-chroot /target /install/2-install-chroot.sh ${HOSTNAME}
 
 echo "### Unmounting..."
 umount -R /target
