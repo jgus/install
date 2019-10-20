@@ -73,8 +73,11 @@ zpool export z
 echo "### Setting up swap... (${SWAP_DEVS[@]})"
 for i in "${!SWAP_DEVS[@]}"
 do
-    mkswap -L"SWAP${i}" "${SWAP_DEVS[$i]}"
+    cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b --allow-discards open --type plain "${SWAP_DEVS[$i]}" swap${i}
+    mkswap -L SWAP${i} /dev/mapper/swap${i}
+    swapon -p 100 /dev/mapper/swap${i}
 done
+mount -o remount,size=8G /run/archiso/cowspace
 
 # Bulk
 if [[ "${BULK_DEVICE}" != "" ]]
@@ -99,12 +102,6 @@ fi
 echo "### Done partitioning!"
 
 echo "### Importing/mounting filesystems..."
-for d in /dev/disk/by-label/SWAP*
-do
-    swapon -p 100 "${d}"
-done
-mount -o remount,size=8G /run/archiso/cowspace
-
 mkdir -p /target
 zpool import -R /target -l z
 zpool set cachefile=/etc/zfs/zpool.cache z
@@ -138,14 +135,31 @@ echo "### Copying preset files..."
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/common/files/ /target
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/files/ /target
 
+echo "### Configuring openswap hook..."
+echo "run_hook () {" >> /target/etc/initcpio/hooks/openswap
+for i in "${!SWAP_DEVS[@]}"
+do
+    echo "cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b --allow-discards open --type plain ${SWAP_DEVS[$i]} swap${i}" >> /target/etc/initcpio/hooks/openswap
+done
+echo "}" >> /target/etc/initcpio/hooks/openswap
+cat << EOF >> /target/etc/initcpio/install/openswap
+build ()
+{
+    add_runscript
+}
+help ()
+{
+    echo "Opens the swap encrypted partition(s)"
+}
+EOF
+
 echo "### Configuring fstab..."
 #genfstab -U /target >> /target/etc/fstab
 echo "z/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 echo "LABEL=BOOT0 /boot vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
 for i in "${!SWAP_DEVS[@]}"
 do
-    echo "swap${i} ${SWAP_DEVS[i]} /sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b swap,cipher=aes-xts-plain64,size=256" >>/target/etc/crypttab
-    echo "/dev/mapper/swap${i} none swap defaults,pri=100 0 0" >> /target/etc/fstab
+    echo "/dev/mapper/swap${i} none swap defaults,discard,pri=100 0 0" >> /target/etc/fstab
 done
 echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime,size=${TMP_SIZE} 0 0" >> /target/etc/fstab
 
