@@ -17,7 +17,6 @@ do
 done
 zpool destroy boot || true
 zpool destroy z || true
-zpool destroy bulk || true
 
 BOOT_DEVS=()
 Z_DEVS=()
@@ -80,7 +79,7 @@ done
 # Bulk
 if [[ "${BULK_DEVICE}" != "" ]]
 then
-    zpool create \
+    zpool import -l bulk || zpool create \
         -o ashift=12 \
         -O atime=off \
         -O compression=lz4 \
