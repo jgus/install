@@ -1,0 +1,5 @@
+- remote-install opt on root and josh
+- restore as needed
+- set up syncthing (if not restored)
+- start zfs replication
+- 

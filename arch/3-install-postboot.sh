@@ -46,7 +46,7 @@ echo "### Installing Packages..."
 sed -i 's/#Color/Color/g' /etc/pacman.conf
 pacman -S --needed --noconfirm "${PACKAGES[@]}"
 
-echo "### Adding users..."
+echo "### Adding system users..."
 #/etc/sudoers.d/wheel
 #/etc/sudoers.d/builder
 
@@ -61,25 +61,16 @@ then
     setfacl -d -m group:gustafson:rwx /bulk
 fi
 
-for U in Josh "${OTHER_USERS[@]}"
-do
-    u=$(echo "${U}" | awk '{print tolower($0)}')
-    useradd --groups gustafson --user-group --create-home "${u}"
-    cat <<EOF | passwd "${u}"
+useradd --groups gustafson --user-group --create-home josh
+cat <<EOF | passwd josh
 changeme
 changeme
 EOF
-    passwd -e "${u}"
-    mkdir -p /home/${u}/.config/systemd/user
-    mkdir -p /home/${u}/Pictures
-    ln -s /beast/Published/Photos /home/${u}/Pictures/Family
-    chown -R ${u}:${u} /home/${u}
-done
-for U in "${OTHER_USERS[@]}"
-do
-    u=$(echo "${U}" | awk '{print tolower($0)}')
-    chown -R ${u}:${u} /home/${u}
-done
+passwd -e josh
+mkdir -p /home/josh/.config/systemd/user
+mkdir -p /home/josh/Pictures
+ln -s /beast/Published/Photos /home/josh/Pictures/Family
+chown -R josh:josh /home/josh
 
 zfs create -o canmount=off z/home/josh
 for i in sync steam
@@ -216,7 +207,6 @@ EOF
 passwd
 
 echo "### Cleaning up..."
-rm -rf /install
 rm /etc/systemd/system/getty@tty1.service.d/override.conf
 
 echo "### Making a snapshot..."
