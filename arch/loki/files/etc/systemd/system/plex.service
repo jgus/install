@@ -9,7 +9,8 @@ Requires=NetworkManager-wait-online.service
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
-ExecStartPre=-/usr/bin/docker volume create plex_config
+ExecStartPre=-/usr/bin/zfs create z/volumes/plex_config
+ExecStartPre=/usr/bin/chown plex:plex /var/volumes/plex_config
 ExecStartPre=/usr/bin/docker pull linuxserver/plex
 ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
     --net host \
@@ -18,7 +19,7 @@ ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
     -e PUID=$$(/usr/bin/id -u plex) \
     -e PGID=$$(/usr/bin/id -g plex) \
     -e VERSION=latest \
-    -v plex_config:/config \
+    -v /var/volumes/plex_config:/config \
     -v plex_media:/media \
     -v plex_music:/music \
     -v plex_published:/published \

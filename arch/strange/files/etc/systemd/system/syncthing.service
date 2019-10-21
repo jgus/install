@@ -9,7 +9,8 @@ Requires=NetworkManager-wait-online.service
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
-ExecStartPre=-/usr/bin/docker volume create syncthing_config
+ExecStartPre=-/usr/bin/zfs create z/volumes/syncthing_config
+ExecStartPre=/usr/bin/chown josh:josh /var/volumes/syncthing_config
 ExecStartPre=/usr/bin/docker pull linuxserver/syncthing
 ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
     -p 8384:8384 \
@@ -18,7 +19,7 @@ ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
     -e PUID=$$(/usr/bin/id -u josh) \
     -e PGID=$$(/usr/bin/id -g josh) \
     -e TZ=America/Denver \
-    -v syncthing_config:/config \
+    -v /var/volumes/syncthing_config:/config \
     -v /home/josh/sync:/sync \
     -v /git:/git \
     linuxserver/syncthing"

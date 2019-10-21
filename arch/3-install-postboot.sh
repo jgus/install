@@ -37,6 +37,8 @@ zgenhostid $(hostid)
 
 zfs create -o mountpoint=/home z/home
 zfs create -o mountpoint=/var/lib/docker z/docker
+zfs create -o mountpoint=/var/volumes z/volumes
+zfs create z/volumes/scratch
 zfs create -o mountpoint=/var/lib/libvirt/images z/images
 zfs create z/images/scratch
 
@@ -225,6 +227,7 @@ echo "### Configuring ZFS Snapshots..."
 # /etc/systemd/system/zfs-auto-snapshot-*.service.d
 zfs set com.sun:auto-snapshot=true z
 zfs set com.sun:auto-snapshot=false z/root/var
+zfs set com.sun:auto-snapshot=false z/volumes/scratch
 zfs set com.sun:auto-snapshot=false z/images/scratch
 for i in monthly weekly daily hourly frequent
 do

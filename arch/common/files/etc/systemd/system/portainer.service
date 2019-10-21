@@ -9,13 +9,13 @@ Requires=NetworkManager-wait-online.service
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
-ExecStartPre=-/usr/bin/docker volume create portainer_data
+ExecStartPre=-/usr/bin/zfs create z/volumes/portainer_data
 ExecStartPre=/usr/bin/docker pull portainer/portainer
 ExecStart=/usr/bin/docker run --rm --name %n \
     -p 8000:8000 \
     -p 9000:9000 \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    -v portainer_data:/data \
+    -v /var/volumes/portainer_data:/data \
     portainer/portainer
 Restart=always
  
