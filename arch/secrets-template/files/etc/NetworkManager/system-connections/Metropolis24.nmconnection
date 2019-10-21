@@ -11,7 +11,7 @@ ssid=Metropolis24
 
 [wifi-security]
 key-mgmt=wpa-psk
-psk=ill-me-in
+psk=fill-me-in
 
 [ipv4]
 dns-search=
