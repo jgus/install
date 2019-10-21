@@ -1,5 +1,0 @@
-[Unit]
-Description=ZFS monthly snapshot service
-
-[Service]
-ExecStart=/bin/zfs-auto-snapshot --skip-scrub --prefix=znap --label=monthly --keep=12 //

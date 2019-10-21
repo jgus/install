@@ -1,6 +1,0 @@
-[Match]
-#MACAddress=d0:17:c2:d2:60:7b
-MACAddress=d0:17:c2:d2:60:7b
-
-[Network]
-Bridge=br0

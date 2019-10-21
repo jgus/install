@@ -1,2 +1,0 @@
-[[ -d ~/smb ]] || mkdir ~/smb
-mountpoint -q ~/smb || smbnetfs ~/smb
