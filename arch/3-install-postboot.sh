@@ -269,14 +269,7 @@ done
 
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
-systemctl enable --now docker.service
-docker volume create portainer_data
-docker volume create syncthing_config
-usermod -a -G docker josh
-for i in "${DOCKER_SERVICES[@]}"
-do
-    systemctl enable ${i}.service
-done
+systemctl enable docker.service
 
 echo "### Making a snapshot..."
 for pool in z/root z/home z/docker z/images

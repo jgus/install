@@ -9,6 +9,7 @@ Requires=NetworkManager-wait-online.service
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=-/usr/bin/docker volume create syncthing_config
 ExecStartPre=/usr/bin/docker pull linuxserver/syncthing
 ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
     -p 8384:8384 \
