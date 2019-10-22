@@ -63,23 +63,14 @@ then
     setfacl -d -m group:gustafson:rwx /bulk
 fi
 
-useradd --groups gustafson --user-group --create-home josh
+useradd --groups gustafson --user-group --no-create-home josh
 cat <<EOF | passwd josh
 changeme
 changeme
 EOF
 passwd -e josh
-mkdir -p /home/josh/.config/systemd/user
-mkdir -p /home/josh/Pictures
-ln -s /beast/Published/Photos /home/josh/Pictures/Family
-chown -R josh:josh /home/josh
+CRYPT_USER=josh /etc/mkhome.sh
 
-zfs create -o canmount=off z/home/josh
-for i in sync steam
-do
-    zfs create z/home/josh/${i}
-    chown josh:josh /home/josh/${i}
-done
 zfs create -o mountpoint=/git z/git
 chown josh:josh /git
 
