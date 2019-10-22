@@ -18,6 +18,8 @@ PACKAGES+=(
     zfs-dkms
     # Sensors
     lm_sensors nvme-cli
+    # Network
+    openresolv networkmanager dhclient
     # General
     git git-lfs zsh grml-zsh-config
     diffutils inetutils less logrotate man-db man-pages nano usbutils which
@@ -63,9 +65,6 @@ cat <<EOF >/etc/hosts
 127.0.1.1 ${HOSTNAME}.localdomain ${HOSTNAME}
 EOF
 
-echo "### Configuring network..."
-systemctl enable NetworkManager.service
-
 echo "### Installing pacakages..."
 cat <<EOF >>/etc/pacman.conf
 
@@ -78,6 +77,9 @@ EOF
 pacman-key -r F75D9D76
 pacman-key --lsign-key F75D9D76
 pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
+
+echo "### Configuring network..."
+systemctl enable NetworkManager.service
 
 echo "### Configuring VFIO..."
 if [[ "${VFIO_IDS}" != "" ]]
