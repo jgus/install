@@ -151,7 +151,7 @@ changeme
 changeme
 EOF
 passwd -e josh
-CRYPT_USER=josh /etc/mkhome.sh
+/etc/mkhome.sh josh
 
 zfs create -o mountpoint=/git z/git
 chown josh:josh /git
@@ -179,7 +179,6 @@ do
 changeme
 changeme
 EOF
-    passwd -e "${u}"
 done
 
 echo "### Configuring makepkg..."

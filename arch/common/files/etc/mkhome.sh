@@ -1,20 +1,23 @@
 #!/bin/bash
 
-[[ -d "/home/${CRYPT_USER}" ]] && exit 0
+USER=$1
+HOME_DIR=$(sudo -u ${USER} sh -c "echo ~")
 
-zfs create -o com.sun:auto-snapshot=true z/home/${CRYPT_USER}
+[[ -d "${HOME_DIR}" ]] && exit 0
+
+zfs create -o mountpoint="${HOME_DIR}" -o com.sun:auto-snapshot=true z/home/${USER}
 for i in .cache sync steam
 do
-    zfs create -o com.sun:auto-snapshot=false z/home/${CRYPT_USER}/${i}
+    zfs create -o com.sun:auto-snapshot=false z/home/${USER}/${i}
 done
-rsync -arP /etc/skel/ z/home/${CRYPT_USER}
-mkdir -p /home/${CRYPT_USER}/.config/systemd/user
-mkdir -p /home/${CRYPT_USER}/Pictures
-ln -s /beast/Published/Photos /home/${CRYPT_USER}/Pictures/Family
+rsync -arP /etc/skel/ ${HOME_DIR}
+mkdir -p ${HOME_DIR}/.config/systemd/user
+mkdir -p ${HOME_DIR}/Pictures
+ln -s /beast/Published/Photos ${HOME_DIR}/Pictures/Family
 if [[ -d /bulk ]]
 then
-    ln -s /bulk/Photos/Favorites /home/${CRYPT_USER}/Pictures/Favorites
-    DOCS=$(find /bulk/Kids -maxdepth 1 -iname ${CRYPT_USER})
-    [[ -d "${DOCS}" ]] && ln -s "${DOCS}" /home/${CRYPT_USER}/Documents
+    ln -s /bulk/Photos/Favorites ${HOME_DIR}/Pictures/Favorites
+    DOCS=$(find /bulk/Kids -maxdepth 1 -iname ${USER})
+    [[ -d "${DOCS}" ]] && ln -s "${DOCS}" ${HOME_DIR}/Documents
 fi
-chown -R ${CRYPT_USER}:${CRYPT_USER} /home/${CRYPT_USER}
+chown -R ${USER}:${USER} ${HOME_DIR}
