@@ -64,10 +64,6 @@ cat <<EOF >/etc/hosts
 EOF
 
 echo "### Configuring network..."
-systemctl disable dhcpcd.service
-#/etc/systemd/network/
-#systemctl enable systemd-networkd.service
-#systemctl enable dhcpcd@br0.service
 systemctl enable NetworkManager.service
 
 echo "### Installing pacakages..."
