@@ -156,7 +156,7 @@ systemctl enable xvnc.socket
 echo "### Configuring Steam..."
 if [[ -d /bulk ]]
 then
-    mkdir /bulk/steam
+    mkdir -p /bulk/steam
     chown gustafson:gustafson /bulk/steam
 fi
 
