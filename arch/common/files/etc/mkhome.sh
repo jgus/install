@@ -1,7 +1,7 @@
 #!/bin/bash
 
-USER=$1
-HOME_DIR=$(sudo -u ${USER} sh -c "echo ~")
+USER=${1:-${PAM_USER}}
+HOME_DIR=$(eval echo ~${USER})
 
 [[ -d "${HOME_DIR}" ]] && exit 0
 
