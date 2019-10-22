@@ -268,7 +268,7 @@ systemctl enable docker.service
 echo "### Making a snapshot..."
 for pool in z/root z/home z/docker z/images
 do
-    zfs snapshot ${pool}@aur-pacakges-installed
+    zfs snapshot ${pool}@aur-packages-installed
 done
 
 echo "### Done with post-boot install! Rebooting..."
