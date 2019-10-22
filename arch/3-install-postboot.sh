@@ -37,10 +37,10 @@ zgenhostid $(hostid)
 
 zfs create -o mountpoint=/home z/home
 zfs create -o mountpoint=/var/lib/docker z/docker
-zfs create -o mountpoint=/var/volumes z/volumes
-zfs create z/volumes/scratch
-zfs create -o mountpoint=/var/lib/libvirt/images z/images
-zfs create z/images/scratch
+zfs create -o mountpoint=/var/volumes -o com.sun:auto-snapshot=true z/volumes
+zfs create -o com.sun:auto-snapshot=false z/volumes/scratch
+zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images
+zfs create -o com.sun:auto-snapshot=false z/images/scratch
 
 mkinitcpio -p ${KERNEL}
 
@@ -216,10 +216,6 @@ systemctl enable org.cups.cupsd.service
 
 echo "### Configuring ZFS Snapshots..."
 # /etc/systemd/system/zfs-auto-snapshot-*.service.d
-zfs set com.sun:auto-snapshot=true z
-zfs set com.sun:auto-snapshot=false z/root/var
-zfs set com.sun:auto-snapshot=false z/volumes/scratch
-zfs set com.sun:auto-snapshot=false z/images/scratch
 for i in monthly weekly daily hourly frequent
 do
     systemctl enable zfs-auto-snapshot-${i}.timer

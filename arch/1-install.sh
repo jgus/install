@@ -57,11 +57,12 @@ zpool create \
     -O aclinherit=passthrough \
     -O acltype=posixacl \
     -O xattr=sa \
+    -O com.sun:auto-snapshot=true \
     -m none \
     -f \
     z ${SYSTEM_Z_TYPE} "${Z_DEVS[@]}"
 zfs create z/root
-zfs create -o canmount=off z/root/var
+zfs create -o canmount=off -o com.sun:auto-snapshot=false z/root/var
 zfs create z/root/var/cache
 zfs create z/root/var/log
 zfs create z/root/var/spool
