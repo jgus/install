@@ -44,10 +44,6 @@ zfs create -o com.sun:auto-snapshot=false z/images/scratch
 
 mkinitcpio -p ${KERNEL}
 
-echo "### Installing Packages..."
-sed -i 's/#Color/Color/g' /etc/pacman.conf
-pacman -S --needed --noconfirm "${PACKAGES[@]}"
-
 echo "### Adding system users..."
 #/etc/sudoers.d/wheel
 #/etc/sudoers.d/builder
