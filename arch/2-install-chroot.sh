@@ -20,9 +20,7 @@ BOOT_PACKAGES=(
     openresolv networkmanager dhclient
     )
 [[ "${HAS_NVIDIA}" == "1" ]] && BOOT_PACKAGES+=(
-    # Drivers
-    nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
-    opencl-nvidia ocl-icd cuda clinfo
+    nvidia-dkms
      )
 
 # Password

@@ -26,6 +26,10 @@ PACKAGES+=(
     # Misc
     ccache rsync p7zip tmux
     )
+[[ "${HAS_NVIDIA}" == "1" ]] && PACKAGES+=(
+    nvidia-utils lib32-nvidia-utils nvidia-settings
+    opencl-nvidia ocl-icd cuda clinfo
+     )
 [[ "${HAS_BLUETOOTH}" == "1" ]] && PACKAGES+=(
     # Bluetooth
     bluez bluez-utils bluez-plugins
