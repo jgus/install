@@ -15,7 +15,7 @@ PACKAGES+=(
     # Sensors
     lm_sensors nvme-cli
     # General
-    git git-lfs zsh grml-zsh-config
+    git git-lfs
     diffutils inetutils less logrotate man-db man-pages nano usbutils which
     # RNG
     rng-tools
@@ -102,9 +102,6 @@ polkit.addRule(function(action, subject) {
     }
 });
 EOF
-
-echo "### Configuring Zsh..."
-chsh -s /bin/zsh
 
 echo "### Configuring RNG..."
 systemctl enable rngd.service

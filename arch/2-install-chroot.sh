@@ -18,6 +18,8 @@ BOOT_PACKAGES=(
     zfs-dkms
     # Network
     openresolv networkmanager dhclient
+    # ZSH
+    zsh grml-zsh-config
     )
 [[ "${HAS_NVIDIA}" == "1" ]] && BOOT_PACKAGES+=(
     nvidia-dkms
@@ -104,6 +106,9 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "### Configuring nVidia updates..."
 #/etc/pacman.d/hooks/nvidia.hook
+
+echo "### Configuring Zsh..."
+chsh -s /bin/zsh
 
 echo "### Preparing post-boot install..."
 #/etc/systemd/system/getty@tty1.service.d/override.conf
