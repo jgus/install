@@ -88,6 +88,18 @@ curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
 chown -R josh:josh /home/josh/.ssh
 
+echo "### Adding other users..."
+for U in "${OTHER_USERS[@]}"
+do
+    u=$(echo "${U}" | awk '{print tolower($0)}')
+    useradd --groups gustafson --user-group --no-create-home "${u}"
+    cat <<EOF | passwd "${u}"
+changeme
+changeme
+EOF
+    passwd -e "${u}"
+done
+
 echo "### Configuring makepkg..."
 sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
 cat <<EOF >>/etc/makepkg.conf 
@@ -260,6 +272,9 @@ done
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
 systemctl enable docker.service
+
+echo "### Cleaning up..."
+rm -rf /install
 
 echo "### Making a snapshot..."
 for pool in z/root z/home z/docker z/images
