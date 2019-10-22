@@ -9,6 +9,28 @@ HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 KERNEL=${KERNEL:-linux}
 
+PACKAGES+=(
+    # Pacman
+    pacman-contrib reflector
+    # Sensors
+    lm_sensors nvme-cli
+    # General
+    git git-lfs zsh grml-zsh-config
+    diffutils inetutils less logrotate man-db man-pages nano usbutils which
+    # RNG
+    rng-tools
+    # OpenSSH
+    openssh
+    # Samba
+    samba
+    # Misc
+    ccache rsync p7zip tmux
+    )
+[[ "${HAS_BLUETOOTH}" == "1" ]] && PACKAGES+=(
+    # Bluetooth
+    bluez bluez-utils bluez-plugins
+     )
+
 echo "### Post-boot ZFS config..."
 zfs load-key -a
 zpool set cachefile=/etc/zfs/zpool.cache z
@@ -43,6 +65,69 @@ zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z
 zfs create -o com.sun:auto-snapshot=false z/images/scratch
 
 mkinitcpio -p ${KERNEL}
+
+echo "### Installing pacakages..."
+pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
+systemctl enable reflector.timer
+
+echo "### Configuring power..."
+# common/files/etc/skel/.config/powermanagementprofilesrc
+[[ "${ALLOW_POWEROFF}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-shutdown.rules
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.login1.reboot" ||
+        action.id == "org.freedesktop.login1.reboot-multiple-sessions" ||
+        action.id == "org.freedesktop.login1.power-off" ||
+        action.id == "org.freedesktop.login1.power-off-multiple-sessions")
+    {
+        if (subject.isInGroup("wheel")) {
+            return polkit.Result.YES;
+        } else {
+            return polkit.Result.NO;
+        }
+    }
+});
+EOF
+[[ "${ALLOW_SUSPEND}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-suspend.rules
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.login1.suspend" ||
+        action.id == "org.freedesktop.login1.suspend-multiple-sessions" ||
+        action.id == "org.freedesktop.login1.hibernate" ||
+        action.id == "org.freedesktop.login1.hibernate-multiple-sessions")
+    {
+        return polkit.Result.NO;
+    }
+});
+EOF
+
+echo "### Configuring Zsh..."
+chsh -s /bin/zsh
+
+echo "### Configuring RNG..."
+systemctl enable rngd.service
+
+echo "### Configuring SSH..."
+cat << EOF >>/etc/ssh/sshd_config
+PasswordAuthentication no
+AllowAgentForwarding yes
+AllowTcpForwarding yes
+EOF
+systemctl enable sshd.service
+mkdir -p /root/.ssh
+curl https://github.com/jgus.keys >> /root/.ssh/authorized_keys
+chmod 400 /root/.ssh/authorized_keys
+
+echo "### Configuring Samba..."
+mkdir /beast
+cat <<EOF >>/etc/fstab
+
+# Beast
+EOF
+for share in "${BEAST_SHARES[@]}"
+do
+    mkdir /beast/${share}
+    echo "//beast/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/beast 0 0" >>/etc/fstab
+done
+mount -a
 
 echo "### Adding system users..."
 #/etc/sudoers.d/wheel

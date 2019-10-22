@@ -7,41 +7,22 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 BOOT_MODE=${BOOT_MODE:-efi}
 KERNEL=${KERNEL:-linux}
 
-PACKAGES+=(
+BOOT_PACKAGES=(
     # Base
     diffutils logrotate man-db man-pages nano netctl usbutils vi which
-    # Pacman
-    pacman-contrib reflector
     # Kernel
-    linux-zen-headers linux-firmware dkms base-devel
+    ${KERNEL}-headers linux-firmware dkms base-devel
     # Bootloader
     grub intel-ucode efibootmgr
     # ZFS
     zfs-dkms
-    # Sensors
-    lm_sensors nvme-cli
     # Network
     openresolv networkmanager dhclient
-    # General
-    git git-lfs zsh grml-zsh-config
-    diffutils inetutils less logrotate man-db man-pages nano usbutils which
-    # RNG
-    rng-tools
-    # OpenSSH
-    openssh
-    # Samba
-    samba
-    # Misc
-    ccache rsync p7zip tmux
     )
-[[ "${HAS_NVIDIA}" == "1" ]] && PACKAGES+=(
+[[ "${HAS_NVIDIA}" == "1" ]] && BOOT_PACKAGES+=(
     # Drivers
     nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
     opencl-nvidia ocl-icd cuda clinfo
-     )
-[[ "${HAS_BLUETOOTH}" == "1" ]] && PACKAGES+=(
-    # Bluetooth
-    bluez bluez-utils bluez-plugins
      )
 
 # Password
@@ -78,8 +59,7 @@ Server = https://archzfs.com/\$repo/\$arch
 EOF
 pacman-key -r F75D9D76
 pacman-key --lsign-key F75D9D76
-pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
-systemctl enable reflector.timer
+pacman -Syyu --needed --noconfirm "${BOOT_PACKAGES[@]}"
 
 echo "### Configuring network..."
 systemctl enable NetworkManager.service
@@ -89,35 +69,6 @@ if [[ "${VFIO_IDS}" != "" ]]
 then
     echo "options vfio_pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio.conf
 fi
-
-echo "### Configuring power..."
-# common/files/etc/skel/.config/powermanagementprofilesrc
-[[ "${ALLOW_POWEROFF}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-shutdown.rules
-polkit.addRule(function(action, subject) {
-    if (action.id == "org.freedesktop.login1.reboot" ||
-        action.id == "org.freedesktop.login1.reboot-multiple-sessions" ||
-        action.id == "org.freedesktop.login1.power-off" ||
-        action.id == "org.freedesktop.login1.power-off-multiple-sessions")
-    {
-        if (subject.isInGroup("wheel")) {
-            return polkit.Result.YES;
-        } else {
-            return polkit.Result.NO;
-        }
-    }
-});
-EOF
-[[ "${ALLOW_SUSPEND}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-suspend.rules
-polkit.addRule(function(action, subject) {
-    if (action.id == "org.freedesktop.login1.suspend" ||
-        action.id == "org.freedesktop.login1.suspend-multiple-sessions" ||
-        action.id == "org.freedesktop.login1.hibernate" ||
-        action.id == "org.freedesktop.login1.hibernate-multiple-sessions")
-    {
-        return polkit.Result.NO;
-    }
-});
-EOF
 
 echo "### Configuring boot image..."
 MODULES=(efivarfs)
@@ -155,35 +106,6 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "### Configuring nVidia updates..."
 #/etc/pacman.d/hooks/nvidia.hook
-
-echo "### Configuring Zsh..."
-chsh -s /bin/zsh
-
-echo "### Configuring RNG..."
-systemctl enable rngd.service
-
-echo "### Configuring SSH..."
-cat << EOF >>/etc/ssh/sshd_config
-PasswordAuthentication no
-AllowAgentForwarding yes
-AllowTcpForwarding yes
-EOF
-systemctl enable sshd.service
-mkdir -p /root/.ssh
-curl https://github.com/jgus.keys >> /root/.ssh/authorized_keys
-chmod 400 /root/.ssh/authorized_keys
-
-echo "### Configuring Samba..."
-mkdir /beast
-cat <<EOF >>/etc/fstab
-
-# Beast
-EOF
-for share in "${BEAST_SHARES[@]}"
-do
-    mkdir /beast/${share}
-    echo "//beast/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/beast 0 0" >>/etc/fstab
-done
 
 echo "### Preparing post-boot install..."
 #/etc/systemd/system/getty@tty1.service.d/override.conf
