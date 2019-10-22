@@ -10,6 +10,8 @@ KERNEL=${KERNEL:-linux}
 PACKAGES+=(
     # Base
     diffutils logrotate man-db man-pages nano netctl usbutils vi which
+    # Pacman
+    pacman-contrib reflector
     # Kernel
     linux-zen-headers linux-firmware dkms base-devel
     # Bootloader
@@ -77,6 +79,7 @@ EOF
 pacman-key -r F75D9D76
 pacman-key --lsign-key F75D9D76
 pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
+systemctl enable reflector.timer
 
 echo "### Configuring network..."
 systemctl enable NetworkManager.service
