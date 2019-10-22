@@ -127,8 +127,8 @@ for share in "${BEAST_SHARES[@]}"
 do
     mkdir /beast/${share}
     echo "//beast/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/beast 0 0" >>/etc/fstab
+    mount /beast/${share}
 done
-mount -a
 
 echo "### Adding system users..."
 #/etc/sudoers.d/wheel
