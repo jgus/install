@@ -14,6 +14,8 @@ PACKAGES+=(
     pacman-contrib reflector
     # Sensors
     lm_sensors nvme-cli
+    # LDAP Auth
+    openldap nss-pam-ldapd
     # General
     git git-lfs
     diffutils inetutils less logrotate man-db man-pages nano usbutils which
@@ -102,6 +104,20 @@ polkit.addRule(function(action, subject) {
     }
 });
 EOF
+
+echo "### Configuring LDAP auth..."
+sed -i "s|passwd: files|passwd: files ldap|g" /etc/nsswitch.conf
+sed -i "s|group: files|group: files ldap|g" /etc/nsswitch.conf
+sed -i "s|shadow: files|shadow: files ldap|g" /etc/nsswitch.conf
+sed -i "s|^uri.*|uri ldap://ldap.gustafson.me/|g" /etc/nslcd.conf
+sed -i "s|dc=example,dc=com|dc=gustafson,dc=me|g" /etc/nslcd.conf
+cat << EOF >>/etc/nslcd.conf
+binddn cn=readonly,dc=gustafson,dc=me
+bindpw readonly
+EOF
+chmod go-rw /etc/nslcd.conf
+systemctl enable nslcd.service
+
 
 echo "### Configuring RNG..."
 systemctl enable rngd.service

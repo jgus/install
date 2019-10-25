@@ -15,6 +15,7 @@ ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
     --env-file /etc/openldap.env \
     -e LDAP_ORGANISATION='Gustafson Family' \
     -e LDAP_DOMAIN='gustafson.me' \
+    -e LDAP_READONLY_USER=true \
     -v /var/volumes/ldap/ldap:/var/lib/ldap \
     -v /var/volumes/ldap/slapd:/etc/ldap/slapd.d \
     -p 389:389 \
