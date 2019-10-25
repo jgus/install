@@ -15,7 +15,7 @@ PACKAGES+=(
     # Sensors
     lm_sensors nvme-cli
     # LDAP Auth
-    openldap nss-pam-ldapd
+    openldap nss-pam-ldapd sssd
     # General
     git git-lfs
     diffutils inetutils less logrotate man-db man-pages nano usbutils which
@@ -106,9 +106,11 @@ polkit.addRule(function(action, subject) {
 EOF
 
 echo "### Configuring LDAP auth..."
-sed -i "s|passwd: files|passwd: files ldap|g" /etc/nsswitch.conf
-sed -i "s|group: files|group: files ldap|g" /etc/nsswitch.conf
-sed -i "s|shadow: files|shadow: files ldap|g" /etc/nsswitch.conf
+sed -i "s|passwd: files|passwd: files sss|g" /etc/nsswitch.conf
+sed -i "s|group: files|group: files sss|g" /etc/nsswitch.conf
+sed -i "s|shadow: files|shadow: files sss|g" /etc/nsswitch.conf
+sed -i "s|netgroup: files|netgroup: files sss|g" /etc/nsswitch.conf
+echo "sudoers: files sss" >>/etc/nsswitch.conf
 sed -i "s|^uri.*|uri ldap://ldap.gustafson.me/|g" /etc/nslcd.conf
 sed -i "s|dc=example,dc=com|dc=gustafson,dc=me|g" /etc/nslcd.conf
 cat << EOF >>/etc/nslcd.conf
@@ -116,8 +118,12 @@ binddn cn=readonly,dc=gustafson,dc=me
 bindpw readonly
 EOF
 chmod go-rw /etc/nslcd.conf
-systemctl enable nslcd.service
-
+sed -i "s|enable-cache\(\s*\)passwd\(\s*\)yes|enable-cache\1passwd\2no|g" /etc/nscd.conf
+sed -i "s|enable-cache\(\s*\)group\(\s*\)yes|enable-cache\1group\2no|g" /etc/nscd.conf
+sed -i "s|enable-cache\(\s*\)netgroup\(\s*\)yes|enable-cache\1netgroup\2no|g" /etc/nscd.conf
+chmod 600 /etc/sssd/sssd.conf
+systemctl enable --now nslcd.service
+systemctl enable --now sssd.service
 
 echo "### Configuring RNG..."
 systemctl enable rngd.service
