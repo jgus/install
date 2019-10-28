@@ -121,6 +121,8 @@ chmod go-rw /etc/nslcd.conf
 sed -i "s|enable-cache\(\s*\)passwd\(\s*\)yes|enable-cache\1passwd\2no|g" /etc/nscd.conf
 sed -i "s|enable-cache\(\s*\)group\(\s*\)yes|enable-cache\1group\2no|g" /etc/nscd.conf
 sed -i "s|enable-cache\(\s*\)netgroup\(\s*\)yes|enable-cache\1netgroup\2no|g" /etc/nscd.conf
+source /etc/openldap.env
+echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
 chmod 600 /etc/sssd/sssd.conf
 systemctl enable --now nslcd.service
 systemctl enable --now sssd.service

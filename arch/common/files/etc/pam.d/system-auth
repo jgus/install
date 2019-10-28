@@ -14,6 +14,7 @@ password  sufficient pam_sss.so use_authtok
 password  required  pam_unix.so     try_first_pass nullok sha512 shadow
 password  optional  pam_permit.so
 
+session   required  pam_exec.so          debug stdout /etc/mkhome.sh
 session   required  pam_limits.so
 session   required  pam_unix.so
 session   optional  pam_sss.so
