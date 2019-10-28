@@ -28,10 +28,6 @@ PACKAGES+=(
     # Misc
     ccache rsync p7zip tmux
     )
-[[ "${HAS_NVIDIA}" == "1" ]] && PACKAGES+=(
-    nvidia-utils lib32-nvidia-utils nvidia-settings
-    opencl-nvidia ocl-icd cuda clinfo
-    )
 [[ "${HAS_BLUETOOTH}" == "1" ]] && PACKAGES+=(
     # Bluetooth
     bluez bluez-utils bluez-plugins
@@ -77,6 +73,30 @@ PACKAGES+=(
     )
 [[ "${USE_DM}" == "gdm" ]] && PACKAGES+=(
     gdm
+    )
+[[ "${HAS_NVIDIA}" == "1" ]] && PACKAGES+=(
+    nvidia-utils lib32-nvidia-utils nvidia-settings
+    opencl-nvidia ocl-icd cuda clinfo
+    )
+
+AUR_PACKAGES+=(
+    # ZFS
+    zfs-auto-snapshot
+    )
+[[ "${HAS_GUI}" == "1" ]] && AUR_PACKAGES+=(
+    # Xorg
+    xbanish
+    # Printing
+    cups cups-pdf ghostscript gsfonts cnrdrvcups-lb
+    # Chrome
+    google-chrome
+    # Steam
+    steam steam-native-runtime ttf-liberation steam-fonts
+    # Minecraft
+    minecraft-launcher
+    )
+[[ "${HAS_OPTIMUS}" == "1" ]] && AUR_PACKAGES+=(
+    optimus-manager optimus-manager-qt
     )
 
 echo "### Post-boot ZFS config..."
@@ -305,6 +325,7 @@ then
     do
         loginctl attach seat1 "${d}"
     done
+    [[ "${HAS_OPTIMUS}" == "1" ]] && systemctl enable optimus-manager.service
 
     echo "### Configuring Fonts..."
     ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
