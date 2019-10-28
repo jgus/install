@@ -31,11 +31,53 @@ PACKAGES+=(
 [[ "${HAS_NVIDIA}" == "1" ]] && PACKAGES+=(
     nvidia-utils lib32-nvidia-utils nvidia-settings
     opencl-nvidia ocl-icd cuda clinfo
-     )
+    )
 [[ "${HAS_BLUETOOTH}" == "1" ]] && PACKAGES+=(
     # Bluetooth
     bluez bluez-utils bluez-plugins
-     )
+    )
+[[ "${HAS_GUI}" == "1" ]] && PACKAGES+=(
+    # Xorg
+    xorg tigervnc
+    # KDE
+    plasma-meta kde-applications-meta xdg-user-dirs
+    qt5-imageformats
+    # Fonts
+    adobe-source-code-pro-fonts
+    adobe-source-sans-pro-fonts
+    font-bh-ttf
+    gnu-free-fonts
+    noto-fonts
+    ttf-anonymous-pro
+    ttf-bitstream-vera
+    ttf-croscore
+    ttf-dejavu
+    ttf-droid
+    ttf-fantasque-sans-mono
+    ttf-fira-code
+    ttf-fira-mono
+    gentium-plus-font
+    ttf-hack
+    ttf-inconsolata
+    ttf-joypixels
+    ttf-liberation
+    ttf-linux-libertine
+    ttf-roboto
+    ttf-ubuntu-font-family
+    # Applications
+    code
+    freerdp
+    libreoffice-still hunspell hunspell-en_US libmythes mythes-en
+    scribus
+    gimp
+    vlc
+    )
+[[ "${USE_DM}" == "sddm" ]] && PACKAGES+=(
+    sddm sddm-kcm
+    )
+[[ "${USE_DM}" == "gdm" ]] && PACKAGES+=(
+    gdm
+    )
 
 echo "### Post-boot ZFS config..."
 zfs load-key -a
@@ -255,25 +297,39 @@ which apcaccess && systemctl enable apcupsd.service
 echo "### Configuring Sensors..."
 sensors-detect --auto
 
-echo "### Configuring Xorg..."
-which ratbagd && systemctl enable ratbagd.service
-for d in "${SEAT1_DEVICES[@]}"
-do
-    loginctl attach seat1 "${d}"
-done
+if [[ "${HAS_GUI}" == "1" ]]
+then
+    echo "### Configuring Xorg..."
+    which ratbagd && systemctl enable ratbagd.service
+    for d in "${SEAT1_DEVICES[@]}"
+    do
+        loginctl attach seat1 "${d}"
+    done
 
-echo "### Configuring Fonts..."
-ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
+    echo "### Configuring Fonts..."
+    ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
 
-echo "### Fetching MS Fonts..."
-cd /tmp
-7z e "/beast/Software/MSDN/Windows/Windows 10/Win10_1809Oct_English_x64.iso" sources/install.wim
-7z e install.wim 1/Windows/{Fonts/"*".{ttf,ttc},System32/Licenses/neutral/"*"/"*"/license.rtf} -y -o/usr/share/fonts/WindowsFonts
-chmod 755 /usr/share/fonts/WindowsFonts
+    echo "### Fetching MS Fonts..."
+    cd /tmp
+    7z e "/beast/Software/MSDN/Windows/Windows 10/Win10_1809Oct_English_x64.iso" sources/install.wim
+    7z e install.wim 1/Windows/{Fonts/"*".{ttf,ttc},System32/Licenses/neutral/"*"/"*"/license.rtf} -y -o/usr/share/fonts/WindowsFonts
+    chmod 755 /usr/share/fonts/WindowsFonts
 
-echo "### Configuring GNOME..."
-systemctl enable gdm.service
-systemctl enable xvnc.socket
+    echo "### Configuring Display Manager..."
+    case ${USE_DM} in
+    gdm)
+        systemctl enable gdm.service
+        ;;
+    sddm)
+        systemctl enable sddm.service
+        [[ "${HAS_OPTIMUS}" == "1" ]] && cat << EOF >> /etc/sddm.conf.d/display.conf
+xrandr --setprovideroutputsource modesetting NVIDIA-0
+xrandr --auto
+EOF
+        ;;
+    esac
+    systemctl enable xvnc.socket
+fi
 
 echo "### Configuring Steam..."
 if [[ -d /bulk ]]
