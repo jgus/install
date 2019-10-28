@@ -3,4 +3,4 @@
 - enable docker services
 - set up syncthing (if not restored)
 - start zfs replication
-- 
+- add printer
