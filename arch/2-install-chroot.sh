@@ -4,7 +4,6 @@ set -e
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
-BOOT_MODE=${BOOT_MODE:-efi}
 KERNEL=${KERNEL:-linux}
 
 BOOT_PACKAGES=(
@@ -13,7 +12,7 @@ BOOT_PACKAGES=(
     # Kernel
     ${KERNEL}-headers linux-firmware dkms base-devel
     # Bootloader
-    grub intel-ucode efibootmgr
+    intel-ucode efibootmgr
     # ZFS
     zfs-dkms
     # Network
@@ -84,25 +83,19 @@ sed -i "s|HOOKS=(\(.*\))|HOOKS=(${HOOKS[*]})|g" /etc/mkinitcpio.conf
 mkinitcpio -p ${KERNEL}
 
 echo "### Installing bootloader..."
-export ZPOOL_VDEV_NAME_PATH=1
-if [[ "${BOOT_MODE}" == "bios" ]]
-then
-    grub-install --target=i386-pc "${SYSTEM_DEVICES[0]}"
-else
-    grub-install --target=x86_64-efi --efi-directory="/boot" --bootloader-id="GRUB"
-fi
-KERNEL_PARAMS="loglevel=3 zfs=z/root"
+bootctl --path=/boot install
+KERNEL_PARAMS="initrd=/intel-ucode.img initrd=/initramfs-${KERNEL}.img loglevel=3 zfs=z/root rw"
 [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} intel_iommu=on iommu=pt"
 [[ "${HAS_NVIDIA}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
 [[ "${ALLOW_SUSPEND}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} resume=/dev/mapper/swap0"
-sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\"\(.*\)\"|GRUB_CMDLINE_LINUX_DEFAULT=\"${KERNEL_PARAMS}\"|g" /etc/default/grub
-sed -i "s|GRUB_TIMEOUT=.*|GRUB_TIMEOUT=0|g" /etc/default/grub
-cat << EOF >>/etc/default/grub
-GRUB_HIDDEN_TIMEOUT=0
-GRUB_HIDDEN_TIMEOUT_QUIET=true
+mkdir -p /boot/loader
+echo "default arch" >/boot/loader/loader.conf
+mkdir -p /boot/loader/entries
+cat << EOF >>/boot/loader/entries/arch.conf
+title   Arch Linux
+efi     /vmlinuz-${KERNEL}
+options ${KERNEL_PARAMS}
 EOF
-#echo "GRUB_GFXPAYLOAD_LINUX=3840x1600x32" >>/etc/default/grub
-grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "### Configuring nVidia updates..."
 #/etc/pacman.d/hooks/nvidia.hook

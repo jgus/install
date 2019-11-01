@@ -80,6 +80,8 @@ PACKAGES+=(
     )
 
 AUR_PACKAGES+=(
+    # Bootloader
+    systemd-boot-pacman-hook
     # ZFS
     zfs-auto-snapshot
     )
