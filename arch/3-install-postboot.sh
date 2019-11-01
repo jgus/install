@@ -256,17 +256,6 @@ curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
 chown -R josh:josh /home/josh/.ssh
 
-echo "### Adding other users..."
-for U in "${OTHER_USERS[@]}"
-do
-    u=$(echo "${U}" | awk '{print tolower($0)}')
-    useradd --groups gustafson --user-group --no-create-home "${u}"
-    cat <<EOF | passwd "${u}"
-changeme
-changeme
-EOF
-done
-
 echo "### Configuring makepkg..."
 sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
 cat <<EOF >>/etc/makepkg.conf 
