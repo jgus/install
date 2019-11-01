@@ -236,12 +236,7 @@ then
     setfacl -d -m group:gustafson:rwx /bulk
 fi
 
-useradd --groups gustafson --user-group --no-create-home josh
-cat <<EOF | passwd josh
-changeme
-changeme
-EOF
-passwd -e josh
+usermod -a -G wheel josh
 /etc/mkhome.sh josh
 
 zfs create -o mountpoint=/git z/git
