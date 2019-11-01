@@ -14,8 +14,6 @@ PACKAGES+=(
     pacman-contrib reflector
     # Sensors
     lm_sensors nvme-cli
-    # LDAP Auth
-    openldap nss-pam-ldapd sssd
     # General
     git git-lfs
     diffutils inetutils less logrotate man-db man-pages nano usbutils which

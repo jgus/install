@@ -19,6 +19,8 @@ BOOT_PACKAGES=(
     openresolv networkmanager dhclient
     # ZSH
     zsh grml-zsh-config
+    # LDAP Auth
+    openldap nss-pam-ldapd sssd
     )
 [[ "${HAS_NVIDIA}" == "1" ]] && BOOT_PACKAGES+=(
     nvidia-dkms
