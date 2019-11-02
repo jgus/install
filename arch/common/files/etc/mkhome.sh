@@ -2,6 +2,7 @@
 
 USER=${1:-${PAM_USER}}
 HOME_DIR=$(eval echo ~${USER})
+HOME_DIR=${HOME_DIR%/}
 
 [[ -d "${HOME_DIR}" ]] && exit 0
 
@@ -11,6 +12,7 @@ do
     zfs create -o com.sun:auto-snapshot=false z/home/${USER}/${i}
 done
 rsync -arP /etc/skel/ ${HOME_DIR}
+sed -i "s/ACTIVITY_UUID/$(uuidgen)/g" ${HOME_DIR}/.config/*
 mkdir -p ${HOME_DIR}/.config/systemd/user
 mkdir -p ${HOME_DIR}/Pictures
 ln -s /beast/Published/Photos ${HOME_DIR}/Pictures/Family

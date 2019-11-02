@@ -1,0 +1,6 @@
+[activities]
+ACTIVITY_UUID=Default
+
+[main]
+currentActivity=ACTIVITY_UUID
+

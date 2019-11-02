@@ -8,7 +8,7 @@ RightButton;NoModifier=org.kde.contextmenu
 
 [Containments][1]
 ItemGeometriesHorizontal=
-activityId=e62deb4b-ee57-4b64-bcf3-6bfde102cf95
+activityId=ACTIVITY_UUID
 formfactor=0
 immutability=1
 lastScreen=0
