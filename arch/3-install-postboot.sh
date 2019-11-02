@@ -309,7 +309,6 @@ then
     do
         loginctl attach seat1 "${d}"
     done
-    [[ "${HAS_OPTIMUS}" == "1" ]] && systemctl enable optimus-manager.service
 
     echo "### Configuring Fonts..."
     ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
@@ -393,6 +392,9 @@ done
 
 echo "### Installing AUR Packages (interactive)..."
 sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
+
+echo "### Configuring AUR Xorg..."
+[[ "${HAS_OPTIMUS}" == "1" ]] && systemctl enable optimus-manager.service
 
 echo "### Configuring Printing..."
 systemctl enable org.cups.cupsd.service
