@@ -445,6 +445,7 @@ done
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
 systemctl enable docker.service
+systemctl enable docker-prune.timer
 
 echo "### Cleaning up..."
 rm -rf /install
