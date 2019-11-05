@@ -10,8 +10,8 @@ KERNEL=${KERNEL:-linux}
 
 echo "### Updating firmware..."
 fwupdmgr refresh
-fwupdmgr get-updates
-fwupdmgr update -y
+fwupdmgr get-updates || true
+fwupdmgr update -y || true
 
 echo "### Cleaning up prior partitions..."
 umount -R /target || true
