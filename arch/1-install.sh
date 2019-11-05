@@ -8,7 +8,11 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 BOOT_MODE=${BOOT_MODE:-efi}
 KERNEL=${KERNEL:-linux}
 
-# System
+echo "### Updating firmware..."
+fwupdmgr refresh
+fwupdmgr get-updates
+fwupdmgr update -y
+
 echo "### Cleaning up prior partitions..."
 umount -R /target || true
 for i in /dev/disk/by-label/SWAP*
@@ -136,6 +140,14 @@ echo "### Copying preset files..."
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/common/files/ /target
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/files/ /target
 
+echo "### Copying ZFS files..."
+mkdir -p /target/etc/zfs
+cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
+
+echo "### Copying NVRAM-stored files..."
+"$(cd "$(dirname "$0")" ; pwd)/read-secrets.sh" /target/tmp/machine-secrets
+rsync -ar /target/tmp/machine-secrets/files/ /target || true
+
 echo "### Configuring openswap hook..."
 echo "run_hook () {" >> /target/etc/initcpio/hooks/openswap
 for i in "${!SWAP_DEVS[@]}"
@@ -163,14 +175,6 @@ do
     echo "/dev/mapper/swap${i} none swap defaults,discard,pri=100 0 0" >> /target/etc/fstab
 done
 echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime,size=${TMP_SIZE} 0 0" >> /target/etc/fstab
-
-echo "### Copying ZFS files..."
-mkdir -p /target/etc/zfs
-cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
-
-echo "### Copying NVRAM-stored files..."
-"$(cd "$(dirname "$0")" ; pwd)/read-secrets.sh" /target/tmp/machine-secrets
-rsync -ar /target/tmp/machine-secrets/files/ /target || true
 
 echo "### Running further install in the chroot..."
 arch-chroot /target /install/2-install-chroot.sh ${HOSTNAME}

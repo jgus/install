@@ -70,6 +70,7 @@ linux-headers
 git
 pacman-contrib
 zfs-dkms
+fwupd
 EOF
 
     # for file in ~/archlive/efiboot/loader/entries/archiso-*.conf

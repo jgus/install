@@ -13,6 +13,8 @@ BOOT_PACKAGES=(
     ${KERNEL}-headers linux-firmware dkms base-devel
     # Bootloader
     intel-ucode efibootmgr
+    # Firmware
+    fwupd
     # ZFS
     zfs-dkms
     # Network
