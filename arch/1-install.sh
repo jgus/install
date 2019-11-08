@@ -22,14 +22,11 @@ done
 zpool destroy boot || true
 zpool destroy z || true
 
-BOOT_DEVS=()
-Z_DEVS=()
-SWAP_DEVS=()
 TABLE_TYPE="gpt"
 [[ "${BOOT_MODE}" == "bios" ]] && TABLE_TYPE="msdos"
 for i in "${!SYSTEM_DEVICES[@]}"
 do
-    DEVICE="/dev/disk/by-id/${SYSTEM_DEVICES[$i]}"
+    DEVICE="${SYSTEM_DEVICES[$i]}"
     echo "### Wiping and re-partitioning ${DEVICE}..."
     wipefs --all "${DEVICE}"
     parted -s "${DEVICE}" -- mklabel "${TABLE_TYPE}"

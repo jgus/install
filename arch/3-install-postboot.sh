@@ -76,6 +76,9 @@ PACKAGES+=(
     nvidia-utils lib32-nvidia-utils nvidia-settings
     opencl-nvidia ocl-icd cuda clinfo
     )
+[[ "${HAS_DOCKER}" == "1" ]] && PACKAGES+=(
+    docker
+    )
 
 AUR_PACKAGES+=(
     # Bootloader
@@ -97,6 +100,9 @@ AUR_PACKAGES+=(
     )
 [[ "${HAS_OPTIMUS}" == "1" ]] && AUR_PACKAGES+=(
     optimus-manager optimus-manager-qt
+    )
+[[ "${HAS_DOCKER}" == "1" ]] && [[ "${HAS_NVIDIA}" == "1" ]] && AUR_PACKAGES+=(
+    nvidia-container-toolkit
     )
 
 echo "### Post-boot ZFS config..."
@@ -126,7 +132,7 @@ fi
 zgenhostid $(hostid)
 
 zfs create -o mountpoint=/home z/home
-zfs create -o mountpoint=/var/lib/docker z/docker
+[[ "${HAS_DOCKER}" == "1" ]] && zfs create -o mountpoint=/var/lib/docker z/docker
 zfs create -o mountpoint=/var/volumes -o com.sun:auto-snapshot=true z/volumes
 zfs create -o com.sun:auto-snapshot=false z/volumes/scratch
 zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images
@@ -385,7 +391,7 @@ echo "### Cleaning up..."
 rm /etc/systemd/system/getty@tty1.service.d/override.conf
 
 echo "### Making a snapshot..."
-for pool in z/root z/home z/docker z/images
+for pool in z/root z/home z/images
 do
     zfs snapshot ${pool}@post-boot-install
 done
@@ -444,8 +450,11 @@ done
 
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
-systemctl enable docker.service
-systemctl enable docker-prune.timer
+if [[ "${HAS_DOCKER}" == "1" ]]
+then
+    systemctl enable docker.service
+    systemctl enable docker-prune.timer
+fi
 
 echo "### Cleaning up..."
 rm -rf /install
