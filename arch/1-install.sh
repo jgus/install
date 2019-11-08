@@ -8,6 +8,16 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 BOOT_MODE=${BOOT_MODE:-efi}
 KERNEL=${KERNEL:-linux}
 
+echo "### Adding packages..."
+pacman-key --recv-keys F75D9D76
+pacman-key --lsign-kes F75D9D76
+cat << EOF >>/etc/pacman.conf
+[archzfs]
+Server = http://archzfs.com/$repo/x86_64
+EOF
+pacman -Sy --needed --noconfirm git pacman-contrib fwupd
+pacman -Sy --needed --noconfirm zfs-linux || pacman -Sy --needed --noconfirm base-devel dkms linux-headers zfs-dkms
+
 echo "### Updating firmware..."
 fwupdmgr refresh
 fwupdmgr get-updates || true
@@ -126,8 +136,7 @@ mount -t tmpfs tmpfs /target/tmp
 df -h
 mount | grep target
 
-echo "### Updating Pacman..."
-pacman -Sy --needed --noconfirm pacman-contrib
+echo "### Updating Pacman mirrors..."
 curl -s "https://www.archlinux.org/mirrorlist/?country=US&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
 
 echo "### Pacstrapping..."
