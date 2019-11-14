@@ -233,7 +233,6 @@ echo "### Adding system users..."
 
 useradd -D --shell /bin/zsh
 
-useradd --user-group --create-home --system gustafson
 if [[ -d /bulk ]]
 then
     chown -R gustafson:gustafson /bulk
