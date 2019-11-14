@@ -52,6 +52,7 @@ cat <<EOF >/etc/hosts
 EOF
 
 echo "### Installing pacakages..."
+sed -i "s|#Color|Color|g" /etc/pacman.conf
 cat <<EOF >>/etc/pacman.conf
 
 [multilib]
