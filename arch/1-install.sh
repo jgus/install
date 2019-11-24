@@ -16,7 +16,7 @@ cat << EOF >>/etc/pacman.conf
 [archzfs]
 Server = https://archzfs.com/\$repo/\$arch
 EOF
-pacman -Sy --needed --noconfirm git pacman-contrib fwupd arch-install-scripts
+pacman -Sy --needed --noconfirm git pacman-contrib fwupd
 pacman -Sy --needed --noconfirm zfs-linux || pacman -Sy --needed --noconfirm base-devel dkms linux-headers zfs-dkms
 modprobe zfs
 
