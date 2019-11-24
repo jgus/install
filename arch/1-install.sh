@@ -9,16 +9,16 @@ BOOT_MODE=${BOOT_MODE:-efi}
 KERNEL=${KERNEL:-linux}
 
 echo "### Adding packages..."
-pacman-key --recv-keys F75D9D76
-pacman-key --lsign-key F75D9D76
-cat << EOF >>/etc/pacman.conf
+# pacman-key --recv-keys F75D9D76
+# pacman-key --lsign-key F75D9D76
+# cat << EOF >>/etc/pacman.conf
 
-[archzfs]
-Server = https://archzfs.com/\$repo/\$arch
-EOF
+# [archzfs]
+# Server = https://archzfs.com/\$repo/\$arch
+# EOF
 pacman -Sy --needed --noconfirm git pacman-contrib fwupd
-pacman -Sy --needed --noconfirm zfs-linux || pacman -Sy --needed --noconfirm base-devel dkms linux-headers zfs-dkms
-modprobe zfs
+# pacman -Sy --needed --noconfirm zfs-linux || pacman -Sy --needed --noconfirm base-devel dkms linux-headers zfs-dkms
+# modprobe zfs
 
 echo "### Updating firmware..."
 fwupdmgr refresh
