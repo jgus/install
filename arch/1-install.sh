@@ -20,10 +20,10 @@ pacman -Sy --needed --noconfirm git pacman-contrib fwupd
 # pacman -Sy --needed --noconfirm zfs-linux || pacman -Sy --needed --noconfirm base-devel dkms linux-headers zfs-dkms
 # modprobe zfs
 
-echo "### Updating firmware..."
-fwupdmgr refresh
-fwupdmgr get-updates || true
-fwupdmgr update -y || true
+# echo "### Updating firmware..."
+# fwupdmgr refresh
+# fwupdmgr get-updates || true
+# fwupdmgr update -y || true
 
 echo "### Cleaning up prior partitions..."
 umount -R /target || true
@@ -138,8 +138,8 @@ mount -t tmpfs tmpfs /target/tmp
 df -h
 mount | grep target
 
-echo "### Updating Pacman mirrors..."
-curl -s "https://www.archlinux.org/mirrorlist/?country=US&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
+# echo "### Updating Pacman mirrors..."
+# curl -s "https://www.archlinux.org/mirrorlist/?country=US&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
 
 echo "### Pacstrapping..."
 pacstrap /target base ${KERNEL}
