@@ -67,10 +67,6 @@ pacman -Syyu --needed --noconfirm "${BOOT_PACKAGES[@]}"
 
 echo "### Configuring network..."
 systemctl enable NetworkManager.service
-for i in /etc/NetworkManager/wifi
-do
-    nmcli device wifi connect ${ssid} password ${psk}
-done
 
 echo "### Configuring VFIO..."
 if [[ "${VFIO_IDS}" != "" ]]

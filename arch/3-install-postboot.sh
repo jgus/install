@@ -173,6 +173,16 @@ polkit.addRule(function(action, subject) {
 });
 EOF
 
+echo "### Configuring network..."
+if [[ "${HAS_WIFI}" == "1" ]]
+then
+    for i in /etc/NetworkManager/wifi
+    do
+        source "${i}"
+        nmcli device wifi connect ${ssid} password ${psk}
+    done
+fi
+
 echo "### Configuring LDAP auth..."
 cat << EOF >> /etc/openldap/ldap.conf
 BASE        dc=gustafson,dc=me
