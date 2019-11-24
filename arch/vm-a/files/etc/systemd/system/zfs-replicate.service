@@ -1,8 +1,0 @@
-[Unit]
-Description=zfs replication
-
-[Service]
-Nice=19
-IOSchedulingClass=idle
-KillSignal=SIGINT
-ExecStart=/root/opt/bin/vm-a/sync-to-beast.sh
