@@ -123,6 +123,12 @@ mkdir -p /target
 zpool import -R /target -l z
 zpool set cachefile=/etc/zfs/zpool.cache z
 zfs set mountpoint=/ z/root
+zfs create -o mountpoint=/home z/home
+[[ "${HAS_DOCKER}" == "1" ]] && zfs create -o mountpoint=/var/lib/docker z/docker
+zfs create -o mountpoint=/var/volumes -o com.sun:auto-snapshot=true z/volumes
+zfs create -o com.sun:auto-snapshot=false z/volumes/scratch
+zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images
+zfs create -o com.sun:auto-snapshot=false z/images/scratch
 zfs mount -a
 if [[ "${BULK_DEVICE}" != "" ]]
 then
@@ -189,8 +195,7 @@ echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime,size=${TMP_SIZE} 0 0" >> /target
 
 echo "### Copying root files..."
 rsync -ar ~/opt /target/root/
-/target/root/opt/install.sh
-rsync -ar ~/.ssh/ /target/root/.ssh
+rsync -ar ~/.ssh/ /target/root/opt/dotfiles/ssh
 
 echo "### Running further install in the chroot..."
 arch-chroot /target /install/2-install-chroot.sh ${HOSTNAME}

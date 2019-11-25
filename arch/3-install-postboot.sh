@@ -131,13 +131,6 @@ fi
 
 zgenhostid $(hostid)
 
-zfs create -o mountpoint=/home z/home
-[[ "${HAS_DOCKER}" == "1" ]] && zfs create -o mountpoint=/var/lib/docker z/docker
-zfs create -o mountpoint=/var/volumes -o com.sun:auto-snapshot=true z/volumes
-zfs create -o com.sun:auto-snapshot=false z/volumes/scratch
-zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images
-zfs create -o com.sun:auto-snapshot=false z/images/scratch
-
 mkinitcpio -p ${KERNEL}
 
 echo "### Installing pacakages..."
