@@ -277,22 +277,12 @@ EOF
 
 echo "### Configuring Samba..."
 # /etc/samba/smb.conf
+# /etc/systemd/user/smbnetfs.service
 [[ -f /etc/samba/smb.conf ]] && systemctl enable smb.service
-
 if which smbnetfs
 then
-    cat << EOF >> /home/josh/.config/systemd/user/smbnetfs.service
-[Unit]
-Description=smbnetfs
-
-[Service]
-ExecStart=/usr/bin/smbnetfs %h/smb
-ExecStop=/bin/fusermount -u %h/smb
-
-[Install]
-WantedBy=default.target
-EOF
-    chown -R josh:josh /home/josh/.config
+    mkdir -p /home/josh/smb
+    chown -R josh:josh /home/josh/smb
     sudo -u josh systemctl --user enable smbnetfs
 fi
 
