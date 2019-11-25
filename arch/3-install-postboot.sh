@@ -234,8 +234,8 @@ for share in "${BEAST_SHARES[@]}"
 do
     mkdir /beast/${share}
     echo "//beast/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/beast 0 0" >>/etc/fstab
+    mount /beast/${share}
 done
-mount -a
 
 echo "### Adding system users..."
 #/etc/sudoers.d/wheel
@@ -329,10 +329,10 @@ then
     ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
 
     echo "### Fetching MS Fonts..."
-    cd /tmp
-    7z e "/beast/Software/MSDN/Windows/Windows 10/Win10_1809Oct_English_x64.iso" sources/install.wim
-    7z e install.wim 1/Windows/{Fonts/"*".{ttf,ttc},System32/Licenses/neutral/"*"/"*"/license.rtf} -y -o/usr/share/fonts/WindowsFonts
-    chmod 755 /usr/share/fonts/WindowsFonts
+    scp root@beast:/mnt/d/bulk/Software/MSDN/Windows/WindowsFonts.tar.bz2 /tmp/
+    cd /usr/share/fonts
+    tar xf /tmp/WindowsFonts.tar.bz2
+    chmod 755 WindowsFonts
 
     echo "### Configuring Display Manager..."
     case ${USE_DM} in

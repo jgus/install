@@ -63,6 +63,7 @@ Server = https://archzfs.com/\$repo/\$arch
 EOF
 pacman-key -r F75D9D76
 pacman-key --lsign-key F75D9D76
+rsync -arP root@loki:/var/cache/pacman/pkg/ /var/cache/pacman/pkg || true
 pacman -Syyu --needed --noconfirm "${BOOT_PACKAGES[@]}"
 
 echo "### Configuring network..."

@@ -8,6 +8,9 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 BOOT_MODE=${BOOT_MODE:-efi}
 KERNEL=${KERNEL:-linux}
 
+ssh -4 root@beast pwd || (echo "Failed to connect to beast; SSH keys missing?" ; exit 1)
+ssh -4 root@loki pwd || true
+
 echo "### Adding packages..."
 # pacman-key --recv-keys F75D9D76
 # pacman-key --lsign-key F75D9D76
@@ -183,6 +186,11 @@ do
     echo "/dev/mapper/swap${i} none swap defaults,discard,pri=100 0 0" >> /target/etc/fstab
 done
 echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime,size=${TMP_SIZE} 0 0" >> /target/etc/fstab
+
+echo "### Copying root files..."
+rsync -ar ~/opt /target/root/
+/target/root/opt/install.sh
+rsync -ar ~/.ssh/ /target/root/.ssh
 
 echo "### Running further install in the chroot..."
 arch-chroot /target /install/2-install-chroot.sh ${HOSTNAME}
