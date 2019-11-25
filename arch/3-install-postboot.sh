@@ -283,7 +283,7 @@ if which smbnetfs
 then
     mkdir -p /home/josh/smb
     chown -R josh:josh /home/josh/smb
-    sudo -u josh systemctl --user enable smbnetfs
+    #sudo -u josh systemctl --user enable smbnetfs
 fi
 
 if which bluetoothctl

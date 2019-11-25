@@ -12,10 +12,11 @@ do
     zfs create -o com.sun:auto-snapshot=false z/home/${USER}/${i}
 done
 rsync -arP /etc/skel/ ${HOME_DIR}
-sed -i "s/ACTIVITY_UUID/$(uuidgen)/g" ${HOME_DIR}/.config/*
-mkdir -p ${HOME_DIR}/.config/systemd/user
-mkdir -p ${HOME_DIR}/Pictures
-ln -s /beast/Published/Photos ${HOME_DIR}/Pictures/Family
+if [[ -d /beast/Published ]]
+then
+    mkdir -p ${HOME_DIR}/Pictures
+    ln -s /beast/Published/Photos ${HOME_DIR}/Pictures/Family
+fi
 if [[ -d /bulk ]]
 then
     ln -s /bulk/Photos/Favorites ${HOME_DIR}/Pictures/Favorites
