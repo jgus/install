@@ -247,8 +247,6 @@ usermod -a -G wheel josh
 zfs create -o mountpoint=/git z/git
 chown josh:josh /git
 
-usermod -a -G wheel josh
-
 if which virsh
 then
     usermod -a -G libvirt josh
