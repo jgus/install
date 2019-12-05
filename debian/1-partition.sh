@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 HOSTNAME=$1
-. "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 BOOT_SIZE=${BOOT_SIZE:-512M}
 KEY_FILE=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b
