@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 echo "### Adding packages..."
@@ -9,3 +9,4 @@ apt update
 apt install --yes debootstrap gdisk dkms dpkg-dev linux-headers-$(uname -r) efivar
 apt install --yes -t buster-backports zfs-dkms
 modprobe zfs
+mount -t efivarfs efivarfs /sys/firmware/efi/efivars || true
