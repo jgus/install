@@ -18,6 +18,7 @@ ssh -4 root@loki pwd || true
 
 echo "### Importing/mounting filesystems..."
 zpool import -R /target -l z
+mkdir -p /target/etc
 echo "z/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
 mount /dev/disk/by-label/BOOT0 /target/boot
