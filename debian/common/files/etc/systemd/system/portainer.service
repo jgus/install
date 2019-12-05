@@ -1,0 +1,23 @@
+[Unit]
+Description=Portainer
+After=docker.service
+Requires=docker.service
+After=NetworkManager-wait-online.service
+Requires=NetworkManager-wait-online.service
+ 
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=-/usr/bin/zfs create z/volumes/portainer_data
+ExecStartPre=/usr/bin/docker pull portainer/portainer
+ExecStart=/usr/bin/docker run --rm --name %n \
+    -p 8000:8000 \
+    -p 9000:9000 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /var/volumes/portainer_data:/data \
+    portainer/portainer
+Restart=always
+ 
+[Install]
+WantedBy=multi-user.target
