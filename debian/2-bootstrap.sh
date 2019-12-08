@@ -82,13 +82,15 @@ echo "### Copying NVRAM-stored files..."
 rsync -ar /target/tmp/machine-secrets/files/ /target || true
 
 echo "### Configuring openswap hook..."
-echo "run_hook () {" >> /target/etc/initcpio/hooks/openswap
-for i in "${!SWAP_DEVS[@]}"
-do
-    echo "cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file=${KEY_FILE} --allow-discards open --type plain ${SWAP_DEVS[$i]} swap${i}" >> /target/etc/initcpio/hooks/openswap
-done
-echo "}" >> /target/etc/initcpio/hooks/openswap
-cat << EOF >> /target/etc/initcpio/install/openswap
+case "${DISTRO}" in
+    arch)
+        echo "run_hook () {" >> /target/etc/initcpio/hooks/openswap
+        for i in "${!SWAP_DEVS[@]}"
+        do
+            echo "cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file=${KEY_FILE} --allow-discards open --type plain ${SWAP_DEVS[$i]} swap${i}" >> /target/etc/initcpio/hooks/openswap
+        done
+        echo "}" >> /target/etc/initcpio/hooks/openswap
+        cat << EOF >> /target/etc/initcpio/install/openswap
 build ()
 {
     add_runscript
@@ -98,6 +100,17 @@ help ()
     echo "Opens the swap encrypted partition(s)"
 }
 EOF
+    ;;
+    
+    debian)
+        echo "swap${i} ${SWAP_DEVS[$i]} ${KEY_FILE} plain,cipher=aes-xts-plain64,size=256,discard" >> /etc/crypttab
+    ;;
+    
+    *)
+        echo "!!! Unknown distro ${DISTRO}"
+        exit 1
+    ;;
+esac
 
 echo "### Copying root files..."
 rsync -ar ~/opt /target/root/
