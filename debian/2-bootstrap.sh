@@ -17,8 +17,8 @@ ssh -4 root@beast pwd || (echo "Failed to connect to beast; SSH keys missing?")
 ssh -4 root@loki pwd || true
 
 echo "### Importing/mounting filesystems..."
-zpool import -R /target -l z
 "$(cd "$(dirname "$0")" ; pwd)"/2.1-format-root.sh "${DISTRO}"
+zpool import -R /target -l z
 mkdir -p /target/etc
 echo "z/${DISTRO} / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
