@@ -18,8 +18,9 @@ ssh -4 root@loki pwd || true
 
 echo "### Importing/mounting filesystems..."
 zpool import -R /target -l z
+"$(cd "$(dirname "$0")" ; pwd)"/2.1-format-root.sh "${DISTRO}"
 mkdir -p /target/etc
-echo "z/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
+echo "z/${DISTRO} / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
 mount /dev/disk/by-label/BOOT0 /target/boot
 echo "LABEL=BOOT0 /boot vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
@@ -126,7 +127,7 @@ umount -R /target
 zfs unmount -a
 
 echo "### Snapshotting..."
-for pool in z/root
+for pool in z/${DISTRO}
 do
     zfs snapshot ${pool}@pre-boot-install
 done

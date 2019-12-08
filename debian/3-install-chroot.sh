@@ -185,7 +185,7 @@ esac
 
 echo "### Installing bootloader..."
 bootctl --path=/boot install
-KERNEL_PARAMS="initrd=/intel-ucode.img initrd=/initramfs-${KERNEL}.img loglevel=3 zfs=z/root rw"
+KERNEL_PARAMS="initrd=/intel-ucode.img initrd=/initramfs-${KERNEL}.img loglevel=3 zfs=z/${DISTRO} rw"
 [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} intel_iommu=on iommu=pt"
 [[ "${HAS_NVIDIA}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
 [[ "${ALLOW_SUSPEND}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} resume=/dev/mapper/swap0"
