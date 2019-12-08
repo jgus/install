@@ -10,6 +10,10 @@ KEY_FILE=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b
 echo "### Cleaning up prior partitions..."
 umount -Rl /target || true
 zpool destroy z || true
+for i in /dev/disk/by-label/SWAP*
+do
+    swapoff "${i}" || true
+done
 
 for i in "${!SYSTEM_DEVICES[@]}"
 do
