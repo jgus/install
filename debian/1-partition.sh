@@ -47,7 +47,6 @@ ZPOOL_OPTS=(
     -O keylocation=file://${KEY_FILE}
 )
 zpool create -f "${ZPOOL_OPTS[@]}" -m none z ${SYSTEM_Z_TYPE} "${Z_DEVS[@]}"
-zfs create -o mountpoint=/                                                          z/root
 zfs create -o mountpoint=/var -o canmount=off       -o com.sun:auto-snapshot=false  z/var
 zfs create                                                                          z/var/cache
 zfs create                                                                          z/var/log
