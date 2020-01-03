@@ -77,8 +77,6 @@ changeme
 changeme
 EOF
 
-/root/opt/install.sh
-
 echo "### Configuring clock..."
 ln -sf "/usr/share/zoneinfo/${TIME_ZONE}" /etc/localtime
 hwclock --systohc
@@ -138,6 +136,9 @@ EOF
         exit 1
     ;;
 esac
+
+echo "### Root opt install..."
+/root/opt/install.sh
 
 echo "### Configuring network..."
 case "${DISTRO}" in
