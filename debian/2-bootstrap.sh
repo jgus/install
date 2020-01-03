@@ -75,10 +75,6 @@ echo "### Copying preset files..."
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/common/files/ /target
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/files/ /target
 
-echo "### Copying ZFS files..."
-mkdir -p /target/etc/zfs
-cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
-
 echo "### Copying NVRAM-stored files..."
 "$(cd "$(dirname "$0")" ; pwd)/read-secrets.sh" /target/tmp/machine-secrets
 rsync -ar /target/tmp/machine-secrets/files/ /target || true
