@@ -18,6 +18,7 @@ ssh -4 root@loki pwd || true
 
 echo "### Importing/mounting filesystems..."
 zpool export z || true
+umount -Rl /target || true
 "$(cd "$(dirname "$0")" ; pwd)"/2.1-format-root.sh "${DISTRO}"
 zpool import -R /target -l z
 mkdir -p /target/etc
