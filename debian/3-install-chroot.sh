@@ -4,6 +4,9 @@ set -e
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
+lscpu | grep GenuineIntel && HAS_INTEL_CPU=1
+lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
+
 grep Debian /etc/issue && DISTRO=debian
 grep Arch /etc/issue && DISTRO=arch
 case "${DISTRO}" in
@@ -40,7 +43,7 @@ case "${DISTRO}" in
             # LDAP Auth
             openldap nss-pam-ldapd sssd
         )
-        lscpu | grep GenuineIntel && BOOT_PACKAGES+=(intel-ucode)
+        [[ "${HAS_INTEL_CPU}" == "1" ]] && BOOT_PACKAGES+=(intel-ucode)
         # TODO AMD
         [[ "${HAS_NVIDIA}" == "1" ]] && BOOT_PACKAGES+=(
             nvidia-dkms
@@ -56,8 +59,8 @@ case "${DISTRO}" in
             network-manager
             openssh-server
         )
-        lscpu | grep GenuineIntel && BOOT_PACKAGES+=(intel-microcode)
-        lscpu | grep AuthenticAMD && BOOT_PACKAGES+=(amd64-microcode)
+        [[ "${HAS_INTEL_CPU}" == "1" ]] && BOOT_PACKAGES+=(intel-microcode)
+        [[ "${HAS_AMD_CPU}" == "1" ]] && BOOT_PACKAGES+=(amd64-microcode)
         # TODO
     ;;
     
@@ -185,8 +188,30 @@ esac
 
 echo "### Installing bootloader..."
 bootctl --path=/boot install
-KERNEL_PARAMS="initrd=/intel-ucode.img initrd=/initramfs-${KERNEL}.img loglevel=3 zfs=z/${DISTRO} rw"
-[[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} intel_iommu=on iommu=pt"
+[[ "${HAS_INTEL_CPU}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} initrd=/intel-ucode.img"
+case "${DISTRO}" in
+    arch)
+        KERNEL_PARAMS="${KERNEL_PARAMS} initrd=/initramfs-${KERNEL}.img"
+    ;;
+    
+    debian)
+        echo "!!! TODO Debian initramfs image?"
+        exit 1
+        KERNEL_PARAMS="${KERNEL_PARAMS} initrd=/initramfs-${KERNEL}.img"
+    ;;
+    
+    *)
+        echo "!!! Unknown distro ${DISTRO}"
+        exit 1
+    ;;
+esac
+KERNEL_PARAMS="${KERNEL_PARAMS} loglevel=3 zfs=z/${DISTRO} rw"
+if [[ "${VFIO_IDS}" != "" ]]
+then
+    [[ "${HAS_INTEL_CPU}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} intel_iommu=on"
+    # TODO AMD
+    KERNEL_PARAMS="${KERNEL_PARAMS} iommu=pt"
+fi
 [[ "${HAS_NVIDIA}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
 [[ "${ALLOW_SUSPEND}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} resume=/dev/mapper/swap0"
 mkdir -p /boot/loader
