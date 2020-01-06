@@ -190,7 +190,6 @@ case "${DISTRO}" in
 esac
 
 echo "### Installing bootloader..."
-bootctl --path=/boot install
 [[ "${HAS_INTEL_CPU}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} initrd=/intel-ucode.img"
 case "${DISTRO}" in
     arch)
@@ -217,14 +216,29 @@ then
 fi
 [[ "${HAS_NVIDIA}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
 [[ "${ALLOW_SUSPEND}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} resume=/dev/mapper/swap0"
+bootctl --path=/boot install
 mkdir -p /boot/loader
-echo "default arch" >/boot/loader/loader.conf
 mkdir -p /boot/loader/entries
-cat << EOF >>/boot/loader/entries/arch.conf
+case "${DISTRO}" in
+    arch)
+        echo "default arch" >/boot/loader/loader.conf
+        cat << EOF >>/boot/loader/entries/arch.conf
 title   Arch Linux
 efi     /vmlinuz-${KERNEL}
 options ${KERNEL_PARAMS}
 EOF
+    ;;
+    
+    debian)
+        echo "!!! TODO !!!"
+        exit 1
+    ;;
+    
+    *)
+        echo "!!! Unknown distro ${DISTRO}"
+        exit 1
+    ;;
+esac
 
 echo "### Configuring nVidia updates..."
 #/etc/pacman.d/hooks/nvidia.hook
