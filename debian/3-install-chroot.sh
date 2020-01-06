@@ -78,23 +78,6 @@ changeme
 changeme
 EOF
 
-echo "### Configuring clock..."
-ln -sf "/usr/share/zoneinfo/${TIME_ZONE}" /etc/localtime
-hwclock --systohc
-
-echo "### Configuring locale..."
-echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
-locale-gen
-echo "LANG=en_US.UTF-8" >/etc/locale.conf
-
-echo "### Configuring hostname..."
-echo "${HOSTNAME}" >/etc/hostname
-cat <<EOF >/etc/hosts
-127.0.0.1 localhost
-::1 localhost
-127.0.1.1 ${HOSTNAME}.localdomain ${HOSTNAME}
-EOF
-
 echo "### Installing pacakages..."
 case "${DISTRO}" in
     arch)
@@ -137,6 +120,23 @@ EOF
         exit 1
     ;;
 esac
+
+echo "### Configuring clock..."
+ln -sf "/usr/share/zoneinfo/${TIME_ZONE}" /etc/localtime
+hwclock --systohc
+
+echo "### Configuring locale..."
+echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
+locale-gen
+echo "LANG=en_US.UTF-8" >/etc/locale.conf
+
+echo "### Configuring hostname..."
+echo "${HOSTNAME}" >/etc/hostname
+cat <<EOF >/etc/hosts
+127.0.0.1 localhost
+::1 localhost
+127.0.1.1 ${HOSTNAME}.localdomain ${HOSTNAME}
+EOF
 
 echo "### Root opt install..."
 /root/opt/install.sh
