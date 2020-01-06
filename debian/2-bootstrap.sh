@@ -20,6 +20,7 @@ echo "### Importing/mounting filesystems..."
 zpool export z || true
 umount -Rl /target || true
 "$(cd "$(dirname "$0")" ; pwd)"/2.1-format-root.sh "${DISTRO}"
+rm -rf /target
 zpool import -R /target -l z
 mkdir -p /target/etc
 echo "z/${DISTRO} / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
