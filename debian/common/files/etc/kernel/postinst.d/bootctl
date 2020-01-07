@@ -1,0 +1,7 @@
+#!/bin/sh
+version="${1}"
+# passing the kernel version is required
+[ -z "${version}" ] && exit 0
+cd /boot
+ln -sf vmlinuz-${version} vmlinuz-debian
+ln -sf initrd.img-${version} initrd.img-debian

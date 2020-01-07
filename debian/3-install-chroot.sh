@@ -190,16 +190,16 @@ case "${DISTRO}" in
 esac
 
 echo "### Installing bootloader..."
-[[ "${HAS_INTEL_CPU}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} initrd=/intel-ucode.img"
+# /etc/kernel/postinst.d/bootctl
 case "${DISTRO}" in
     arch)
+        [[ "${HAS_INTEL_CPU}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} initrd=/intel-ucode.img"
+        # TODO AMD
         KERNEL_PARAMS="${KERNEL_PARAMS} initrd=/initramfs-${KERNEL}.img"
     ;;
     
     debian)
-        echo "!!! TODO Debian initramfs image?"
-        exit 1
-        KERNEL_PARAMS="${KERNEL_PARAMS} initrd=/initramfs-${KERNEL}.img"
+        KERNEL_PARAMS="${KERNEL_PARAMS} initrd=/initrd.img-debian"
     ;;
     
     *)
@@ -230,8 +230,12 @@ EOF
     ;;
     
     debian)
-        echo "!!! TODO !!!"
-        exit 1
+        echo "default debian" >/boot/loader/loader.conf
+        cat << EOF >>/boot/loader/entries/debian.conf
+title   Debian Linux
+efi     /vmlinuz-debian
+options ${KERNEL_PARAMS}
+EOF
     ;;
     
     *)
