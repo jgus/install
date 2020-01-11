@@ -1,3 +1,3 @@
 #!/bin/bash
 set -e
-/install/3-install-postboot.sh
+/install/4-install-postboot.sh
