@@ -6,7 +6,7 @@ echo "deb http://deb.debian.org/debian buster contrib" >> /etc/apt/sources.list
 echo "deb http://deb.debian.org/debian buster-backports main contrib" >> /etc/apt/sources.list
 uniq -i /etc/apt/sources.list
 apt update
-apt install --yes debootstrap gdisk dkms dpkg-dev linux-headers-$(uname -r) efivar zstd ssh curl
+apt install --yes debootstrap gdisk dkms dpkg-dev linux-headers-$(uname -r) efivar zstd ssh curl git
 apt install --yes -t buster-backports zfs-dkms
 modprobe zfs
 mount -t efivarfs efivarfs /sys/firmware/efi/efivars || true
@@ -19,3 +19,5 @@ uniq -i ~/.ssh/authorized_keys
 chmod 400 ~/.ssh/authorized_keys
 
 systemctl start ssh
+
+git clone https://github.com/jgus/install
