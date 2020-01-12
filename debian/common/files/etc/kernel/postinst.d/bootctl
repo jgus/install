@@ -2,8 +2,7 @@
 version="${1}"
 # passing the kernel version is required
 [ -z "${version}" ] && exit 0
-echo "Fixing up boot links for ${version}"
-cd /boot
-ln -sf vmlinuz-${version} vmlinuz-debian
-touch initrd.img-${version} # In case it doesn't exist yet
-ln -sf initrd.img-${version} initrd.img-debian
+
+echo "Fixing up boot entry for ${version}"
+sed -i "s|^linux*|linux   /vmlinuz-${version}|g" /boot/loader/entries/debian.conf
+sed -i "s|^initrd*|initrd  /initrd.img-${version}|g" /boot/loader/entries/debian.conf

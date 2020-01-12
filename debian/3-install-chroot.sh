@@ -199,7 +199,6 @@ case "${DISTRO}" in
     ;;
     
     debian)
-        KERNEL_PARAMS="${KERNEL_PARAMS} initrd=/initrd.img-debian"
     ;;
     
     *)
@@ -230,12 +229,7 @@ EOF
     ;;
     
     debian)
-        echo "default debian" >/boot/loader/loader.conf
-        cat << EOF >>/boot/loader/entries/debian.conf
-title   Debian Linux
-efi     /vmlinuz-debian
-options ${KERNEL_PARAMS}
-EOF
+        sed -i "s|^options*|options ${KERNEL_PARAMS}|g" /boot/loader/entries/debian.conf
     ;;
     
     *)
