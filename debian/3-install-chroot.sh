@@ -229,7 +229,8 @@ EOF
     ;;
     
     debian)
-        sed -i "s|^options*|options ${KERNEL_PARAMS}|g" /boot/loader/entries/debian.conf
+        echo "default debian" >/boot/loader/loader.conf
+        sed -i "s|^options*$|options ${KERNEL_PARAMS}|g" /boot/loader/entries/debian.conf
     ;;
     
     *)

@@ -4,5 +4,5 @@ version="${1}"
 [ -z "${version}" ] && exit 0
 
 echo "Fixing up boot entry for ${version}"
-sed -i "s|^linux*|linux   /vmlinuz-${version}|g" /boot/loader/entries/debian.conf
-sed -i "s|^initrd*|initrd  /initrd.img-${version}|g" /boot/loader/entries/debian.conf
+sed -i "s|^linux*$|linux   /vmlinuz-${version}|g" /boot/loader/entries/debian.conf
+sed -i "s|^initrd*$|initrd  /initrd.img-${version}|g" /boot/loader/entries/debian.conf
