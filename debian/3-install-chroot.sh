@@ -157,6 +157,14 @@ case "${DISTRO}" in
     ;;
 esac
 
+echo "### Generating ZFS cache..."
+zfs load-key -a
+zpool set cachefile=/etc/zfs/zpool.cache z
+if [[ -d /bulk ]]
+then
+    zpool set cachefile=/etc/zfs/zpool.cache bulk
+fi
+
 echo "### Configuring VFIO..."
 if [[ "${VFIO_IDS}" != "" ]]
 then
@@ -206,7 +214,7 @@ case "${DISTRO}" in
         exit 1
     ;;
 esac
-KERNEL_PARAMS="${KERNEL_PARAMS} loglevel=3 zfs=z/${DISTRO} rw"
+KERNEL_PARAMS="${KERNEL_PARAMS} loglevel=3 root=ZFS:z/${DISTRO} rw"
 if [[ "${VFIO_IDS}" != "" ]]
 then
     [[ "${HAS_INTEL_CPU}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} intel_iommu=on"
@@ -231,6 +239,7 @@ EOF
     debian)
         echo "default debian" >/boot/loader/loader.conf
         sed -i "s|^options*$|options ${KERNEL_PARAMS}|g" /boot/loader/entries/debian.conf
+        update-initramfs -u -k all
     ;;
     
     *)
