@@ -89,9 +89,14 @@ Include = /etc/pacman.d/mirrorlist
 
 [archzfs]
 Server = https://archzfs.com/\$repo/\$arch
+
+[repo-ck]
+Server = http://repo-ck.com/\$arch
 EOF
         pacman-key -r F75D9D76
         pacman-key --lsign-key F75D9D76
+        pacman-key -r 5EE46C4C
+        pacman-key --lsign-key 5EE46C4C
         rsync -arP root@loki:/var/cache/pacman/pkg/ /var/cache/pacman/pkg || true
         pacman -Syyu --needed --noconfirm "${BOOT_PACKAGES[@]}"
     ;;
@@ -184,7 +189,7 @@ case "${DISTRO}" in
         HOOKS+=(zfs filesystems keyboard)
         sed -i "s|HOOKS=(\(.*\))|HOOKS=(${HOOKS[*]})|g" /etc/mkinitcpio.conf
         #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
-        mkinitcpio -p ${KERNEL}
+        mkinitcpio -P
     ;;
     
     debian)

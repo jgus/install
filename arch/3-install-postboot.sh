@@ -131,7 +131,7 @@ fi
 
 zgenhostid $(hostid)
 
-mkinitcpio -p ${KERNEL}
+mkinitcpio -P
 
 echo "### Installing pacakages..."
 pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
