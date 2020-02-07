@@ -23,3 +23,6 @@ uniq -i ~/.ssh/authorized_keys
 chmod 400 ~/.ssh/authorized_keys
 
 systemctl start ssh
+
+echo "### System prep complete; SSH available at:"
+ip a | grep inet
