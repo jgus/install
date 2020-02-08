@@ -15,6 +15,7 @@ BOOT_PACKAGES=(
     zfsutils-linux zfs-initramfs
     cryptsetup
     zsh
+    nano
     network-manager
     ssh
     curl
@@ -77,12 +78,12 @@ echo "### /tmp..."
 cp /usr/share/systemd/tmp.mount /etc/systemd/system/
 systemctl enable tmp.mount
 
-# echo "### Configuring boot image..."
-# # Nothing to do!
+echo "### Configuring boot image..."
+update-initramfs -u -k all
 
 echo "### Installing bootloader..."
-# TODO
-false
+update-grub
+grub-install --efi-directory=/boot/efi --bootloader-id=ubuntu --recheck --no-floppy
 
 echo "### Configuring nVidia updates..."
 #/etc/pacman.d/hooks/nvidia.hook
