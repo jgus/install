@@ -8,29 +8,31 @@ KEY_FILE=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b
 
 for i in "${!SYSTEM_DEVICES[@]}"
 do
-    DEV="${SYSTEM_DEVICES[$i]}-part3"
+    DEV="${SYSTEM_DEVICES[$i]}-part4"
     if [[ -b "${DEV}" ]]
     then
-        SWAP_DEVS+=("${SYSTEM_DEVICES[$i]}-part3")
+        SWAP_DEVS+=("${SYSTEM_DEVICES[$i]}-part4")
     fi
 done
 
 echo "### Importing/mounting filesystems..."
-zpool export root || true
+zpool export -a || true
 umount -Rl /target || true
 "$(cd "$(dirname "$0")" ; pwd)"/2.1-format-root.sh
 rm -rf /target
 zpool import -R /target -l root
+zpool import -R /target -l boot
 mkdir -p /target/etc
 echo "root/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
-mkdir -p /target/boot
-mount /dev/disk/by-label/BOOT0 /target/boot
-echo "LABEL=BOOT0 /boot vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
+echo "boot/boot /boot zfs rw,relatime,xattr,noacl 0 0" >> /target/etc/fstab
+mkdir -p /target/boot/efi
+mount /dev/disk/by-label/EFI0 /target/boot/efi
+echo "LABEL=EFI0 /boot/efi vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
 for (( i=1; i<${#SYSTEM_DEVICES[@]}; i++ ));
 do
-    mkdir -p /target/boot/bak${i}
-    mount /dev/disk/by-label/BOOT${i} /target/boot/bak${i}
-    echo "LABEL=BOOT${i} /boot/bak${i} vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
+    mkdir -p /target/boot/efi.${i}
+    mount /dev/disk/by-label/EFI${i} /target/boot/efi.${i}
+    echo "LABEL=EFI${i} /boot/efi.${i} vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
 done
 for i in "${!SWAP_DEVS[@]}"
 do
@@ -84,7 +86,7 @@ umount -R /target
 zfs unmount -a
 
 echo "### Snapshotting..."
-for pool in root/root
+for pool in root/root boot/boot
 do
     zfs snapshot ${pool}@pre-boot-install
 done

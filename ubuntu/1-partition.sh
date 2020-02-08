@@ -4,7 +4,8 @@ set -e
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
-BOOT_SIZE=${BOOT_SIZE:-+512M}
+EFI_SIZE=${EFI_SIZE:-+256M}
+BOOT_SIZE=${BOOT_SIZE:-+1G}
 ROOT_SIZE=${ROOT_SIZE:-0}
 #KEY_FILE=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b
 
@@ -22,14 +23,16 @@ do
     echo "### Wiping and re-partitioning ${DEVICE}..."
     sgdisk --zap-all "${DEVICE}"
     while [ -L "${DEVICE}-part2" ] ; do : ; done
-    sgdisk -n1:1M:${BOOT_SIZE} -t1:EF00 "${DEVICE}"
-    sgdisk -n2:0:${ROOT_SIZE} -t2:BF00 "${DEVICE}"
+    sgdisk -n1:1M:${EFI_SIZE} -t1:EF00 "${DEVICE}"
+    sgdisk -n2:0:${BOOT_SIZE} -t2:BF00 "${DEVICE}"
+    sgdisk -n3:0:${ROOT_SIZE} -t3:BF00 "${DEVICE}"
     if [[ "${ROOT_SIZE}" != "0" ]]
     then
-        sgdisk -n3:0:0 -t3:8200 "${DEVICE}"
+        sgdisk -n4:0:0 -t4:8200 "${DEVICE}"
     fi
-    ROOT_DEVS+=("${DEVICE}-part2")
-    SWAP_DEVS+=("${DEVICE}-part3")
+    BOOT_DEVS+=("${DEVICE}-part2")
+    ROOT_DEVS+=("${DEVICE}-part3")
+    SWAP_DEVS+=("${DEVICE}-part4")
 done
 sleep 1
 
@@ -62,10 +65,41 @@ zfs create -o mountpoint=/var/volumes               -o com.sun:auto-snapshot=tru
 zfs create                                          -o com.sun:auto-snapshot=false  root/volumes/scratch
 zfs create -o mountpoint=/var/lib/libvirt/images    -o com.sun:auto-snapshot=true   root/images
 zfs create                                          -o com.sun:auto-snapshot=false  root/images/scratch
+
+
+echo "### Creating zpool boot... (${ROOT_DEVS[@]})"
+ZPOOL_OPTS=(
+    -o ashift=12
+    -o feature@async_destroy=enabled
+    -o feature@bookmarks=enabled
+    -o feature@embedded_data=enabled
+    -o feature@empty_bpobj=enabled
+    -o feature@enabled_txg=enabled
+    -o feature@extensible_dataset=enabled
+    -o feature@filesystem_limits=enabled
+    -o feature@hole_birth=enabled
+    -o feature@large_blocks=enabled
+    -o feature@lz4_compress=enabled
+    -o feature@spacemap_histogram=enabled
+    -o feature@userobj_accounting=enabled
+    -O acltype=posixacl
+    -O compression=lz4
+    -O devices=off
+    -O normalization=formD
+    -O relatime=on
+    -O xattr=sa
+    -O com.sun:auto-snapshot=true
+    -R /target
+    -f
+)
+zpool create -f "${ZPOOL_OPTS[@]}" -m none boot ${SYSTEM_Z_TYPE} "${BOOT_DEVS[@]}"
+zfs create -o mountpoint=/boot boot/boot
+
 zfs unmount -a
+zpool export boot
 zpool export root
 
-"$(cd "$(dirname "$0")" ; pwd)"/1.1-format-boot.sh "${HOSTNAME}"
+"$(cd "$(dirname "$0")" ; pwd)"/1.1-format-efi.sh "${HOSTNAME}"
 "$(cd "$(dirname "$0")" ; pwd)"/1.1-format-swap.sh "${HOSTNAME}"
 
 echo "### Done partitioning!"

@@ -9,7 +9,7 @@ KEY_FILE=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b
 for i in "${!SYSTEM_DEVICES[@]}"
 do
     DEVICE="${SYSTEM_DEVICES[$i]}"
-    SWAP_DEVS+=("${DEVICE}-part3")
+    SWAP_DEVS+=("${DEVICE}-part4")
 done
 
 echo "### Setting up swap... (${SWAP_DEVS[@]})"

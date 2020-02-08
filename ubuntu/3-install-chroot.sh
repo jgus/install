@@ -10,6 +10,7 @@ lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 KERNEL=${KERNEL:-linux}
 
 BOOT_PACKAGES=(
+    grub-efi shim
     linux-generic linux-headers-generic linux-image-generic
     zfsutils-linux zfs-initramfs
     cryptsetup
@@ -72,26 +73,16 @@ then
     echo "options vfio_pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio.conf
 fi
 
+echo "### /tmp..."
+cp /usr/share/systemd/tmp.mount /etc/systemd/system/
+systemctl enable tmp.mount
+
 # echo "### Configuring boot image..."
 # # Nothing to do!
 
 echo "### Installing bootloader..."
-# /etc/kernel/postinst.d/bootctl
-KERNEL_PARAMS="${KERNEL_PARAMS} loglevel=3 root=ZFS:root/root rw"
-if [[ "${VFIO_IDS}" != "" ]]
-then
-    [[ "${HAS_INTEL_CPU}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} intel_iommu=on"
-    # TODO AMD
-    KERNEL_PARAMS="${KERNEL_PARAMS} iommu=pt"
-fi
-[[ "${HAS_NVIDIA}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} nvidia-drm.modeset=1"
-[[ "${ALLOW_SUSPEND}" == "1" ]] && KERNEL_PARAMS="${KERNEL_PARAMS} resume=/dev/mapper/swap0"
-bootctl --path=/boot install
-mkdir -p /boot/loader
-mkdir -p /boot/loader/entries
-echo "default ubuntu" >/boot/loader/loader.conf
-sed -i "s|^options*$|options ${KERNEL_PARAMS}|g" /boot/loader/entries/ubuntu.conf
-update-initramfs -u -k all
+# TODO
+false
 
 echo "### Configuring nVidia updates..."
 #/etc/pacman.d/hooks/nvidia.hook
