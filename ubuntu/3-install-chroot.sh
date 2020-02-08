@@ -31,7 +31,7 @@ EOF
 
 echo "### Installing pacakages..."
 #/etc/apt/sources.list
-ln -s /proc/self/mounts /etc/mtab
+#ln -s /proc/self/mounts /etc/mtab
 apt update
 apt install --yes "${BOOT_PACKAGES[@]}"
 

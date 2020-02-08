@@ -56,7 +56,7 @@ cp -rf "$(cd "$(dirname "$0")" ; pwd)"/* /target/install
 
 echo "### Copying preset files..."
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/common/files/ /target
-rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/files/ /target
+rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/files/ /target | true
 
 # echo "### Copying NVRAM-stored files..."
 # "$(cd "$(dirname "$0")" ; pwd)/read-secrets.sh" /target/tmp/machine-secrets
