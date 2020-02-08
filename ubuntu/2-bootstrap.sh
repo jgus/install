@@ -69,8 +69,9 @@ do
 done
 
 echo "### Copying root files..."
-rsync -ar ~/opt /target/root/
-rsync -ar ~/.ssh/ /target/root/opt/dotfiles/ssh
+# rsync -ar ~/opt /target/root/
+# rsync -ar ~/.ssh/ /target/root/opt/dotfiles/ssh
+rsync -ar ~/.ssh/ /target/root/.ssh
 
 echo "### Running further install in the chroot..."
 mount --rbind /dev  /target/dev
