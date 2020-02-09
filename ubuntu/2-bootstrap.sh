@@ -24,7 +24,7 @@ zpool import -R /target -l root
 mkdir -p /target/etc
 echo "root/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
-mount /dev/disk/by-label/BOOT00 /target/boot
+mount /dev/disk/by-label/BOOT0 /target/boot
 echo "LABEL=BOOT0 /boot ext4 rw,relatime,errors=remount-ro 0 2" >> /target/etc/fstab
 mkdir -p /target/boot/efi
 mount /dev/disk/by-label/EFI0 /target/boot/efi
