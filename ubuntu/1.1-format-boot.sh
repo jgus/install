@@ -7,11 +7,11 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 for i in "${!SYSTEM_DEVICES[@]}"
 do
     DEVICE="${SYSTEM_DEVICES[$i]}"
-    EFI_DEVS+=("${DEVICE}-part1")
+    BOOT_DEVS+=("${DEVICE}-part2")
 done
 
-echo "### Formatting EFI partitions... (${EFI_DEVS[@]})"
-for i in "${!EFI_DEVS[@]}"
+echo "### Formatting boot partitions... (${BOOT_DEVS[@]})"
+for i in "${!BOOT_DEVS[@]}"
 do
-    mkfs.fat -F 32 -n "EFI${i}" "${EFI_DEVS[$i]}"
+    mkfs.ext4 -L "BOOT${i}" "${BOOT_DEVS[$i]}"
 done

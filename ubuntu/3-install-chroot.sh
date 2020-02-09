@@ -16,6 +16,7 @@ BOOT_PACKAGES=(
     cryptsetup
     zsh
     nano
+    man
     network-manager
     ssh
     curl
