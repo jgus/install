@@ -92,9 +92,3 @@ echo "### Configuring nVidia updates..."
 
 echo "### Configuring Zsh..."
 chsh -s /bin/zsh
-
-echo "### Preparing post-boot install..."
-#/etc/systemd/system/getty@tty1.service.d/override.conf
-#/root/.zlogin
-#/root/.runonce.sh
-chmod a+x ~/.runonce.sh
