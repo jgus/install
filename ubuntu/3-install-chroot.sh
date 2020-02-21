@@ -35,7 +35,7 @@ echo "### Installing pacakages..."
 #/etc/apt/sources.list
 #ln -s /proc/self/mounts /etc/mtab
 apt update
-yes '' | apt install --yes "${BOOT_PACKAGES[@]}"
+apt install --yes "${BOOT_PACKAGES[@]}"
 
 echo "### Configuring clock..."
 ln -sf "/usr/share/zoneinfo/${TIME_ZONE}" /etc/localtime

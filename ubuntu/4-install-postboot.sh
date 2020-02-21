@@ -44,7 +44,7 @@ update-initramfs -u
 
 echo "### Post-boot packages..."
 apt update
-yes '' | apt install --yes "${PACKAGES[@]}"
+apt install --yes "${PACKAGES[@]}"
 
 echo "### TODO!!! ###"
 false
