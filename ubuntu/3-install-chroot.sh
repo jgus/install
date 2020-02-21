@@ -7,11 +7,11 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 lscpu | grep GenuineIntel && HAS_INTEL_CPU=1
 lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 
-KERNEL=${KERNEL:-linux}
+KERNEL=${KERNEL:-generic}
 
 BOOT_PACKAGES=(
     grub-efi shim
-    linux-generic linux-headers-generic linux-image-generic
+    linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
     zfsutils-linux zfs-initramfs
     cryptsetup
     zsh
@@ -60,6 +60,9 @@ EOF
 
 echo "### Configuring network..."
 sed -i "s|managed=.*|managed=true|g" /etc/NetworkManager/NetworkManager.conf
+
+echo "### Enabling SSH..."
+systemctl enable ssh
 
 echo "### Generating ZFS cache..."
 zfs load-key -a
