@@ -11,23 +11,16 @@ false
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
-echo "### Post-boot packages..."
 PACKAGES+=(
-    gnome-tweaks
+    sssd libpam-sss libnss-sss
 )
-apt update
-apt install --yes "${PACKAGES[@]}"
-
-echo "### TODO!!! ###"
-false
 
 echo "### Post-boot ZFS config..."
 zfs load-key -a
-zpool set cachefile=/etc/zfs/zpool.cache root
-if [[ -d /bulk ]]
-then
-    zpool set cachefile=/etc/zfs/zpool.cache bulk
-fi
+for p in $(zpool list -o name -H)
+do
+    zpool set cachefile=/etc/zfs/zpool.cache "${p}"
+done
 zfs mount -a
 
 #/etc/systemd/system/zfs-load-key.service
@@ -40,69 +33,67 @@ systemctl enable zfs-mount
 systemctl enable zfs-import.target
 systemctl enable zfs-load-key.service
 systemctl enable zfs-scrub@root.timer
-if [[ -d /bulk ]]
-then
-    systemctl enable zfs-scrub@bulk.timer
-fi
+for p in $(zpool list -o name -H)
+do
+    systemctl enable zfs-scrub@${p}.timer
+done
 
 zgenhostid $(hostid)
 
-mkinitcpio -P
+update-initramfs -u
 
-echo "### Installing pacakages..."
-pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
-systemctl enable reflector.timer
+echo "### Post-boot packages..."
+apt update
+apt install --yes "${PACKAGES[@]}"
 
-echo "### Configuring power..."
-# common/files/etc/skel/.config/powermanagementprofilesrc
-[[ "${ALLOW_POWEROFF}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-shutdown.rules
-polkit.addRule(function(action, subject) {
-    if (action.id == "org.freedesktop.login1.reboot" ||
-        action.id == "org.freedesktop.login1.reboot-multiple-sessions" ||
-        action.id == "org.freedesktop.login1.power-off" ||
-        action.id == "org.freedesktop.login1.power-off-multiple-sessions")
-    {
-        if (subject.isInGroup("wheel")) {
-            return polkit.Result.YES;
-        } else {
-            return polkit.Result.NO;
-        }
-    }
-});
-EOF
-[[ "${ALLOW_SUSPEND}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-suspend.rules
-polkit.addRule(function(action, subject) {
-    if (action.id == "org.freedesktop.login1.suspend" ||
-        action.id == "org.freedesktop.login1.suspend-multiple-sessions" ||
-        action.id == "org.freedesktop.login1.hibernate" ||
-        action.id == "org.freedesktop.login1.hibernate-multiple-sessions")
-    {
-        return polkit.Result.NO;
-    }
-});
-EOF
+echo "### TODO!!! ###"
+false
 
-echo "### Configuring network..."
-if [[ "${HAS_WIFI}" == "1" ]]
-then
-    for i in /etc/NetworkManager/wifi
-    do
-        source "${i}"
-        nmcli device wifi connect ${ssid} password ${psk}
-    done
-fi
+# echo "### Configuring power..."
+# # common/files/etc/skel/.config/powermanagementprofilesrc
+# [[ "${ALLOW_POWEROFF}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-shutdown.rules
+# polkit.addRule(function(action, subject) {
+#     if (action.id == "org.freedesktop.login1.reboot" ||
+#         action.id == "org.freedesktop.login1.reboot-multiple-sessions" ||
+#         action.id == "org.freedesktop.login1.power-off" ||
+#         action.id == "org.freedesktop.login1.power-off-multiple-sessions")
+#     {
+#         if (subject.isInGroup("wheel")) {
+#             return polkit.Result.YES;
+#         } else {
+#             return polkit.Result.NO;
+#         }
+#     }
+# });
+# EOF
+# [[ "${ALLOW_SUSPEND}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-suspend.rules
+# polkit.addRule(function(action, subject) {
+#     if (action.id == "org.freedesktop.login1.suspend" ||
+#         action.id == "org.freedesktop.login1.suspend-multiple-sessions" ||
+#         action.id == "org.freedesktop.login1.hibernate" ||
+#         action.id == "org.freedesktop.login1.hibernate-multiple-sessions")
+#     {
+#         return polkit.Result.NO;
+#     }
+# });
+# EOF
+
+# echo "### Configuring network..."
+# if [[ "${HAS_WIFI}" == "1" ]]
+# then
+#     for i in /etc/NetworkManager/wifi
+#     do
+#         source "${i}"
+#         nmcli device wifi connect ${ssid} password ${psk}
+#     done
+# fi
 
 echo "### Configuring LDAP auth..."
-cat << EOF >> /etc/openldap/ldap.conf
-BASE        dc=gustafson,dc=me
-URI         ldap://ldap.gustafson.me
-TLS_REQCERT allow
-EOF
-sed -i "s|passwd: files|passwd: files sss|g" /etc/nsswitch.conf
-sed -i "s|group: files|group: files sss|g" /etc/nsswitch.conf
-sed -i "s|shadow: files|shadow: files sss|g" /etc/nsswitch.conf
-sed -i "s|netgroup: files|netgroup: files sss|g" /etc/nsswitch.conf
-echo "sudoers: files sss" >>/etc/nsswitch.conf
+# cat << EOF >> /etc/openldap/ldap.conf
+# BASE        dc=gustafson,dc=me
+# URI         ldap://ldap.gustafson.me
+# TLS_REQCERT allow
+# EOF
 sed -i "s|^uri.*|uri ldap://ldap.gustafson.me/|g" /etc/nslcd.conf
 sed -i "s|dc=example,dc=com|dc=gustafson,dc=me|g" /etc/nslcd.conf
 cat << EOF >>/etc/nslcd.conf
