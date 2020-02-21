@@ -17,7 +17,6 @@ BOOT_PACKAGES=(
     zsh
     nano
     man
-    network-manager
     ssh
     curl
     locales
@@ -59,7 +58,6 @@ EOF
 # /root/opt/install.sh
 
 echo "### Configuring network..."
-sed -i "s|managed=.*|managed=true|g" /etc/NetworkManager/NetworkManager.conf
 
 echo "### Enabling SSH..."
 systemctl enable ssh
