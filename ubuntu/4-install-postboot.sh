@@ -41,9 +41,6 @@ echo "### Post-boot packages..."
 apt update
 apt install --yes "${PACKAGES[@]}"
 
-echo "### TODO!!! ###"
-false
-
 # echo "### Configuring power..."
 # # common/files/etc/skel/.config/powermanagementprofilesrc
 # [[ "${ALLOW_POWEROFF}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-shutdown.rules
@@ -84,26 +81,10 @@ false
 # fi
 
 echo "### Configuring LDAP auth..."
-# cat << EOF >> /etc/openldap/ldap.conf
-# BASE        dc=gustafson,dc=me
-# URI         ldap://ldap.gustafson.me
-# TLS_REQCERT allow
-# EOF
-sed -i "s|^uri.*|uri ldap://ldap.gustafson.me/|g" /etc/nslcd.conf
-sed -i "s|dc=example,dc=com|dc=gustafson,dc=me|g" /etc/nslcd.conf
-cat << EOF >>/etc/nslcd.conf
-binddn cn=readonly,dc=gustafson,dc=me
-bindpw readonly
-EOF
-chmod go-rw /etc/nslcd.conf
-sed -i "s|enable-cache\(\s*\)passwd\(\s*\)yes|enable-cache\1passwd\2no|g" /etc/nscd.conf
-sed -i "s|enable-cache\(\s*\)group\(\s*\)yes|enable-cache\1group\2no|g" /etc/nscd.conf
-sed -i "s|enable-cache\(\s*\)netgroup\(\s*\)yes|enable-cache\1netgroup\2no|g" /etc/nscd.conf
 source /root/.secrets/openldap.env
 echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
-chmod 600 /etc/sssd/sssd.conf
-systemctl enable --now nslcd.service
-systemctl enable --now sssd.service
+sed -i "s|^/etc/ldap/ldap.conf.*|TLS_CACERT /etc/ssl/certs/ldap.crt/|g" /etc/ldap/ldap.conf
+systemctl restart sssd.service
 
 echo "### TODO!!! ###"
 false

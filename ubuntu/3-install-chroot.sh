@@ -36,6 +36,7 @@ echo "### Installing pacakages..."
 #/etc/apt/sources.list
 #ln -s /proc/self/mounts /etc/mtab
 apt update
+apt upgrade --yes
 apt install --yes "${BOOT_PACKAGES[@]}"
 
 echo "### Configuring clock..."
