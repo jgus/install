@@ -5,14 +5,11 @@ set -e
 # vnc?
 # https://wiki.archlinux.org/index.php/Fan_speed_control#Fancontrol_(lm-sensors)
 
-echo "### TODO!!! ###"
-false
-
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 PACKAGES+=(
-    sssd libpam-sss libnss-sss
+    # sssd libpam-sss libnss-sss
 )
 
 echo "### Post-boot ZFS config..."
@@ -37,8 +34,6 @@ for p in $(zpool list -o name -H)
 do
     systemctl enable zfs-scrub@${p}.timer
 done
-
-zgenhostid $(hostid)
 
 update-initramfs -u
 
