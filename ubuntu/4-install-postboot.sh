@@ -12,6 +12,7 @@ PACKAGES+=(
     sssd libpam-sss libnss-sss
     rng-tools
     cifs-utils
+    smbnetfs
 )
 
 echo "### Post-boot ZFS config..."
@@ -135,36 +136,22 @@ curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
 chown -R josh:josh /home/josh/.ssh
 
-echo "### TODO!!! ###"
-false
+# if which bluetoothctl
+# then
+#     echo "### Configuring Bluetooth..."
+#     cat << EOF >> /etc/bluetooth/main.conf
 
-echo "### Configuring Samba..."
-# /etc/samba/smb.conf
-# /etc/systemd/user/smbnetfs.service
-[[ -f /etc/samba/smb.conf ]] && systemctl enable smb.service
-if which smbnetfs
-then
-    mkdir -p /home/josh/smb
-    chown -R josh:josh /home/josh/smb
-    #sudo -u josh systemctl --user enable smbnetfs
-fi
+# [Policy]
+# AutoEnable=true
+# EOF
+#     systemctl enable bluetooth.service
+# fi
 
-if which bluetoothctl
-then
-    echo "### Configuring Bluetooth..."
-    cat << EOF >> /etc/bluetooth/main.conf
+# echo "### Configuring UPS..."
+# which apcaccess && systemctl enable apcupsd.service
 
-[Policy]
-AutoEnable=true
-EOF
-    systemctl enable bluetooth.service
-fi
-
-echo "### Configuring UPS..."
-which apcaccess && systemctl enable apcupsd.service
-
-echo "### Configuring Sensors..."
-sensors-detect --auto
+# echo "### Configuring Sensors..."
+# sensors-detect --auto
 
 if [[ "${HAS_GUI}" == "1" ]]
 then
@@ -200,13 +187,6 @@ EOF
     systemctl enable xvnc.socket
 fi
 
-echo "### Configuring Steam..."
-if [[ -d /bulk ]]
-then
-    mkdir -p /bulk/steam
-    chown gustafson:gustafson /bulk/steam
-fi
-
 if which virsh
 then
     echo "### Configuring KVM..."
@@ -221,14 +201,8 @@ nvram = [
 EOF
 fi
 
-echo "### Installing Yay..."
-useradd --user-group --home-dir /var/cache/builder --create-home --system builder
-chmod ug+ws /var/cache/builder
-setfacl -m u::rwx,g::rwx /var/cache/builder
-cd /var/cache/builder
-sudo -u builder git clone https://aur.archlinux.org/yay.git
-cd yay
-sudo -u builder makepkg -si --needed --noconfirm
+echo "### TODO!!! ###"
+false
 
 echo "### Configuring Environment..."
 cat <<EOF >>/etc/profile
@@ -246,17 +220,11 @@ cat <<EOF
 EOF
 passwd
 
-echo "### Cleaning up..."
-rm /etc/systemd/system/getty@tty1.service.d/override.conf
-
 echo "### Making a snapshot..."
 for pool in root/root root/home root/images
 do
     zfs snapshot ${pool}@post-boot-install
 done
-
-echo "### Installing AUR Packages (interactive)..."
-sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 
 echo "### Configuring AUR Xorg..."
 [[ "${HAS_OPTIMUS}" == "1" ]] && systemctl enable optimus-manager.service

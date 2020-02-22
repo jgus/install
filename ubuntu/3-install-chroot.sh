@@ -21,6 +21,7 @@ BOOT_PACKAGES=(
     curl
     locales
     git
+    rsync
 )
 [[ "${HAS_INTEL_CPU}" == "1" ]] && BOOT_PACKAGES+=(intel-microcode)
 [[ "${HAS_AMD_CPU}" == "1" ]] && BOOT_PACKAGES+=(amd64-microcode)
