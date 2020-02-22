@@ -10,6 +10,8 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 PACKAGES+=(
     sssd libpam-sss libnss-sss
+    rng-tools
+    cifs-utils
 )
 
 echo "### Post-boot ZFS config..."
@@ -50,7 +52,7 @@ apt install --yes "${PACKAGES[@]}"
 #         action.id == "org.freedesktop.login1.power-off" ||
 #         action.id == "org.freedesktop.login1.power-off-multiple-sessions")
 #     {
-#         if (subject.isInGroup("wheel")) {
+#         if (subject.isInGroup("admin")) {
 #             return polkit.Result.YES;
 #         } else {
 #             return polkit.Result.NO;
@@ -87,19 +89,12 @@ sed -i "s|^/etc/ldap/ldap.conf.*|TLS_CACERT /etc/ssl/certs/ldap.crt/|g" /etc/lda
 patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
 systemctl restart sssd.service
 
-echo "### TODO!!! ###"
-false
-
-echo "### Configuring RNG..."
-systemctl enable rngd.service
-
 echo "### Configuring SSH..."
 cat << EOF >>/etc/ssh/sshd_config
 PasswordAuthentication no
 AllowAgentForwarding yes
 AllowTcpForwarding yes
 EOF
-systemctl enable sshd.service
 
 echo "### Configuring Samba..."
 mkdir /beast
@@ -110,14 +105,11 @@ EOF
 for share in "${BEAST_SHARES[@]}"
 do
     mkdir /beast/${share}
-    echo "//beast/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/beast 0 0" >>/etc/fstab
+    echo "//beast.gustafson.me/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/root/.secrets/beast 0 0" >>/etc/fstab
     mount /beast/${share}
 done
 
-echo "### Adding system users..."
-#/etc/sudoers.d/wheel
-#/etc/sudoers.d/builder
-
+echo "### Configuring users..."
 useradd -D --shell /bin/zsh
 
 if [[ -d /bulk ]]
@@ -128,11 +120,8 @@ then
     setfacl -d -m group:gustafson:rwx /bulk
 fi
 
-usermod -a -G wheel josh
+usermod -a -G admin josh
 /etc/mkhome.sh josh
-
-zfs create -o mountpoint=/git root/git
-chown josh:josh /git
 
 if which virsh
 then
@@ -146,12 +135,8 @@ curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
 chown -R josh:josh /home/josh/.ssh
 
-echo "### Configuring makepkg..."
-sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
-cat <<EOF >>/etc/makepkg.conf 
-MAKEFLAGS="-j$(nproc)"
-BUILDDIR=/tmp/makepkg
-EOF
+echo "### TODO!!! ###"
+false
 
 echo "### Configuring Samba..."
 # /etc/samba/smb.conf
