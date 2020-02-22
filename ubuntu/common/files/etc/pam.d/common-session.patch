@@ -1,0 +1,11 @@
+*** common-session.orig Sat Feb 22 22:26:27 2020
+--- common-session      Sat Feb 22 22:27:04 2020
+***************
+*** 28,32 ****
+--- 28,33 ----
+  # and here are more per-package modules (the "Additional" block)
+  session       required        pam_unix.so 
+  session       optional                        pam_sss.so 
++ session       required        pam_exec.so     debug stdout /etc/mkhome.sh
+  session       optional        pam_systemd.so 
+  # end of pam-auth-update config
