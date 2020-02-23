@@ -110,10 +110,9 @@ echo "### /tmp..."
 cp /usr/share/systemd/tmp.mount /etc/systemd/system/
 systemctl enable tmp.mount
 
-echo "### Configuring boot image..."
-update-initramfs -u -k all
-
 echo "### Installing bootloader..."
+mv /etc/default/grub /etc/default/grub.dist
+mv /etc/default/grub.new /etc/default/grub
 update-grub
 grub-install --efi-directory=/boot/efi --bootloader-id=ubuntu --recheck --no-floppy
 
