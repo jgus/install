@@ -53,7 +53,7 @@ apt install --yes "${PACKAGES[@]}"
 #         action.id == "org.freedesktop.login1.power-off" ||
 #         action.id == "org.freedesktop.login1.power-off-multiple-sessions")
 #     {
-#         if (subject.isInGroup("admin")) {
+#         if (subject.isInGroup("sudo")) {
 #             return polkit.Result.YES;
 #         } else {
 #             return polkit.Result.NO;
@@ -121,7 +121,7 @@ then
     setfacl -d -m group:gustafson:rwx /bulk
 fi
 
-usermod -a -G admin josh
+usermod -a -G sudo josh
 /etc/mkhome.sh josh
 
 if which virsh
