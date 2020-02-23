@@ -134,6 +134,7 @@ source /root/.secrets/openldap.env
 echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
 sed -i "s|^/etc/ldap/ldap.conf.*|TLS_CACERT /etc/ssl/certs/ldap.crt/|g" /etc/ldap/ldap.conf
 patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
+systemctl restart sssd.service
 
 echo "### Configuring users..."
 useradd -D --shell /bin/zsh
