@@ -10,44 +10,6 @@ set -e
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
-PACKAGES+=(
-    sssd libpam-sss libnss-sss
-    rng-tools
-    cifs-utils
-    smbnetfs
-)
-
-echo "### Post-boot ZFS config..."
-zfs load-key -a
-for p in $(zpool list -o name -H)
-do
-    zpool set cachefile=/etc/zfs/zpool.cache "${p}"
-done
-zfs mount -a
-
-#/etc/systemd/system/zfs-load-key.service
-#/etc/systemd/system/zfs-scrub@.timer
-#/etc/systemd/system/zfs-scrub@.service
-
-systemctl enable zfs.target
-systemctl enable zfs-import-cache
-systemctl enable zfs-mount
-systemctl enable zfs-import.target
-systemctl enable zfs-load-key.service
-systemctl enable zfs-scrub@root.timer
-for p in $(zpool list -o name -H)
-do
-    systemctl enable zfs-scrub@${p}.timer
-done
-
-update-initramfs -u
-
-echo "### Post-boot packages..."
-apt update
-apt install --yes "${PACKAGES[@]}"
-apt remove --yes gnome-initial-setup
-apt autoremove --yes
-
 # echo "### Configuring power..."
 # # common/files/etc/skel/.config/powermanagementprofilesrc
 # [[ "${ALLOW_POWEROFF}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-shutdown.rules
@@ -76,69 +38,6 @@ apt autoremove --yes
 #     }
 # });
 # EOF
-
-# echo "### Configuring network..."
-# if [[ "${HAS_WIFI}" == "1" ]]
-# then
-#     for i in /etc/NetworkManager/wifi
-#     do
-#         source "${i}"
-#         nmcli device wifi connect ${ssid} password ${psk}
-#     done
-# fi
-
-echo "### Configuring LDAP auth..."
-source /root/.secrets/openldap.env
-echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
-sed -i "s|^/etc/ldap/ldap.conf.*|TLS_CACERT /etc/ssl/certs/ldap.crt/|g" /etc/ldap/ldap.conf
-patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
-systemctl restart sssd.service
-
-echo "### Configuring SSH..."
-cat << EOF >>/etc/ssh/sshd_config
-PasswordAuthentication no
-AllowAgentForwarding yes
-AllowTcpForwarding yes
-EOF
-
-echo "### Configuring Samba..."
-mkdir /beast
-cat <<EOF >>/etc/fstab
-
-# Beast
-EOF
-for share in "${BEAST_SHARES[@]}"
-do
-    mkdir /beast/${share}
-    echo "//beast.gustafson.me/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/root/.secrets/beast 0 0" >>/etc/fstab
-    mount /beast/${share}
-done
-
-echo "### Configuring users..."
-useradd -D --shell /bin/zsh
-
-if [[ -d /bulk ]]
-then
-    chown -R gustafson:gustafson /bulk
-    chmod 775 /bulk
-    chmod g+s /bulk
-    setfacl -d -m group:gustafson:rwx /bulk
-fi
-
-usermod -a -G sudo josh
-/etc/mkhome.sh josh
-
-if which virsh
-then
-    usermod -a -G libvirt josh
-    mkdir -p /home/josh/.config/libvirt
-    echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
-    chown -R josh:josh /home/josh/.config/libvirt
-fi
-mkdir -p /home/josh/.ssh
-curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
-chmod 400 /home/josh/.ssh/authorized_keys
-chown -R josh:josh /home/josh/.ssh
 
 # if which bluetoothctl
 # then

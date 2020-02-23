@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+[[ -d /root/.secrets ]] || { echo "No secrets found, did you forget to install them?"; exit 1; }
+
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
@@ -9,7 +11,7 @@ lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 
 KERNEL=${KERNEL:-generic}
 
-BOOT_PACKAGES=(
+PACKAGES+=(
     grub-efi shim
     linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
     zfsutils-linux zfs-initramfs
@@ -22,9 +24,13 @@ BOOT_PACKAGES=(
     locales
     git
     rsync
+    sssd libpam-sss libnss-sss
+    rng-tools
+    cifs-utils
+    smbnetfs
 )
-[[ "${HAS_INTEL_CPU}" == "1" ]] && BOOT_PACKAGES+=(intel-microcode)
-[[ "${HAS_AMD_CPU}" == "1" ]] && BOOT_PACKAGES+=(amd64-microcode)
+[[ "${HAS_INTEL_CPU}" == "1" ]] && PACKAGES+=(intel-microcode)
+[[ "${HAS_AMD_CPU}" == "1" ]] && PACKAGES+=(amd64-microcode)
 # TODO
 
 # Password
@@ -38,7 +44,9 @@ echo "### Installing pacakages..."
 #ln -s /proc/self/mounts /etc/mtab
 apt update
 apt upgrade --yes
-apt install --yes "${BOOT_PACKAGES[@]}"
+apt install --yes "${PACKAGES[@]}"
+apt remove --yes gnome-initial-setup
+apt autoremove --yes
 
 echo "### Configuring clock..."
 ln -sf "/usr/share/zoneinfo/${TIME_ZONE}" /etc/localtime
@@ -57,21 +65,46 @@ cat <<EOF >/etc/hosts
 127.0.1.1 ${HOSTNAME}.gustafson.me ${HOSTNAME}
 EOF
 
-# echo "### Root opt install..."
-# /root/opt/install.sh
-
-echo "### Configuring network..."
-
 echo "### Enabling SSH..."
+cat << EOF >>/etc/ssh/sshd_config
+PasswordAuthentication no
+AllowAgentForwarding yes
+AllowTcpForwarding yes
+EOF
 systemctl enable ssh
 
-echo "### Generating ZFS cache..."
+echo "### ZFS..."
+#/etc/systemd/system/zfs-load-key.service
+#/etc/systemd/system/zfs-scrub@.timer
+#/etc/systemd/system/zfs-scrub@.service
 zfs load-key -a
-zpool set cachefile=/etc/zfs/zpool.cache root
-if [[ -d /bulk ]]
-then
-    zpool set cachefile=/etc/zfs/zpool.cache bulk
-fi
+for p in $(zpool list -o name -H)
+do
+    zpool set cachefile=/etc/zfs/zpool.cache "${p}"
+done
+systemctl enable zfs.target
+systemctl enable zfs-import-cache
+systemctl enable zfs-mount
+systemctl enable zfs-import.target
+systemctl enable zfs-load-key.service
+systemctl enable zfs-scrub@root.timer
+for p in $(zpool list -o name -H)
+do
+    systemctl enable zfs-scrub@${p}.timer
+done
+
+echo "### Configuring Samba..."
+mkdir /beast
+cat <<EOF >>/etc/fstab
+
+# Beast
+EOF
+for share in "${BEAST_SHARES[@]}"
+do
+    mkdir /beast/${share}
+    echo "//beast.gustafson.me/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/root/.secrets/beast 0 0" >>/etc/fstab
+    # mount /beast/${share}
+done
 
 echo "### Configuring VFIO..."
 if [[ "${VFIO_IDS}" != "" ]]
@@ -95,3 +128,35 @@ echo "### Configuring nVidia updates..."
 
 echo "### Configuring Zsh..."
 chsh -s /bin/zsh
+
+echo "### Configuring LDAP auth..."
+source /root/.secrets/openldap.env
+echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
+sed -i "s|^/etc/ldap/ldap.conf.*|TLS_CACERT /etc/ssl/certs/ldap.crt/|g" /etc/ldap/ldap.conf
+patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
+
+echo "### Configuring users..."
+useradd -D --shell /bin/zsh
+
+if [[ -d /bulk ]]
+then
+    chown -R gustafson:gustafson /bulk
+    chmod 775 /bulk
+    chmod g+s /bulk
+    setfacl -d -m group:gustafson:rwx /bulk
+fi
+
+usermod -a -G sudo josh
+/etc/mkhome.sh josh
+
+if which virsh
+then
+    usermod -a -G libvirt josh
+    mkdir -p /home/josh/.config/libvirt
+    echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
+    chown -R josh:josh /home/josh/.config/libvirt
+fi
+mkdir -p /home/josh/.ssh
+curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
+chmod 400 /home/josh/.ssh/authorized_keys
+chown -R josh:josh /home/josh/.ssh
