@@ -5,6 +5,8 @@ set -e
 # vnc?
 # https://wiki.archlinux.org/index.php/Fan_speed_control#Fancontrol_(lm-sensors)
 
+[[ -d /root/.secrets ]] || { echo "No secrets found, did you forget to install them?"; exit 1 }
+
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
@@ -207,8 +209,6 @@ false
 echo "### Configuring Environment..."
 cat <<EOF >>/etc/profile
 export EDITOR=nano
-alias yay='sudo -u builder yay'
-alias yayinst='sudo -u builder yay -Syu --needed'
 EOF
 
 cat <<EOF
@@ -238,42 +238,6 @@ for i in monthly weekly daily hourly frequent
 do
     systemctl enable zfs-auto-snapshot-${i}.timer
 done
-
-# echo "### Configuring ClamAV..."
-# sed -i 's/^User/#User/g' /etc/pacman.conf
-# cat << EOF >> /etc/clamav/clamd.conf
-
-# ### Local Settings
-# User root
-# MaxThreads 16
-# MaxDirectoryRecursion 30
-# VirusEvent /etc/clamav/detected.sh
-
-# ExcludePath ^/proc/
-# ExcludePath ^/sys/
-# ExcludePath ^/dev/
-# ExcludePath ^/run/
-# ExcludePath ^/beast/
-# ExcludePath ^/home/josh/smb/
-
-# ScanOnAccess true
-# OnAccessMountPath /
-# OnAccessExcludePath /proc/
-# OnAccessExcludePath /sys/
-# OnAccessExcludePath /dev/
-# OnAccessExcludePath /run/
-# OnAccessExcludePath /var/log/
-# OnAccessExcludePath /beast/
-# OnAccessExcludePath /home/josh/smb/
-# OnAccessExtraScanning true
-# OnAccessExcludeRootUID yes
-
-# EOF
-# freshclam
-# clamav-unofficial-sigs.sh
-# systemctl enable clamav-freshclam.service
-# systemctl enable clamav-unofficial-sigs.timer
-# systemctl enable clamav-daemon.service
 
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
