@@ -45,6 +45,8 @@ update-initramfs -u
 echo "### Post-boot packages..."
 apt update
 apt install --yes "${PACKAGES[@]}"
+apt remove --yes gnome-initial-setup
+apt autoremove --yes
 
 # echo "### Configuring power..."
 # # common/files/etc/skel/.config/powermanagementprofilesrc
