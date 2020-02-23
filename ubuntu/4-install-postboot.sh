@@ -5,7 +5,7 @@ set -e
 # vnc?
 # https://wiki.archlinux.org/index.php/Fan_speed_control#Fancontrol_(lm-sensors)
 
-[[ -d /root/.secrets ]] || { echo "No secrets found, did you forget to install them?"; exit 1 }
+[[ -d /root/.secrets ]] || { echo "No secrets found, did you forget to install them?"; exit 1; }
 
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
