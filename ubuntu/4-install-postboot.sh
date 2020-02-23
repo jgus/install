@@ -5,10 +5,34 @@ set -e
 # vnc?
 # https://wiki.archlinux.org/index.php/Fan_speed_control#Fancontrol_(lm-sensors)
 
-[[ -d /root/.secrets ]] || { echo "No secrets found, did you forget to install them?"; exit 1; }
-
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+
+echo "### Configuring users..."
+useradd -D --shell /bin/zsh
+
+if [[ -d /bulk ]]
+then
+    chown -R gustafson:gustafson /bulk
+    chmod 775 /bulk
+    chmod g+s /bulk
+    setfacl -d -m group:gustafson:rwx /bulk
+fi
+
+usermod -a -G sudo josh
+/etc/mkhome.sh josh
+
+if which virsh
+then
+    usermod -a -G libvirt josh
+    mkdir -p /home/josh/.config/libvirt
+    echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
+    chown -R josh:josh /home/josh/.config/libvirt
+fi
+mkdir -p /home/josh/.ssh
+curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
+chmod 400 /home/josh/.ssh/authorized_keys
+chown -R josh:josh /home/josh/.ssh
 
 # echo "### Configuring power..."
 # # common/files/etc/skel/.config/powermanagementprofilesrc
@@ -111,15 +135,6 @@ echo "### Configuring Environment..."
 cat <<EOF >>/etc/profile
 export EDITOR=nano
 EOF
-
-cat <<EOF
-#####
-#
-# Please enter a root password:
-#
-#####
-EOF
-passwd
 
 echo "### Making a snapshot..."
 for pool in root/root root/home root/images

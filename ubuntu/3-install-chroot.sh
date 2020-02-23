@@ -33,12 +33,6 @@ PACKAGES+=(
 [[ "${HAS_AMD_CPU}" == "1" ]] && PACKAGES+=(amd64-microcode)
 # TODO
 
-# Password
-cat <<EOF | passwd
-changeme
-changeme
-EOF
-
 echo "### Installing pacakages..."
 #/etc/apt/sources.list
 #ln -s /proc/self/mounts /etc/mtab
@@ -136,28 +130,11 @@ sed -i "s|^/etc/ldap/ldap.conf.*|TLS_CACERT /etc/ssl/certs/ldap.crt/|g" /etc/lda
 patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
 systemctl restart sssd.service
 
-echo "### Configuring users..."
-useradd -D --shell /bin/zsh
-
-if [[ -d /bulk ]]
-then
-    chown -R gustafson:gustafson /bulk
-    chmod 775 /bulk
-    chmod g+s /bulk
-    setfacl -d -m group:gustafson:rwx /bulk
-fi
-
-usermod -a -G sudo josh
-/etc/mkhome.sh josh
-
-if which virsh
-then
-    usermod -a -G libvirt josh
-    mkdir -p /home/josh/.config/libvirt
-    echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
-    chown -R josh:josh /home/josh/.config/libvirt
-fi
-mkdir -p /home/josh/.ssh
-curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
-chmod 400 /home/josh/.ssh/authorized_keys
-chown -R josh:josh /home/josh/.ssh
+cat <<EOF
+#####
+#
+# Please enter a root password:
+#
+#####
+EOF
+passwd
