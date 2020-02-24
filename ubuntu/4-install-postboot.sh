@@ -138,9 +138,6 @@ done
 echo "### Configuring AUR Xorg..."
 [[ "${HAS_OPTIMUS}" == "1" ]] && systemctl enable optimus-manager.service
 
-echo "### Configuring Printing..."
-systemctl enable org.cups.cupsd.service
-
 echo "### Configuring ZFS Snapshots..."
 # /etc/systemd/system/zfs-auto-snapshot-*.service.d
 for i in monthly weekly daily hourly frequent

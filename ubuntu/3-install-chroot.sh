@@ -136,6 +136,12 @@ cat <<EOF >>/etc/profile
 export EDITOR=nano
 EOF
 
+echo "### Configuring Printer Driver..."
+cd /tmp
+curl -L -O http://gdlp01.c-wss.com/gds/6/0100009236/06/linux-UFRII-drv-v510-usen-09.tar.gz
+tar xvf linux-UFRII-drv-v510-usen-09.tar.gz
+echo "y\nn" | ./linux-UFRII-drv-v510-usen/install.sh
+
 cat <<EOF
 #####
 #
