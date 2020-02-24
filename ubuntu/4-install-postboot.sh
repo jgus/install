@@ -9,8 +9,6 @@ HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 echo "### Configuring users..."
-useradd -D --shell /bin/zsh
-
 if [[ -d /bulk ]]
 then
     chown -R gustafson:gustafson /bulk
@@ -130,11 +128,6 @@ fi
 
 echo "### TODO!!! ###"
 false
-
-echo "### Configuring Environment..."
-cat <<EOF >>/etc/profile
-export EDITOR=nano
-EOF
 
 echo "### Making a snapshot..."
 for pool in root/root root/home root/images

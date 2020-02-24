@@ -87,6 +87,18 @@ do
     systemctl enable zfs-scrub@${p}.timer
 done
 
+echo "### /tmp..."
+cp /usr/share/systemd/tmp.mount /etc/systemd/system/
+systemctl enable tmp.mount
+
+echo "### Configuring LDAP auth..."
+pam-auth-update --remove pwquality --package
+source /root/.secrets/openldap.env
+echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
+sed -i "s|^/etc/ldap/ldap.conf.*|TLS_CACERT /etc/ssl/certs/ldap.crt/|g" /etc/ldap/ldap.conf
+patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
+systemctl restart sssd.service
+
 echo "### Configuring Samba..."
 mkdir /beast
 cat <<EOF >>/etc/fstab
@@ -106,10 +118,6 @@ then
     echo "options vfio_pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio.conf
 fi
 
-echo "### /tmp..."
-cp /usr/share/systemd/tmp.mount /etc/systemd/system/
-systemctl enable tmp.mount
-
 echo "### Installing bootloader..."
 mv /etc/default/grub /etc/default/grub.dist
 mv /etc/default/grub.new /etc/default/grub
@@ -121,13 +129,12 @@ echo "### Configuring nVidia updates..."
 
 echo "### Configuring Zsh..."
 chsh -s /bin/zsh
+useradd -D --shell /bin/zsh
 
-echo "### Configuring LDAP auth..."
-source /root/.secrets/openldap.env
-echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
-sed -i "s|^/etc/ldap/ldap.conf.*|TLS_CACERT /etc/ssl/certs/ldap.crt/|g" /etc/ldap/ldap.conf
-patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
-systemctl restart sssd.service
+echo "### Configuring Environment..."
+cat <<EOF >>/etc/profile
+export EDITOR=nano
+EOF
 
 cat <<EOF
 #####
