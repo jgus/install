@@ -28,6 +28,7 @@ PACKAGES+=(
     rng-tools
     cifs-utils
     smbnetfs
+    docker.io
 )
 [[ "${HAS_INTEL_CPU}" == "1" ]] && PACKAGES+=(intel-microcode)
 [[ "${HAS_AMD_CPU}" == "1" ]] && PACKAGES+=(amd64-microcode)
@@ -35,7 +36,6 @@ PACKAGES+=(
 
 echo "### Installing pacakages..."
 #/etc/apt/sources.list
-#ln -s /proc/self/mounts /etc/mtab
 apt update
 apt upgrade --yes
 apt install --yes "${PACKAGES[@]}"
@@ -71,6 +71,7 @@ echo "### ZFS..."
 #/etc/systemd/system/zfs-load-key.service
 #/etc/systemd/system/zfs-scrub@.timer
 #/etc/systemd/system/zfs-scrub@.service
+#/etc/systemd/system/zfs-auto-snapshot-*.service.d
 zfs load-key -a
 for p in $(zpool list -o name -H)
 do
@@ -85,6 +86,10 @@ systemctl enable zfs-scrub@root.timer
 for p in $(zpool list -o name -H)
 do
     systemctl enable zfs-scrub@${p}.timer
+done
+for i in monthly weekly daily hourly frequent
+do
+    systemctl enable zfs-auto-snapshot-${i}.timer
 done
 
 echo "### /tmp..."
@@ -141,6 +146,10 @@ cd /tmp
 curl -L -O http://gdlp01.c-wss.com/gds/6/0100009236/06/linux-UFRII-drv-v510-usen-09.tar.gz
 tar xvf linux-UFRII-drv-v510-usen-09.tar.gz
 echo "y\nn" | ./linux-UFRII-drv-v510-usen/install.sh
+
+echo "### Configuring Docker..."
+#/etc/docker/daemon.json
+systemctl enable docker-prune.timer
 
 cat <<EOF
 #####

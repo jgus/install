@@ -32,6 +32,8 @@ curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
 chown -R josh:josh /home/josh/.ssh
 
+usermod -a -G docker josh
+
 # echo "### Configuring power..."
 # # common/files/etc/skel/.config/powermanagementprofilesrc
 # [[ "${ALLOW_POWEROFF}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-shutdown.rules
@@ -137,22 +139,6 @@ done
 
 echo "### Configuring AUR Xorg..."
 [[ "${HAS_OPTIMUS}" == "1" ]] && systemctl enable optimus-manager.service
-
-echo "### Configuring ZFS Snapshots..."
-# /etc/systemd/system/zfs-auto-snapshot-*.service.d
-for i in monthly weekly daily hourly frequent
-do
-    systemctl enable zfs-auto-snapshot-${i}.timer
-done
-
-echo "### Configuring Docker..."
-#/etc/docker/daemon.json
-if [[ "${HAS_DOCKER}" == "1" ]]
-then
-    usermod -a -G docker josh
-    systemctl enable docker.service
-    systemctl enable docker-prune.timer
-fi
 
 echo "### Cleaning up..."
 rm -rf /install
