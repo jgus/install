@@ -8,6 +8,12 @@ set -e
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
+echo "### Configuring Printer Driver..."
+cd /tmp
+curl -L -O http://gdlp01.c-wss.com/gds/6/0100009236/06/linux-UFRII-drv-v510-usen-09.tar.gz
+tar xvf linux-UFRII-drv-v510-usen-09.tar.gz
+{ echo y ; echo n ; } | ./linux-UFRII-drv-v510-usen/install.sh
+
 echo "### Configuring users..."
 if [[ -d /bulk ]]
 then
