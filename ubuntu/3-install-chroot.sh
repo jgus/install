@@ -11,7 +11,10 @@ lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 
 KERNEL=${KERNEL:-generic}
 
+HAS_GUI=${HAS_GUI:-1}
+
 PACKAGES+=(
+    apt-file
     grub-efi shim
     linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
     zfsutils-linux zfs-initramfs
@@ -29,9 +32,14 @@ PACKAGES+=(
     cifs-utils
     smbnetfs
     docker.io
+    libvirt-clients qemu-system-x86 qemu-utils
 )
 [[ "${HAS_INTEL_CPU}" == "1" ]] && PACKAGES+=(intel-microcode)
 [[ "${HAS_AMD_CPU}" == "1" ]] && PACKAGES+=(amd64-microcode)
+[[ "${HAS_GUI}" == "1" ]] && PACKAGES+=(
+    kubuntu-desktop
+    virt-manager
+)
 # TODO
 
 echo "### Installing pacakages..."
@@ -41,6 +49,9 @@ apt upgrade --yes
 apt install --yes "${PACKAGES[@]}"
 apt remove --yes gnome-initial-setup
 apt autoremove --yes
+apt-file update
+patch -i /etc/apt/apt.conf.d/50unattended-upgrades.patch /etc/apt/apt.conf.d/50unattended-upgrades
+rm /etc/apt/apt.conf.d/50unattended-upgrades.patch
 
 echo "### Configuring clock..."
 ln -sf "/usr/share/zoneinfo/${TIME_ZONE}" /etc/localtime
@@ -100,9 +111,8 @@ echo "### Configuring LDAP auth..."
 pam-auth-update --remove pwquality --package
 source /root/.secrets/openldap.env
 echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
-sed -i "s|^/etc/ldap/ldap.conf.*|TLS_CACERT /etc/ssl/certs/ldap.crt/|g" /etc/ldap/ldap.conf
+sed -i "s|^TLS_CACERT*|TLS_CACERT /etc/ssl/certs/ldap.crt|g" /etc/ldap/ldap.conf
 patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
-systemctl restart sssd.service
 
 echo "### Configuring Samba..."
 mkdir /beast
@@ -144,6 +154,13 @@ EOF
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
 systemctl enable docker-prune.timer
+
+echo "### Configuring KVM..."
+cat << EOF >> /etc/libvirt/qemu.conf
+nvram = [
+    "/usr/share/ovmf/OVMF.fd:/usr/share/ovmf/OVMF_VARS.fd"
+]
+EOF
 
 cat <<EOF
 #####

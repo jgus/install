@@ -1,0 +1,6 @@
+[Restrict Power]
+Identity=unix-user:*
+Action=org.freedesktop.login1.reboot;org.freedesktop.login1.reboot-multiple-sessions;org.freedesktop.login1.power-off;org.freedesktop.login1.power-off-multiple-sessions
+ResultAny=auth_admin
+ResultInactive=auth_admin
+ResultActive=auth_admin
