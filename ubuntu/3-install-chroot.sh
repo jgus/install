@@ -30,15 +30,29 @@ PACKAGES+=(
     sssd libpam-sss libnss-sss
     rng-tools
     cifs-utils
-    smbnetfs
+    smbnetfs sshfs fuseiso hfsprogs
     docker.io
     libvirt-clients qemu-system-x86 qemu-utils
+    gcc gdb cmake ninja-build
+    mkvtoolnix
+    youtube-dl
+    speedtest-cli
+    python python-pip python-virtualenv
+    python3 python3-pip python3-virtualenv
 )
 [[ "${HAS_INTEL_CPU}" == "1" ]] && PACKAGES+=(intel-microcode)
 [[ "${HAS_AMD_CPU}" == "1" ]] && PACKAGES+=(amd64-microcode)
 [[ "${HAS_GUI}" == "1" ]] && PACKAGES+=(
     kubuntu-desktop
     virt-manager
+    displaycal colord colord-kde
+    playonlinux winetricks
+    firefox
+    remmina
+    mkvtoolnix-gui
+    rawtherapee hugin libimage-exiftool-perl
+    openjdk-8-jdk openjdk-14-jdk icedtea-netx
+    dosbox scummvm retroarch dolphin-emu
 )
 # TODO
 
