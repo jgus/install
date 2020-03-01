@@ -36,8 +36,7 @@ PACKAGES+=(
     gcc gdb cmake ninja-build
     python python-pip python-virtualenv
     python3 python3-pip python3-virtualenv
-    mkvtoolnix
-    youtube-dl
+    flatpak plasma-discover-flatpak-backend
     speedtest-cli
 )
 [[ "${HAS_INTEL_CPU}" == "1" ]] && PACKAGES+=(intel-microcode)
@@ -47,21 +46,45 @@ PACKAGES+=(
     virt-manager
     displaycal colord colord-kde
     playonlinux winetricks
-    firefox
-    remmina
-    mkvtoolnix-gui
-    rawtherapee hugin libimage-exiftool-perl
+    hugin libimage-exiftool-perl
     openjdk-8-jdk openjdk-14-jdk icedtea-netx
-    dosbox scummvm retroarch dolphin-emu
 )
-# TODO
+
+SNAPS=(
+    youtube-dl
+)
+[[ "${HAS_GUI}" == "1" ]] && SNAPS+=(
+    firefox
+)
+SNAPS_CLASSIC=()
+[[ "${HAS_GUI}" == "1" ]] && SNAPS_CLASSIC+=(
+    clion pycharm-community
+)
+
+FLATPAKS=()
+[[ "${HAS_GUI}" == "1" ]] && FLATPAKS+=(
+    org.bunkus.mkvtoolnix-gui
+    com.makemkv.MakeMKV
+    org.remmina.Remmina
+    com.rawtherapee.RawTherapee
+    com.dosbox.DOSBox
+    org.scummvm.ScummVM
+    org.libretro.RetroArch
+    org.DolphinEmu.dolphin-emu
+    com.slack.Slack
+    us.zoom.Zoom
+    com.mojang.Minecraft
+    com.valvesoftware.Steam
+    org.gimp.GIMP
+    com.visualstudio.code.oss
+)
 
 echo "### Installing pacakages..."
 #/etc/apt/sources.list
 apt update
 apt upgrade --yes
 apt install --yes "${PACKAGES[@]}"
-apt remove --yes gnome-initial-setup
+#apt remove --yes gnome-initial-setup
 apt autoremove --yes
 apt-file update
 patch -i /etc/apt/apt.conf.d/50unattended-upgrades.patch /etc/apt/apt.conf.d/50unattended-upgrades
@@ -175,6 +198,12 @@ nvram = [
     "/usr/share/ovmf/OVMF.fd:/usr/share/ovmf/OVMF_VARS.fd"
 ]
 EOF
+
+echo "### Installing Snaps..."
+for p in "${SNAPS_CLASSIC[@]}"
+do
+    snap install --classic "${p}"
+done
 
 cat <<EOF
 #####
