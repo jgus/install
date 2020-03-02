@@ -8,6 +8,45 @@ set -e
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
+SNAPS=(
+    youtube-dl
+)
+[[ "${HAS_GUI}" == "1" ]] && SNAPS+=(
+    firefox
+)
+SNAPS_CLASSIC=()
+[[ "${HAS_GUI}" == "1" ]] && SNAPS_CLASSIC+=(
+    clion pycharm-community
+)
+
+FLATPAKS=()
+[[ "${HAS_GUI}" == "1" ]] && FLATPAKS+=(
+    org.bunkus.mkvtoolnix-gui
+    com.makemkv.MakeMKV
+    org.remmina.Remmina
+    com.rawtherapee.RawTherapee
+    com.dosbox.DOSBox
+    org.scummvm.ScummVM
+    org.libretro.RetroArch
+    org.DolphinEmu.dolphin-emu
+    com.slack.Slack
+    us.zoom.Zoom
+    com.mojang.Minecraft
+    com.valvesoftware.Steam
+    org.gimp.GIMP
+    com.visualstudio.code.oss
+)
+
+echo "### Installing Snaps..."
+snap install "${SNAPS[@]}"
+for p in "${SNAPS_CLASSIC[@]}"
+do
+    snap install --classic "${p}"
+done
+
+echo "### Installing Flatpaks..."
+flatpak install -y "${FLATPAKS[@]}"
+
 echo "### Configuring Printer Driver..."
 cd /tmp
 curl -L -O http://gdlp01.c-wss.com/gds/6/0100009236/06/linux-UFRII-drv-v510-usen-09.tar.gz
