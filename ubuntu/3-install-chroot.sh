@@ -177,6 +177,9 @@ nvram = [
 ]
 EOF
 
+echo "### Configuring User Stuff..."
+echo "RuntimeDirectorySize=50%" >> /etc/systemd/logind.conf
+
 cat <<EOF
 #####
 #
