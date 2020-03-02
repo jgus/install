@@ -48,10 +48,13 @@ PACKAGES+=(
     playonlinux winetricks
     hugin libimage-exiftool-perl
     openjdk-8-jdk openjdk-14-jdk icedtea-netx
+    tigervnc-standalone-server
+    #makemkv-bin
 )
 
 echo "### Installing pacakages..."
 #/etc/apt/sources.list
+#add-apt-repository -y ppa:heyarje/makemkv-beta
 apt update
 apt upgrade --yes
 apt install --yes "${PACKAGES[@]}"
@@ -151,13 +154,17 @@ echo "### Configuring nVidia updates..."
 #/etc/pacman.d/hooks/nvidia.hook
 
 echo "### Configuring Zsh..."
+cat << EOF >> /etc/zsh/zprofile
+emulate sh -c 'source /etc/profile'
+EOF
+wget -O /etc/zsh/zshrc https://git.grml.org/f/grml-etc-core/etc/zsh/zshrc
+wget -O /etc/skel/.zshrc https://git.grml.org/f/grml-etc-core/etc/skel/.zshrc
+cp /etc/skel/.zshrc /root/
 chsh -s /bin/zsh
 useradd -D --shell /bin/zsh
 
-echo "### Configuring Environment..."
-cat <<EOF >>/etc/profile
-export EDITOR=nano
-EOF
+#echo "### Configuring Environment..."
+#/etc/profile.d/editor.sh
 
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json

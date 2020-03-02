@@ -8,8 +8,9 @@ set -e
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
+HAS_GUI=${HAS_GUI:-1}
+
 SNAPS=(
-    youtube-dl
 )
 [[ "${HAS_GUI}" == "1" ]] && SNAPS+=(
     firefox
@@ -38,13 +39,20 @@ FLATPAKS=()
 )
 
 echo "### Installing Snaps..."
-snap install "${SNAPS[@]}"
+apt remove -y firefox
+apt autoremove -y
+if [[ "${SNAPS[@]}" != "" ]]
+then
+    snap install "${SNAPS[@]}"
+fi
 for p in "${SNAPS_CLASSIC[@]}"
 do
     snap install --classic "${p}"
 done
 
 echo "### Installing Flatpaks..."
+chmod a+rw /var/tmp
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak install -y "${FLATPAKS[@]}"
 
 echo "### Configuring Printer Driver..."
@@ -87,8 +95,6 @@ then
     do
         loginctl attach seat1 "${d}"
     done
-
-    systemctl enable xvnc.socket
 fi
 
 if [[ "${HAS_OPTIMUS}" == "1" ]]
