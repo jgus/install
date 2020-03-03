@@ -8,6 +8,7 @@ set -e
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
+TIME_ZONE=${TIME_ZONE:-US/Mountain}
 HAS_GUI=${HAS_GUI:-1}
 
 SNAPS=(
@@ -37,6 +38,12 @@ FLATPAKS=()
     org.gimp.GIMP
     com.visualstudio.code.oss
 )
+
+echo "### Configuring clock..."
+timedatectl set-timezone "${TIME_ZONE}"
+
+echo "### Configuring locale..."
+update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 
 echo "### Installing Snaps..."
 apt remove -y firefox

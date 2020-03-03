@@ -11,7 +11,6 @@ lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 
 KERNEL=${KERNEL:-generic}
 
-TIME_ZONE=${TIME_ZONE:-US/Mountain}
 HAS_GUI=${HAS_GUI:-1}
 
 PACKAGES+=(
@@ -54,9 +53,21 @@ PACKAGES+=(
     #makemkv-bin
 )
 
+BAD_PACKAGES=(
+    gdm3
+)
+
+#bad?
+#encfs
+#gdm3
+
 echo "### Installing pacakages..."
 #/etc/apt/sources.list
 #add-apt-repository -y ppa:heyarje/makemkv-beta
+for p in "${BAD_PACKAGES[@]}"
+do
+    apt-mark hold "${p}"
+done
 apt update
 apt upgrade --yes
 apt install --yes "${PACKAGES[@]}"
@@ -65,12 +76,6 @@ apt autoremove --yes
 apt-file update
 patch -i /etc/apt/apt.conf.d/50unattended-upgrades.patch /etc/apt/apt.conf.d/50unattended-upgrades
 rm /etc/apt/apt.conf.d/50unattended-upgrades.patch
-
-echo "### Configuring clock..."
-timedatectl set-timezone "${TIME_ZONE}"
-
-echo "### Configuring locale..."
-update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 
 echo "### Configuring hostname..."
 echo "${HOSTNAME}" >/etc/hostname
