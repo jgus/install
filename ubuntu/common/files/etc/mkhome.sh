@@ -25,4 +25,4 @@ then
 fi
 chown -R ${USER}:${USER} ${HOME_DIR}
 
-sudo -u ${USER} systemctl --user enable --now hometmp.service
+#sudo -u ${USER} systemctl --user enable --now hometmp.service
