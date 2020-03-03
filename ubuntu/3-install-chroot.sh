@@ -53,21 +53,14 @@ PACKAGES+=(
     #makemkv-bin
 )
 
-BAD_PACKAGES=(
-    gdm3
-)
-
 #bad?
 #encfs
 #gdm3
 
 echo "### Installing pacakages..."
 #/etc/apt/sources.list
+#/etc/apt/preferences.d
 #add-apt-repository -y ppa:heyarje/makemkv-beta
-for p in "${BAD_PACKAGES[@]}"
-do
-    apt-mark hold "${p}"
-done
 apt update
 apt upgrade --yes
 apt install --yes "${PACKAGES[@]}"
