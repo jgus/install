@@ -11,6 +11,7 @@ lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 
 KERNEL=${KERNEL:-generic}
 
+TIME_ZONE=${TIME_ZONE:-US/Mountain}
 HAS_GUI=${HAS_GUI:-1}
 
 PACKAGES+=(
@@ -29,6 +30,7 @@ PACKAGES+=(
     rsync
     sssd libpam-sss libnss-sss
     rng-tools
+    ntp
     cifs-utils
     smbnetfs sshfs fuseiso hfsprogs
     docker.io
@@ -65,13 +67,10 @@ patch -i /etc/apt/apt.conf.d/50unattended-upgrades.patch /etc/apt/apt.conf.d/50u
 rm /etc/apt/apt.conf.d/50unattended-upgrades.patch
 
 echo "### Configuring clock..."
-ln -sf "/usr/share/zoneinfo/${TIME_ZONE}" /etc/localtime
-hwclock --systohc
+timedatectl set-timezone "${TIME_ZONE}"
 
 echo "### Configuring locale..."
-echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
-locale-gen
-echo "LANG=en_US.UTF-8" >/etc/locale.conf
+update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 
 echo "### Configuring hostname..."
 echo "${HOSTNAME}" >/etc/hostname
