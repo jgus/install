@@ -53,13 +53,10 @@ PACKAGES+=(
     #makemkv-bin
 )
 
-#bad?
-#encfs
-#gdm3
-
 echo "### Installing pacakages..."
 #/etc/apt/sources.list
 #/etc/apt/preferences.d
+export DEBIAN_FRONTEND=noninteractive
 #add-apt-repository -y ppa:heyarje/makemkv-beta
 apt update
 apt upgrade --yes
