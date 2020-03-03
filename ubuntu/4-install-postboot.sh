@@ -43,6 +43,8 @@ echo "### Configuring clock..."
 timedatectl set-timezone "${TIME_ZONE}"
 
 echo "### Configuring locale..."
+locale-gen en_US
+locale-gen en_US.utf8
 update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 
 echo "### Installing Snaps..."
