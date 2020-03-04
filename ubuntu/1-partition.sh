@@ -7,7 +7,7 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 EFI_SIZE=${EFI_SIZE:-+256M}
 BOOT_SIZE=${BOOT_SIZE:-+512M}
 ROOT_SIZE=${ROOT_SIZE:-0}
-#KEY_FILE=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b
+KEY_FILE=${KEY_FILE:-/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b}
 
 echo "### Cleaning up prior partitions..."
 umount -Rl /target || true
