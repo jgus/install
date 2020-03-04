@@ -62,7 +62,13 @@ done
 echo "### Installing Flatpaks..."
 chmod a+rw /var/tmp
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak install -y "${FLATPAKS[@]}"
+for i in {1..10}
+do
+    if flatpak install -y "${FLATPAKS[@]}"
+    then
+        break
+    done    
+done
 
 echo "### Configuring Printer Driver..."
 cd /tmp
