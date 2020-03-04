@@ -71,6 +71,12 @@ tar xvf linux-UFRII-drv-v510-usen-09.tar.gz
 { echo y ; echo n ; } | ./linux-UFRII-drv-v510-usen/install.sh
 
 echo "### Configuring users..."
+while ! groups josh
+do
+    echo "# SSSD seems to be down? Restarting & waiting..."
+    systemctl restart sssd
+    sleep 15
+done
 if [[ -d /bulk ]]
 then
     chown -R gustafson:gustafson /bulk
