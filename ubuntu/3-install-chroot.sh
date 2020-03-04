@@ -97,7 +97,7 @@ systemctl enable zfs.target
 systemctl enable zfs-import-cache
 systemctl enable zfs-mount
 systemctl enable zfs-import.target
-systemctl enable zfs-load-key.service
+#systemctl enable zfs-load-key.service
 systemctl enable zfs-scrub@root.timer
 for p in $(zpool list -o name -H)
 do
@@ -118,6 +118,9 @@ source /root/.secrets/openldap.env
 echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
 sed -i "s|^TLS_CACERT*|TLS_CACERT /etc/ssl/certs/ldap.crt|g" /etc/ldap/ldap.conf
 patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
+systemctl disable sssd-nss.socket
+systemctl disable sssd-pam.socket
+systemctl disable sssd-pam-priv.socket
 
 echo "### Configuring Samba..."
 mkdir /beast

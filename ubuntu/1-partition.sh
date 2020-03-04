@@ -69,8 +69,6 @@ zfs create                                          -o com.sun:auto-snapshot=fal
 zfs unmount -a
 zpool export root
 
-"$(cd "$(dirname "$0")" ; pwd)"/1.1-format-boot.sh "${HOSTNAME}"
-"$(cd "$(dirname "$0")" ; pwd)"/1.1-format-efi.sh "${HOSTNAME}"
 "$(cd "$(dirname "$0")" ; pwd)"/1.1-format-swap.sh "${HOSTNAME}"
 
 echo "### Done partitioning!"

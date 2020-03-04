@@ -13,5 +13,5 @@ done
 echo "### Formatting boot partitions... (${BOOT_DEVS[@]})"
 for i in "${!BOOT_DEVS[@]}"
 do
-    mkfs.ext4 -L "BOOT${i}" "${BOOT_DEVS[$i]}"
+    mkfs.ext4 -q -L "BOOT${i}" "${BOOT_DEVS[$i]}"
 done
