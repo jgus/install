@@ -142,8 +142,6 @@ then
 fi
 
 echo "### Installing bootloader..."
-echo "efivars" >>/etc/initramfs-tools/modules
-update-initramfs -u
 mv /etc/default/grub /etc/default/grub.dist
 mv /etc/default/grub.new /etc/default/grub
 update-grub
