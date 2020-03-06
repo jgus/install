@@ -11,17 +11,17 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 TIME_ZONE=${TIME_ZONE:-US/Mountain}
 HAS_GUI=${HAS_GUI:-1}
 
-SNAPS=(
+SNAPS+=(
 )
 [[ "${HAS_GUI}" == "1" ]] && SNAPS+=(
     firefox
 )
-SNAPS_CLASSIC=()
+SNAPS_CLASSIC+=()
 [[ "${HAS_GUI}" == "1" ]] && SNAPS_CLASSIC+=(
     clion pycharm-community
 )
 
-FLATPAKS=()
+FLATPAKS+=()
 [[ "${HAS_GUI}" == "1" ]] && FLATPAKS+=(
     org.bunkus.mkvtoolnix-gui
     com.makemkv.MakeMKV
@@ -46,6 +46,9 @@ echo "### Configuring locale..."
 locale-gen en_US
 locale-gen en_US.utf8
 update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
+
+echo "### Updating drivers..."
+ubuntu-drivers autoinstall
 
 echo "### Installing Snaps..."
 apt remove -y firefox

@@ -66,8 +66,14 @@ zfs create                                          -o com.sun:auto-snapshot=fal
 zfs create -o mountpoint=/var/lib/libvirt/images    -o com.sun:auto-snapshot=true   root/images
 zfs create                                          -o com.sun:auto-snapshot=false  root/images/scratch
 
+if [[ "${BULK_DEVICE}" != "" ]]
+then
+    zpool create -f "${ZPOOL_OPTS[@]}" -m none bulk "${BULK_DEVICE}"
+fi
+
 zfs unmount -a
 zpool export root
+zpool export bulk || true
 
 "$(cd "$(dirname "$0")" ; pwd)"/1.1-format-swap.sh "${HOSTNAME}"
 

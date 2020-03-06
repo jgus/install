@@ -147,9 +147,6 @@ mv /etc/default/grub.new /etc/default/grub
 update-grub
 grub-install --efi-directory=/boot/efi --bootloader-id=ubuntu --recheck --no-floppy
 
-echo "### Configuring nVidia updates..."
-#/etc/pacman.d/hooks/nvidia.hook
-
 echo "### Configuring Zsh..."
 cat << EOF >> /etc/zsh/zprofile
 emulate sh -c 'source /etc/profile'
