@@ -32,26 +32,9 @@ PACKAGES+=(
     ntp
     cifs-utils
     smbnetfs sshfs fuseiso hfsprogs
-    docker.io
-    libvirt-clients qemu-system-x86 qemu-utils
-    gcc gdb cmake ninja-build
-    python python-pip python-virtualenv
-    python3 python3-pip python3-virtualenv
-    flatpak plasma-discover-flatpak-backend
-    speedtest-cli
 )
 [[ "${HAS_INTEL_CPU}" == "1" ]] && PACKAGES+=(intel-microcode)
 [[ "${HAS_AMD_CPU}" == "1" ]] && PACKAGES+=(amd64-microcode)
-[[ "${HAS_GUI}" == "1" ]] && PACKAGES+=(
-    kubuntu-desktop
-    virt-manager
-    displaycal colord colord-kde
-    playonlinux winetricks
-    hugin libimage-exiftool-perl
-    openjdk-8-jdk openjdk-14-jdk icedtea-netx
-    tigervnc-standalone-server
-    #makemkv-bin
-)
 
 echo "### Installing pacakages..."
 #/etc/apt/sources.list
@@ -159,17 +142,6 @@ useradd -D --shell /bin/zsh
 
 #echo "### Configuring Environment..."
 #/etc/profile.d/editor.sh
-
-echo "### Configuring Docker..."
-#/etc/docker/daemon.json
-systemctl enable docker-prune.timer
-
-echo "### Configuring KVM..."
-cat << EOF >> /etc/libvirt/qemu.conf
-nvram = [
-    "/usr/share/ovmf/OVMF.fd:/usr/share/ovmf/OVMF_VARS.fd"
-]
-EOF
 
 echo "### Configuring User Stuff..."
 echo "RuntimeDirectorySize=50%" >> /etc/systemd/logind.conf

@@ -11,6 +11,26 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 TIME_ZONE=${TIME_ZONE:-US/Mountain}
 HAS_GUI=${HAS_GUI:-1}
 
+PACKAGES+=(
+    docker.io
+    libvirt-clients qemu-system-x86 qemu-utils
+    gcc gdb cmake ninja-build
+    python python-pip python-virtualenv
+    python3 python3-pip python3-virtualenv
+    flatpak plasma-discover-flatpak-backend
+    speedtest-cli
+)
+[[ "${HAS_GUI}" == "1" ]] && PACKAGES+=(
+    kubuntu-desktop
+    virt-manager
+    displaycal colord colord-kde
+    playonlinux winetricks
+    hugin libimage-exiftool-perl
+    openjdk-8-jdk openjdk-14-jdk icedtea-netx
+    tigervnc-standalone-server
+    #makemkv-bin
+)
+
 SNAPS+=(
 )
 [[ "${HAS_GUI}" == "1" ]] && SNAPS+=(
@@ -39,6 +59,8 @@ FLATPAKS+=()
     com.visualstudio.code.oss
 )
 
+export DEBIAN_FRONTEND=noninteractive
+
 echo "### Configuring clock..."
 timedatectl set-timezone "${TIME_ZONE}"
 
@@ -49,6 +71,17 @@ update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 
 echo "### Updating drivers..."
 ubuntu-drivers autoinstall
+
+echo "### Configuring Docker..."
+#/etc/docker/daemon.json
+systemctl enable docker-prune.timer
+
+echo "### Configuring KVM..."
+cat << EOF >> /etc/libvirt/qemu.conf
+nvram = [
+    "/usr/share/ovmf/OVMF.fd:/usr/share/ovmf/OVMF_VARS.fd"
+]
+EOF
 
 echo "### Installing Snaps..."
 apt remove -y firefox
