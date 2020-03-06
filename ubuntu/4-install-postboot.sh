@@ -67,8 +67,9 @@ do
     if flatpak install -y "${FLATPAKS[@]}"
     then
         break
-    done    
+    fi
 done
+flatpak install -y "${FLATPAKS[@]}"
 
 echo "### Configuring Printer Driver..."
 cd /tmp
