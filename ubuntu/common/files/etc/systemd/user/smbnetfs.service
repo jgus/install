@@ -4,6 +4,7 @@ Description=smbnetfs
 [Service]
 Type=oneshot
 RemainAfterExit=true
+ExecStart=/usr/bin/mkdir -p %h/smb
 ExecStart=/usr/bin/smbnetfs %h/smb
 ExecStop=/bin/fusermount -u %h/smb
 
