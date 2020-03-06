@@ -8,6 +8,7 @@ echo "### Adding packages..."
 PACKAGES=(
     debootstrap
     gdisk
+    efivar
     zfsutils-linux
     openssh-server
 )

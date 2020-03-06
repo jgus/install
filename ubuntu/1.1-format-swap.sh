@@ -4,7 +4,7 @@ set -e
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
-KEY_FILE=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b
+KEY_FILE=/sys/firmware/efi/vars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b/data
 
 for i in "${!SYSTEM_DEVICES[@]}"
 do
