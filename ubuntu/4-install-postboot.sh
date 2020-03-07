@@ -159,14 +159,11 @@ then
     done
 fi
 
-if [[ "${HAS_OPTIMUS}" == "1" ]]
+if which prime-select
 then
-    echo "### Configuring Optimus..."
-    cat << EOF >> /etc/sddm.conf.d/display.conf
-xrandr --setprovideroutputsource modesetting NVIDIA-0
-xrandr --auto
-EOF
-    systemctl enable optimus-manager.service
+    echo "### Configuring PRIME..."
+    prime-select on-demand
+    # TODO: Add __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia where needed
 fi
 
 VIRT_NET_FILE="$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"
