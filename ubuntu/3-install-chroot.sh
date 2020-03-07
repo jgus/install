@@ -44,11 +44,6 @@ export DEBIAN_FRONTEND=noninteractive
 apt update
 apt upgrade --yes
 apt install --yes "${PACKAGES[@]}"
-#apt remove --yes gnome-initial-setup
-apt autoremove --yes
-apt-file update
-patch -i /etc/apt/apt.conf.d/50unattended-upgrades.patch /etc/apt/apt.conf.d/50unattended-upgrades
-rm /etc/apt/apt.conf.d/50unattended-upgrades.patch
 
 echo "### Configuring hostname..."
 echo "${HOSTNAME}" >/etc/hostname
