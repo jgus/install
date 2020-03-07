@@ -12,6 +12,7 @@ TIME_ZONE=${TIME_ZONE:-US/Mountain}
 HAS_GUI=${HAS_GUI:-1}
 
 PACKAGES+=(
+    unattended-upgrades
     docker.io
     libvirt-clients qemu-system-x86 qemu-utils
     gcc gdb cmake ninja-build
@@ -59,7 +60,16 @@ FLATPAKS+=()
     com.visualstudio.code.oss
 )
 
+echo "### Installing pacakages..."
 export DEBIAN_FRONTEND=noninteractive
+#add-apt-repository -y ppa:heyarje/makemkv-beta
+apt update
+apt upgrade --yes
+apt install --yes "${PACKAGES[@]}"
+apt autoremove --yes
+apt-file update
+patch -i /etc/apt/apt.conf.d/50unattended-upgrades.patch /etc/apt/apt.conf.d/50unattended-upgrades
+rm /etc/apt/apt.conf.d/50unattended-upgrades.patch
 
 echo "### Configuring clock..."
 timedatectl set-timezone "${TIME_ZONE}"
