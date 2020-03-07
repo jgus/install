@@ -27,6 +27,7 @@ PACKAGES+=(
     locales
     git
     rsync
+    network-manager
     sssd libpam-sss libnss-sss
     rng-tools
     ntp
@@ -89,6 +90,10 @@ done
 echo "### /tmp..."
 cp /usr/share/systemd/tmp.mount /etc/systemd/system/
 systemctl enable tmp.mount
+
+echo "### Configuring Network..."
+source /root/.secrets/wifi.env
+sed -i "s|@PASSWORD@|${PASSWORD}|g" /etc/netplan/99_config.yaml
 
 echo "### Configuring LDAP auth..."
 pam-auth-update --remove pwquality --package

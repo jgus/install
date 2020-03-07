@@ -1,15 +1,12 @@
 network:
   version: 2
-  ethernets:
-    all-en:
-      match:
-        name: "en*"
+  renderer: NetworkManager
+  wifis:
+    all-wlans:
+      match: {}
       dhcp4: true
-      nameservers:
-        search: ["gustafson.me"]
-    all-eth:
-      match:
-        name: "eth*"
-      dhcp4: true
-      nameservers:
-        search: ["gustafson.me"]
+      access-points:
+        "Metropolis24":
+          password: "@PASSWORD@"
+        "Metropolis50":
+          password: "@PASSWORD@"
