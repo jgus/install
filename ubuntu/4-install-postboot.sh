@@ -83,6 +83,22 @@ update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 echo "### Updating drivers..."
 ubuntu-drivers autoinstall
 
+if [[ "${HAS_OPTIMUS}" == "1" ]]
+then
+    echo "### Configuring PRIME..."
+    prime-select on-demand
+    # TODO: Add __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia
+#     echo "### Configuring Bumblebee..."
+#     apt install --yes bumblebee bumblebee-nvidia primus
+#     cat << EOF >> /etc/bumblebee/xorg.conf.nvidia
+# Section "Files"
+#     ModulePath "/usr/lib/x86_64-linux-gnu/nvidia/xorg"
+# EndSection
+# EOF
+#     sed -i "s|^LibraryPath=.*$|LibraryPath=/usr/lib/x86_64-linux-gnu/nvidia/xorg:/usr/lib/x86_64-linux-gnu/primus|g" /etc/bumblebee/bumblebee.conf
+#     sed -i "s|^XorgModulePath=.*$|XorgModulePath=/usr/lib/x86_64-linux-gnu/nvidia/xorg,/usr/lib/xorg/modules|g" /etc/bumblebee/bumblebee.conf
+fi
+
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
 systemctl enable docker-prune.timer
@@ -158,13 +174,6 @@ then
     do
         loginctl attach seat1 "${d}"
     done
-fi
-
-if which prime-select
-then
-    echo "### Configuring PRIME..."
-    prime-select on-demand
-    # TODO: Add __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia where needed
 fi
 
 VIRT_NET_FILE="$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"
