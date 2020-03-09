@@ -19,6 +19,7 @@ PACKAGES+=(
     linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
     zfsutils-linux zfs-initramfs
     cryptsetup
+    gnupg
     zsh
     nano
     man
