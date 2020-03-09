@@ -11,6 +11,9 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 TIME_ZONE=${TIME_ZONE:-US/Mountain}
 HAS_GUI=${HAS_GUI:-1}
 
+PPAS+=(
+)
+
 PACKAGES+=(
     unattended-upgrades
     docker.io
@@ -26,43 +29,27 @@ PACKAGES+=(
     virt-manager
     displaycal colord colord-kde
     playonlinux winetricks
-    hugin libimage-exiftool-perl
+    hugin libimage-exiftool-perl digikam
     openjdk-8-jdk openjdk-14-jdk icedtea-netx
     tigervnc-standalone-server
-    #makemkv-bin
-)
-
-SNAPS+=(
-)
-[[ "${HAS_GUI}" == "1" ]] && SNAPS+=(
-    firefox
-)
-SNAPS_CLASSIC+=()
-[[ "${HAS_GUI}" == "1" ]] && SNAPS_CLASSIC+=(
+    gimp
     clion pycharm-community
 )
 
 FLATPAKS+=()
 [[ "${HAS_GUI}" == "1" ]] && FLATPAKS+=(
-    org.bunkus.mkvtoolnix-gui
-    com.makemkv.MakeMKV
-    org.remmina.Remmina
-    com.rawtherapee.RawTherapee
-    com.dosbox.DOSBox
-    org.scummvm.ScummVM
-    org.libretro.RetroArch
-    org.DolphinEmu.dolphin-emu
-    com.slack.Slack
-    us.zoom.Zoom
-    com.mojang.Minecraft
     com.valvesoftware.Steam
-    org.gimp.GIMP
     com.visualstudio.code.oss
 )
 
 echo "### Installing pacakages..."
 export DEBIAN_FRONTEND=noninteractive
-#add-apt-repository -y ppa:heyarje/makemkv-beta
+curl -s https://s3.eu-central-1.amazonaws.com/jetbrains-ppa/0xA6E8698A.pub.asc | apt-key add -
+echo "deb http://jetbrains-ppa.s3-website.eu-central-1.amazonaws.com bionic main" >/etc/apt/sources.list.d/jetbrains-ppa.list
+for ppa in "${PPAS[@]}"
+do
+    add-apt-repository -y ${ppa}
+done
 apt update
 apt upgrade --yes
 apt install --yes "${PACKAGES[@]}"
@@ -88,15 +75,6 @@ then
     echo "### Configuring PRIME..."
     prime-select on-demand
     # TODO: Add __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia
-#     echo "### Configuring Bumblebee..."
-#     apt install --yes bumblebee bumblebee-nvidia primus
-#     cat << EOF >> /etc/bumblebee/xorg.conf.nvidia
-# Section "Files"
-#     ModulePath "/usr/lib/x86_64-linux-gnu/nvidia/xorg"
-# EndSection
-# EOF
-#     sed -i "s|^LibraryPath=.*$|LibraryPath=/usr/lib/x86_64-linux-gnu/nvidia/xorg:/usr/lib/x86_64-linux-gnu/primus|g" /etc/bumblebee/bumblebee.conf
-#     sed -i "s|^XorgModulePath=.*$|XorgModulePath=/usr/lib/x86_64-linux-gnu/nvidia/xorg,/usr/lib/xorg/modules|g" /etc/bumblebee/bumblebee.conf
 fi
 
 echo "### Configuring Docker..."
@@ -110,18 +88,6 @@ nvram = [
 ]
 EOF
 
-echo "### Installing Snaps..."
-apt remove -y firefox
-apt autoremove -y
-if [[ "${SNAPS[@]}" != "" ]]
-then
-    snap install "${SNAPS[@]}"
-fi
-for p in "${SNAPS_CLASSIC[@]}"
-do
-    snap install --classic "${p}"
-done
-
 echo "### Installing Flatpaks..."
 chmod a+rw /var/tmp
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -133,6 +99,17 @@ do
     fi
 done
 flatpak install -y "${FLATPAKS[@]}"
+
+if [[ "${HAS_GUI}" == "1" ]]
+then
+    echo "### Configuring Minecraft..."
+    cd /tmp
+    wget https://launcher.mojang.com/download/Minecraft.deb
+    apt install -y ./Minecraft.deb
+    mkdir -p /etc/skel/.local/share/applications/
+    cp /usr/share/applications/minecraft-launcher.desktop /etc/skel/.local/share/applications/
+    sed -i "s|Exec=|Exec=env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia |g" /etc/skel/.local/share/applications/minecraft-launcher.desktop
+fi
 
 echo "### Configuring Printer Driver..."
 cd /tmp
