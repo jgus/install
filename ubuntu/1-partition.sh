@@ -60,7 +60,7 @@ zfs create                                                                      
 zfs create                                                                          root/var/spool
 zfs create                                                                          root/var/tmp
 zfs create -o mountpoint=/home                                                      root/home
-zfs create -o mountpoint=/var/lib/docker                                            root/docker
+zfs create -o mountpoint=/var/lib/docker            -o com.sun:auto-snapshot=false  root/docker
 zfs create -o mountpoint=/var/volumes               -o com.sun:auto-snapshot=true   root/volumes
 zfs create                                          -o com.sun:auto-snapshot=false  root/volumes/scratch
 zfs create -o mountpoint=/var/lib/libvirt/images    -o com.sun:auto-snapshot=true   root/images
