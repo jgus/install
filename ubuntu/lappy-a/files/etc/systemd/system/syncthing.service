@@ -26,4 +26,4 @@ ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
 Restart=always
  
 [Install]
-WantedBy=multi-user.target
+WantedBy=docker.service
