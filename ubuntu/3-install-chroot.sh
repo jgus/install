@@ -106,16 +106,16 @@ systemctl disable sssd-pam.socket
 systemctl disable sssd-pam-priv.socket
 
 echo "### Configuring Samba..."
-mkdir /beast
+mkdir /nas
 cat <<EOF >>/etc/fstab
 
-# Beast
+# NAS
 EOF
-for share in "${BEAST_SHARES[@]}"
+for share in "${NAS_SHARES[@]}"
 do
-    mkdir /beast/${share}
-    echo "//beast.gustafson.me/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/root/.secrets/beast 0 0" >>/etc/fstab
-    # mount /beast/${share}
+    mkdir /nas/${share}
+    echo "//nas.gustafson.me/${share} /nas/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/root/.secrets/nas 0 0" >>/etc/fstab
+    # mount /nas/${share}
 done
 
 echo "### Configuring VFIO..."

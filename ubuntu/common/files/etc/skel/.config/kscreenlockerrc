@@ -8,4 +8,4 @@ WallpaperPlugin=org.kde.slideshow
 Blur=true
 FillMode=1
 SlideInterval=10
-SlidePaths=/beast/Published/Favorites
+SlidePaths=/nas/Published/Favorites

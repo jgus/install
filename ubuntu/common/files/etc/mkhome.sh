@@ -12,10 +12,10 @@ do
     zfs create -o com.sun:auto-snapshot=false root/home/${USER}/${i}
 done
 rsync -arP /etc/skel/ ${HOME_DIR}
-if [[ -d /beast/Published ]]
+if [[ -d /nas/Published ]]
 then
     mkdir -p ${HOME_DIR}/Pictures
-    ln -s /beast/Published/Photos ${HOME_DIR}/Pictures/Family
+    ln -s /nas/Published/Photos ${HOME_DIR}/Pictures/Family
 fi
 if [[ -d /bulk ]]
 then
