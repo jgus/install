@@ -172,3 +172,6 @@ do
 done
 
 echo "### Done with post-boot install!"
+echo "# TODO:"
+echo "# - Setup (or restore) synchthing (systemctl enable --now syncthing)"
+echo "# - Enable backup (systemctl enable --now zfs-replicate.timer)"
