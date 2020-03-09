@@ -77,7 +77,7 @@ DialogWidth=720
 
 [Containments][21][Wallpaper][org.kde.slideshow][General]
 SlideInterval=600
-SlidePaths=/nas/Published/Favorites/Landscape
+SlidePaths=/bulk/Photos/Favorites/Landscape
 
 [Containments][7]
 activityId=
