@@ -26,7 +26,7 @@ umount -Rl /target || true
 rm -rf /target
 zpool import -R /target -l root
 mkdir -p /target/etc
-echo "root/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
+#echo "root/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
 mount /dev/disk/by-label/BOOT0 /target/boot
 echo "LABEL=BOOT0 /boot ext4 rw,relatime,errors=remount-ro 0 2" >> /target/etc/fstab
@@ -52,7 +52,6 @@ echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime,size=${TMP_SIZE} 0 0" >> /target
 if [[ "${BULK_DEVICE}" != "" ]]
 then
     zpool import -R /target -l bulk
-    echo "bulk /bulk zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 fi
 
 df -h
