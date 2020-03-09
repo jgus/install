@@ -52,6 +52,7 @@ echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime,size=${TMP_SIZE} 0 0" >> /target
 if [[ "${BULK_DEVICE}" != "" ]]
 then
     zpool import -R /target -l bulk
+    echo "bulk /bulk zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 fi
 
 df -h

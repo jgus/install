@@ -69,7 +69,7 @@ zfs create                                          -o com.sun:auto-snapshot=fal
 if [[ "${BULK_DEVICE}" != "" ]]
 then
     echo "### Creating zpool bulk... (${BULK_DEVICE})"
-    zpool create -f "${ZPOOL_OPTS[@]}" -m none bulk "${BULK_DEVICE}"
+    zpool create -f "${ZPOOL_OPTS[@]}" -m /bulk bulk "${BULK_DEVICE}"
 fi
 
 zfs unmount -a
