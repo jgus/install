@@ -15,17 +15,19 @@ PPAS+=(
 )
 
 PACKAGES+=(
+    ubuntu-drivers-common
     unattended-upgrades
     docker.io
     libvirt-clients qemu-system-x86 qemu-utils
     gcc gdb cmake ninja-build
     python python-pip python-virtualenv
     python3 python3-pip python3-virtualenv
-    flatpak plasma-discover-flatpak-backend
+    flatpak
     speedtest-cli
 )
 [[ "${HAS_GUI}" == "1" ]] && PACKAGES+=(
     kubuntu-desktop
+    plasma-discover-flatpak-backend
     virt-manager
     displaycal colord colord-kde
     playonlinux winetricks
