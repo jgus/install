@@ -102,6 +102,19 @@ flatpak install -y "${FLATPAKS[@]}"
 
 if [[ "${HAS_GUI}" == "1" ]]
 then
+    echo "### Configuring Xorg..."
+    which ratbagd && systemctl enable ratbagd.service
+    for d in "${SEAT1_DEVICES[@]}"
+    do
+        loginctl attach seat1 "${d}"
+    done
+
+    echo "### Configuring Printer Driver..."
+    cd /tmp
+    curl -L -O http://gdlp01.c-wss.com/gds/6/0100009236/06/linux-UFRII-drv-v510-usen-09.tar.gz
+    tar xvf linux-UFRII-drv-v510-usen-09.tar.gz
+    { echo y ; echo n ; } | ./linux-UFRII-drv-v510-usen/install.sh
+
     echo "### Configuring Minecraft..."
     cd /tmp
     wget https://launcher.mojang.com/download/Minecraft.deb
@@ -110,12 +123,6 @@ then
     cp /usr/share/applications/minecraft-launcher.desktop /etc/skel/.local/share/applications/
     sed -i "s|Exec=|Exec=env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia |g" /etc/skel/.local/share/applications/minecraft-launcher.desktop
 fi
-
-echo "### Configuring Printer Driver..."
-cd /tmp
-curl -L -O http://gdlp01.c-wss.com/gds/6/0100009236/06/linux-UFRII-drv-v510-usen-09.tar.gz
-tar xvf linux-UFRII-drv-v510-usen-09.tar.gz
-{ echo y ; echo n ; } | ./linux-UFRII-drv-v510-usen/install.sh
 
 echo "### Configuring users..."
 if [[ -d /bulk ]]
@@ -142,16 +149,6 @@ chmod 400 /home/josh/.ssh/authorized_keys
 chown -R josh:josh /home/josh/.ssh
 
 usermod -a -G docker josh
-
-if [[ "${HAS_GUI}" == "1" ]]
-then
-    echo "### Configuring Xorg..."
-    which ratbagd && systemctl enable ratbagd.service
-    for d in "${SEAT1_DEVICES[@]}"
-    do
-        loginctl attach seat1 "${d}"
-    done
-fi
 
 VIRT_NET_FILE="$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"
 if [[ -f "${VIRT_NET_FILE}" ]]

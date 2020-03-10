@@ -11,8 +11,6 @@ lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 
 KERNEL=${KERNEL:-generic}
 
-HAS_GUI=${HAS_GUI:-1}
-
 PACKAGES+=(
     apt-file
     grub-efi shim
@@ -106,18 +104,21 @@ systemctl disable sssd-nss.socket
 systemctl disable sssd-pam.socket
 systemctl disable sssd-pam-priv.socket
 
-echo "### Configuring Samba..."
-mkdir /nas
-cat <<EOF >>/etc/fstab
+if [[ "${NAS_SHARES}" != "" ]]
+then
+    echo "### Configuring Samba..."
+    mkdir /nas
+    cat <<EOF >>/etc/fstab
 
 # NAS
 EOF
-for share in "${NAS_SHARES[@]}"
-do
-    mkdir /nas/${share}
-    echo "//nas.gustafson.me/${share} /nas/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/root/.secrets/nas 0 0" >>/etc/fstab
-    # mount /nas/${share}
-done
+    for share in "${NAS_SHARES[@]}"
+    do
+        mkdir /nas/${share}
+        echo "//nas.gustafson.me/${share} /nas/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/root/.secrets/nas 0 0" >>/etc/fstab
+        # mount /nas/${share}
+    done
+fi
 
 echo "### Configuring VFIO..."
 if [[ "${VFIO_IDS}" != "" ]]
