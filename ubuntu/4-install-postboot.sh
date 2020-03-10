@@ -22,7 +22,6 @@ PACKAGES+=(
     gcc gdb cmake ninja-build
     python python-pip python-virtualenv
     python3 python3-pip python3-virtualenv
-    flatpak
     speedtest-cli
 )
 [[ "${HAS_GUI}" == "1" ]] && PACKAGES+=(
@@ -90,17 +89,21 @@ nvram = [
 ]
 EOF
 
-echo "### Installing Flatpaks..."
-chmod a+rw /var/tmp
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-for i in {1..10}
-do
-    if flatpak install -y "${FLATPAKS[@]}"
-    then
-        break
-    fi
-done
-flatpak install -y "${FLATPAKS[@]}"
+if [[ "${FLATPAKS}" != "" ]]
+then
+    echo "### Installing Flatpaks..."
+    apt install --yes flatpak
+    chmod a+rw /var/tmp
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    for i in {1..10}
+    do
+        if flatpak install -y "${FLATPAKS[@]}"
+        then
+            break
+        fi
+    done
+    flatpak install -y "${FLATPAKS[@]}"
+fi
 
 if [[ "${HAS_GUI}" == "1" ]]
 then
