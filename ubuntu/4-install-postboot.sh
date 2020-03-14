@@ -53,8 +53,8 @@ do
 done
 apt update
 apt upgrade --yes
-apt install --yes "${PACKAGES[@]}"
-apt install --yes $(check-language-support -l en_US)
+apt install --yes --no-install-recommends "${PACKAGES[@]}"
+apt install --yes --no-install-recommends $(check-language-support -l en_US)
 apt autoremove --yes
 apt-file update
 patch -i /etc/apt/apt.conf.d/50unattended-upgrades.patch /etc/apt/apt.conf.d/50unattended-upgrades

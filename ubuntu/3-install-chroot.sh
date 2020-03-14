@@ -43,7 +43,7 @@ export DEBIAN_FRONTEND=noninteractive
 #add-apt-repository -y ppa:heyarje/makemkv-beta
 apt update
 apt upgrade --yes
-apt install --yes "${PACKAGES[@]}"
+apt install --yes --no-install-recommends "${PACKAGES[@]}"
 
 echo "### Configuring hostname..."
 echo "${HOSTNAME}" >/etc/hostname
