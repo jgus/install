@@ -18,7 +18,7 @@ PACKAGES+=(
     zfsutils-linux zfs-initramfs
     cryptsetup
     gnupg
-    patch
+    patch wget
     zsh
     nano
     man
