@@ -1,0 +1,18 @@
+[Unit]
+Description=Samba Server
+After=docker.service
+Requires=docker.service
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
+EnvironmentFile=/root/.secrets/beast
+ExecStartPre=/usr/bin/docker pull dperson/samba
+ExecStart=/usr/bin/bash /etc/systemd/system/samba.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
