@@ -22,7 +22,7 @@ zpool export -a || true
 umount -Rl /target || true
 "$(cd "$(dirname "$0")" ; pwd)"/2.1-format-efi.sh "${HOSTNAME}"
 "$(cd "$(dirname "$0")" ; pwd)"/2.1-format-boot.sh "${HOSTNAME}"
-"$(cd "$(dirname "$0")" ; pwd)"/2.1-format-root.sh
+"$(cd "$(dirname "$0")" ; pwd)"/2.1-format-root.sh "${HOSTNAME}"
 rm -rf /target
 zpool import -R /target -l root
 mkdir -p /target/etc
