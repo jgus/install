@@ -26,7 +26,7 @@ umount -Rl /target || true
 rm -rf /target
 zpool import -R /target -l root
 mkdir -p /target/etc
-#echo "root/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
+#echo "root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
 mount /dev/disk/by-label/BOOT0 /target/boot
 echo "LABEL=BOOT0 /boot ext4 rw,relatime,errors=remount-ro 0 2" >> /target/etc/fstab
@@ -98,7 +98,7 @@ mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf 
 zfs unmount -a
 
 echo "### Snapshotting..."
-for pool in root/root
+for pool in root
 do
     zfs snapshot ${pool}@pre-boot-install
 done

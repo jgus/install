@@ -168,7 +168,7 @@ echo "### Cleaning up..."
 rm -rf /install
 
 echo "### Making a snapshot..."
-for pool in root/root root/home root/docker root/images
+for pool in root root/home root/docker root/images
 do
     zfs snapshot ${pool}@post-boot-install
 done

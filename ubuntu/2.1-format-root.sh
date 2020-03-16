@@ -30,19 +30,19 @@ ZPOOL_OPTS=(
     -O keylocation=file://${KEY_FILE}
 )
 zpool create -f "${ZPOOL_OPTS[@]}" -m none root ${SYSTEM_Z_TYPE} "${ROOT_DEVS[@]}"
-zfs create -o mountpoint=none                                                       root/root
-zfs create -o mountpoint=/var -o canmount=off       -o com.sun:auto-snapshot=false  root/var
+zfs create -o mountpoint=none                                                       root
+zfs create -o canmount=off                          -o com.sun:auto-snapshot=false  root/var
 zfs create                                                                          root/var/cache
 zfs create                                                                          root/var/log
 zfs create                                                                          root/var/spool
 zfs create                                                                          root/var/tmp
-zfs create -o mountpoint=/home                                                      root/home
+zfs create                                                                          root/home
 zfs create -o mountpoint=/var/lib/docker            -o com.sun:auto-snapshot=false  root/docker
-zfs create -o mountpoint=/var/volumes               -o com.sun:auto-snapshot=true   root/volumes
+zfs create -o mountpoint=/var/volumes                                               root/volumes
 zfs create                                          -o com.sun:auto-snapshot=false  root/volumes/scratch
-zfs create -o mountpoint=/var/lib/libvirt/images    -o com.sun:auto-snapshot=true   root/images
+zfs create -o mountpoint=/var/lib/libvirt/images                                    root/images
 zfs create                                          -o com.sun:auto-snapshot=false  root/images/scratch
-zfs set mountpoint=/ root/root || true
+zfs set mountpoint=/ root || true
 
 zfs unmount -a
 zpool export root
