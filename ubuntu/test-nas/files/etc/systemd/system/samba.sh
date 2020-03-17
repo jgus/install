@@ -12,7 +12,7 @@ DOCKER_ARGS+=(dperson/samba)
 DOCKER_ARGS+=(-n)
 
 source /root/.secrets/beast
-DOCKER_ARGS+=(-u ${username};${password};$(/usr/bin/id -u ${username});gustafson;$(/usr/bin/id -g gustafson))
+DOCKER_ARGS+=(-u "${username};${password};$(/usr/bin/id -u ${username});gustafson;$(/usr/bin/id -g gustafson)")
 
 SHARES=(
     Backup
@@ -40,12 +40,12 @@ SHARES_RO=(
 
 for s in "${SHARES[@]}"
 do
-    DOCKER_ARGS+=(-s ${s};/shares/${s};;;no;$${username};;;)
+    DOCKER_ARGS+=(-s "${s};/shares/${s};;;no;$${username};;;")
 done
 
 for s in "${SHARES_RO[@]}"
 do
-    DOCKER_ARGS+=(-s ${s};/shares/${s};;yes;no;$${username};;;)
+    DOCKER_ARGS+=(-s "${s};/shares/${s};;yes;no;$${username};;;")
 done
 
 docker "${DOCKER_ARGS[@]}"
