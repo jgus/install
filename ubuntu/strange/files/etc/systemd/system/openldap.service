@@ -11,7 +11,7 @@ ExecStartPre=-/usr/bin/zfs create z/volumes/ldap
 ExecStartPre=-/usr/bin/zfs create z/volumes/ldap/ldap
 ExecStartPre=-/usr/bin/zfs create z/volumes/ldap/slapd
 ExecStartPre=/usr/bin/docker pull osixia/openldap
-ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
+ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
     --hostname ldap.gustafson.me \
     --env-file /etc/openldap.env \
     -e LDAP_ORGANISATION='Gustafson Family' \

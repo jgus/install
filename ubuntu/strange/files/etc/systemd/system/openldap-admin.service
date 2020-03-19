@@ -6,7 +6,7 @@ Requires=openldap.service
 [Service]
 TimeoutStartSec=0
 ExecStartPre=/usr/bin/docker pull osixia/phpldapadmin
-ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
+ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
     --hostname ldapadmin.gustafson.me \
     -e PHPLDAPADMIN_LDAP_HOSTS=ldap.gustafson.me \
     -p 6443:443 \

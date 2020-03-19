@@ -12,7 +12,7 @@ ExecStartPre=-/usr/bin/docker rm %n
 ExecStartPre=-/usr/bin/zfs create root/volumes/syncthing_config
 ExecStartPre=/usr/bin/chown gustafson:gustafson /var/volumes/syncthing_config
 ExecStartPre=/usr/bin/docker pull linuxserver/syncthing
-ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
+ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
     -p 8384:8384 \
     -p 22000:22000 \
     -p 21027:21027/udp \
