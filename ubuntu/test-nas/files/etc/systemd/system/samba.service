@@ -9,9 +9,17 @@ Requires=network-online.target
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=/bin/bash -c "/etc/systemd/system/samba-pre.sh"
+ExecStart=/usr/bin/docker run --rm --name %n --net host \
+    -v /run/user/0/smb.conf:/etc/samba/smb.conf \
+    -v /shares:/shares \
+    --tmpfs /shares/Temp \
+    jgus/samba
 EnvironmentFile=/root/.secrets/beast
-ExecStartPre=/usr/bin/docker pull dperson/samba
-ExecStart=/usr/bin/bash /etc/systemd/system/samba.sh
+ExecStartPost=/usr/bin/sleep 1
+ExecStartPost=/bin/bash -c "/usr/bin/docker exec %n adduser -s /sbin/nologin -h /home/samba -H -D $${username}"
+ExecStartPost=/bin/bash -c "/usr/bin/docker exec %n /bin/sh -c \"printf \\\"$${password}\\\n$${password}\\\n\\\" | smbpasswd -a $${username}\""
+
 Restart=always
 
 [Install]

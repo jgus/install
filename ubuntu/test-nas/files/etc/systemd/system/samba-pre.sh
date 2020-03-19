@@ -1,18 +1,9 @@
 #!/bin/bash
 set -e
 
-service_name=$1
-
-DOCKER_ARGS=(run --rm --name ${service_name} --net host)
-DOCKER_ARGS+=(
-    -v /shares:/shares
-    --tmpfs /shares/Temp
-)
-DOCKER_ARGS+=(dperson/samba)
-DOCKER_ARGS+=(-n)
-
 source /root/.secrets/beast
-DOCKER_ARGS+=(-u "${username};${password};$(/usr/bin/id -u ${username});gustafson;$(/usr/bin/id -g gustafson)")
+
+SMB_CONF=/run/user/0/smb.conf
 
 SHARES=(
     Backup
@@ -38,14 +29,34 @@ SHARES_RO=(
 # Published -> Photos/Published
 # Tools -> Storage/Tools
 
+cat << EOF >${SMB_CONF}
+[global]
+   workgroup = GUSTAFSON
+   server string = NAS
+   server role = standalone server
+   wins support = yes
+EOF
+
 for s in "${SHARES[@]}"
 do
-    DOCKER_ARGS+=(-s "${s};/shares/${s};;;no;$${username};;;")
+cat << EOF >>${SMB_CONF}
+[${s}]
+   path = /shares/${s}
+   valid users = ${username}
+   public = no
+   writable = yes
+EOF
 done
 
 for s in "${SHARES_RO[@]}"
 do
-    DOCKER_ARGS+=(-s "${s};/shares/${s};;yes;no;$${username};;;")
+cat << EOF >>${SMB_CONF}
+[${s}]
+   path = /shares/${s}
+   valid users = ${username}
+   public = no
+   writable = no
+EOF
 done
 
-docker "${DOCKER_ARGS[@]}"
+docker build -t jgus/samba /usr/local/share/docker/samba
