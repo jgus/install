@@ -24,7 +24,7 @@ ZPOOL_OPTS=(
     -R /target
     -f
 )
-[[ "${KEY_FILE}" == "" ]] || ZPOOL_OPTS+=(
+[[ "${KEY_FILE}" == "_" ]] || ZPOOL_OPTS+=(
     -O encryption=on
     -O keyformat=raw
     -O keylocation=file://${KEY_FILE}
