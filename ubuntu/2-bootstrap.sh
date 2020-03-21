@@ -79,7 +79,7 @@ rsync -ar /root/.secrets/ /target/root/.secrets
 echo "### Configuring openswap hook..."
 for i in "${!SWAP_DEVS[@]}"
 do
-    echo "swap${i} ${SWAP_DEVS[$i]} ${KEY_FILE} plain,cipher=aes-xts-plain64,size=256,discard" >> /etc/crypttab
+    echo "swap${i} ${SWAP_DEVS[$i]} ${KEY_FILE} plain,cipher=aes-xts-plain64,size=256,discard" >> /target/etc/crypttab
 done
 
 echo "### Copying root files..."
