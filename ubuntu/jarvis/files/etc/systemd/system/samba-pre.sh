@@ -45,6 +45,8 @@ cat << EOF >>${SMB_CONF}
    valid users = ${username}
    public = no
    writable = yes
+   veto files = /._*/.DS_Store/.Trashes/.TemporaryItems/
+   delete veto files = yes
 EOF
 done
 
@@ -56,6 +58,8 @@ cat << EOF >>${SMB_CONF}
    valid users = ${username}
    public = no
    writable = no
+   veto files = /._*/.DS_Store/.Trashes/.TemporaryItems/
+   delete veto files = yes
 EOF
 done
 
