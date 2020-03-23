@@ -10,10 +10,9 @@ SHARES=(
     Media
     Peer
     Photos
+    Projects
     Software
-    Storage
     Temp
-    Users
 )
 
 SHARES_RO=(

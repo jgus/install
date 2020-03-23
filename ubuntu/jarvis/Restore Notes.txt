@@ -1,0 +1,45 @@
+hot/git -> /d/git
+hot/home -> /home (fix scripts etc)
+hot/Sync -> /home/josh/sync ???
+hot/Tools -> /d/software/Tools
+warm/Photos-Master -> /d/photos/Master
+warm/Users -> /home/???
+incoming/... -> /d/photos/...
+external -> /d/external
+cold/Backup -> /d/backup
+cold/Comics -> /d/media/Comics
+cold/Media-Storage -> /d/media/Storage
+cold/Music -> /d/media/Music
+cold/Storage/Books -> /d/media/Books
+cold/Storage/Games -> /d/software/Games
+cold/Storage/Media/* -> /d/media/Storage/*
+cold/Storage/Projects -> /d/projects ???
+
+
+d
+    git
+    home
+        josh
+            sync
+    photos
+        Master
+        Published
+        Incoming
+        ...
+    external
+        brown
+    backup
+        ...
+    media
+        Movies, etc
+        Storage
+        Books
+        Comics
+    software
+        Games
+    projects
+    scratch
+    images
+        scratch
+    volumes
+        scratch
