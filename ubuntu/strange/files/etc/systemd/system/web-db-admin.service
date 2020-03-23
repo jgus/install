@@ -7,7 +7,7 @@ Requires=web-db.service
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
-ExecStartPre=-/usr/bin/zfs create z/volumes/web_db_admin_sessions
+ExecStartPre=-/usr/sbin/zfs create z/volumes/web_db_admin_sessions
 ExecStartPre=/usr/bin/docker pull phpmyadmin/phpmyadmin
 ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
     -v /var/volumes/web_db_admin_sessions:/sessions \

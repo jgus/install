@@ -7,9 +7,9 @@ Requires=docker.service
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
-ExecStartPre=-/usr/bin/zfs create z/volumes/ldap
-ExecStartPre=-/usr/bin/zfs create z/volumes/ldap/ldap
-ExecStartPre=-/usr/bin/zfs create z/volumes/ldap/slapd
+ExecStartPre=-/usr/sbin/zfs create z/volumes/ldap
+ExecStartPre=-/usr/sbin/zfs create z/volumes/ldap/ldap
+ExecStartPre=-/usr/sbin/zfs create z/volumes/ldap/slapd
 ExecStartPre=/usr/bin/docker pull osixia/openldap
 ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
     --hostname ldap.gustafson.me \

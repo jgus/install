@@ -9,7 +9,7 @@ Requires=network-online.target
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
-ExecStartPre=-/usr/bin/zfs create z/volumes/transmission_data
+ExecStartPre=-/usr/sbin/zfs create z/volumes/transmission_data
 ExecStartPre=-/usr/bin/docker volume rm transmission_peer
 EnvironmentFile=/root/.secrets/beast
 ExecStartPre=/bin/bash -c "/usr/bin/docker volume create --driver local --opt type=cifs --opt device=//172.17.1.3/Peer --opt o=username=$${username},password=$${password},uid=1001,forceuid,gid=1001,forcegid transmission_peer"

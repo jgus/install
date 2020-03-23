@@ -9,7 +9,7 @@ Requires=network-online.target
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
-ExecStartPre=-/usr/bin/zfs create z/volumes/web_db_data
+ExecStartPre=-/usr/sbin/zfs create z/volumes/web_db_data
 ExecStartPre=/usr/bin/docker pull mysql:5.7
 ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
     --env-file /etc/web-db.env \
