@@ -1,0 +1,34 @@
+[Unit]
+Description=Plex Media Server
+After=docker.service
+Requires=docker.service
+After=network-online.target
+Requires=network-online.target
+ 
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=-/usr/sbin/zfs create d/volumes/plex_config
+ExecStartPre=/usr/bin/chown plex:plex /var/volumes/plex_config
+ExecStartPre=-/usr/sbin/zfs create d/scratch/plex
+ExecStartPre=/usr/bin/chown plex:plex /d/scratch/plex
+ExecStartPre=/usr/bin/docker pull linuxserver/plex
+ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
+    --net host \
+#    --gpus all \
+    --device /dev/dri:/dev/dri \
+    -e PUID=$$(/usr/bin/id -u plex) \
+    -e PGID=$$(/usr/bin/id -g plex) \
+    -e VERSION=latest \
+    -v /var/volumes/plex_config:/config \
+    -v /d/media:/media \
+    -v /d/media/Music:/music \
+    -v /d/photos/Published:/published \
+    -v /d/scratch/plex:/bulk \
+    --tmpfs /transcode \
+    linuxserver/plex"
+Restart=always
+ 
+[Install]
+WantedBy=multi-user.target

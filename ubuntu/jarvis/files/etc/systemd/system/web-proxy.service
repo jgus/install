@@ -1,0 +1,33 @@
+[Unit]
+Description=Web Service & Proxy
+After=web-db.service
+Requires=web-db.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=-/usr/sbin/zfs create d/volumes/web_proxy_config
+ExecStartPre=-/usr/sbin/zfs create d/volumes/www
+ExecStartPre=/usr/bin/docker pull linuxserver/letsencrypt
+ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
+    -e URL=gustafson.me \
+    -e EXTRA_DOMAINS=gushome.org \
+    -e SUBDOMAINS=www,docker,groot, \
+    -e VALIDATION=http \
+    -e EMAIL=j@gustafson.me \
+    -e PUID=$$(/usr/bin/id -u www) \
+    -e PGID=$$(/usr/bin/id -g www) \
+    -v /var/volumes/web_proxy_config:/config \
+    -v /var/volumes/www:/config/www \
+    -v /d/photos/Published:/config/www/published \
+    --tmpfs /config/www/Photos/cache \
+    --link web-db.service:db \
+    -p 80:80 \
+    -p 443:443 \
+    linuxserver/letsencrypt"
+Restart=always
+ 
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,29 @@
+[Unit]
+Description=OpenLDAP
+After=docker.service
+Requires=docker.service
+ 
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=-/usr/sbin/zfs create d/volumes/ldap
+ExecStartPre=-/usr/sbin/zfs create d/volumes/ldap/ldap
+ExecStartPre=-/usr/sbin/zfs create d/volumes/ldap/slapd
+ExecStartPre=/usr/bin/docker pull osixia/openldap
+ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
+    --hostname ldap.gustafson.me \
+    --env-file /etc/openldap.env \
+    -e LDAP_ORGANISATION='Gustafson Family' \
+    -e LDAP_DOMAIN='gustafson.me' \
+    -e LDAP_READONLY_USER='true' \
+    -e LDAP_TLS_VERIFY_CLIENT='never' \
+    -v /var/volumes/ldap/ldap:/var/lib/ldap \
+    -v /var/volumes/ldap/slapd:/etc/ldap/slapd.d \
+    -p 389:389 \
+    -p 636:636 \
+    osixia/openldap"
+Restart=always
+ 
+[Install]
+WantedBy=multi-user.target
