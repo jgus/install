@@ -12,11 +12,11 @@ ExecStartPre=-/usr/bin/docker rm %n
 ExecStartPre=/bin/bash -c "/etc/systemd/system/samba-pre.sh"
 ExecStart=/usr/bin/docker run --rm --name %n --net host \
     -v /run/user/0/smb.conf:/etc/samba/smb.conf \
-    --tmpfs /shares/Backup \
-    --tmpfs /shares/Media \
-    --tmpfs /shares/Peer \
+    -v /d/backup:/shares/Backup \
+    -v /d/media:/shares/Media \
+    -v /d/scratch/peer:/shares/Peer \
     -v /d/photos:/shares/Photos \
-    -v /d/photos:/shares/Projects \
+    -v /d/projects:/shares/Projects \
     -v /d/software:/shares/Software \
     --tmpfs /shares/Temp \
     -v /d/external/brown:/shares/Brown \
