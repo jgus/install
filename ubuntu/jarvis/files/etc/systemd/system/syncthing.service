@@ -24,6 +24,8 @@ ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
     -v /home/josh/sync:/shares/Sync \
     -v /d/photos:/shares/Photos \
     -v /d/software/Tools:/shares/Tools \
+    -v /d/media/Comics:/shares/Comics \
+    -v /d/media/Music:/shares/Music \
     linuxserver/syncthing"
 Restart=always
  
