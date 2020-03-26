@@ -1,7 +1,7 @@
 [Unit]
 Description=Prune Docker
-Requires=docker.target
-After=docker.target
+Requires=docker.service
+After=docker.service
 
 [Service]
 Type=oneshot

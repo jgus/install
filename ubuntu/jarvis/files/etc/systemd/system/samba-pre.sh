@@ -3,7 +3,7 @@ set -e
 
 source /root/.secrets/beast
 
-SMB_CONF=/run/user/0/smb.conf
+SMB_CONF=/etc/samba/smb.conf
 
 SHARES=(
     Backup
