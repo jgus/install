@@ -25,7 +25,7 @@ PACKAGES+=(
     speedtest-cli
 )
 [[ "${HAS_GUI}" == "1" ]] && PACKAGES+=(
-    kubuntu-desktop
+    kubuntu-full kubuntu-restricted-extras
     plasma-discover-flatpak-backend
     virt-manager
     displaycal colord colord-kde
@@ -53,8 +53,8 @@ do
 done
 apt update
 apt upgrade --yes
-apt install --yes --no-install-recommends "${PACKAGES[@]}"
-apt install --yes --no-install-recommends $(check-language-support -l en_US)
+apt install --yes ${APT_EXTRA_ARGS} "${PACKAGES[@]}"
+apt install --yes ${APT_EXTRA_ARGS} $(check-language-support -l en_US)
 apt autoremove --yes
 apt-file update
 patch -i /etc/apt/apt.conf.d/50unattended-upgrades.patch /etc/apt/apt.conf.d/50unattended-upgrades
