@@ -40,6 +40,7 @@ PACKAGES+=(
 FLATPAKS+=()
 [[ "${HAS_GUI}" == "1" ]] && FLATPAKS+=(
     com.valvesoftware.Steam
+    com.mojang.Minecraft
     com.visualstudio.code.oss
 )
 
