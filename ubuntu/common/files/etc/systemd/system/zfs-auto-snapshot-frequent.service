@@ -2,4 +2,4 @@
 Description=ZFS frequent snapshot service
 
 [Service]
-ExecStart=/usr/local/bin/zfs-auto-snapshot --skip-scrub --prefix=znap --label=frequent --keep=32 //
+ExecStart=/usr/local/bin/zfs-auto-snapshot --skip-scrub --prefix=znap --label=frequent --keep=8 //

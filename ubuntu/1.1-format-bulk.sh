@@ -17,7 +17,7 @@ ZPOOL_OPTS=(
     -O compression=lz4
     -O atime=off
     -O xattr=sa
-    -O com.sun:auto-snapshot=true
+    -O com.sun:auto-snapshot=false
     -R /target
     -f
 )

@@ -2,4 +2,4 @@
 Description=ZFS weekly snapshot service
 
 [Service]
-ExecStart=/usr/local/bin/zfs-auto-snapshot --skip-scrub --prefix=znap --label=weekly --keep=12 //
+ExecStart=/usr/local/bin/zfs-auto-snapshot --skip-scrub --prefix=znap --label=weekly --keep=8 //
