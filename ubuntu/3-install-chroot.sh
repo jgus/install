@@ -11,7 +11,7 @@ lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 
 KERNEL=${KERNEL:-generic}
 
-PACKAGES+=(
+PACKAGES=(
     apt-file
     grub-efi shim
     linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
