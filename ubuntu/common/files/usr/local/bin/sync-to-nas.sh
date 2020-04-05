@@ -9,7 +9,7 @@ do
     [ -d "${bak}" ] || continue
     rsync -arPx --delete /boot/ "${bak}"
 done
-rsync -arPx --delete /boot/ root@nas:/mnt/e/$(hostname)/boot
+rsync -arPx --delete /boot/ root@nas:/e/$(hostname)/boot
 
 DATASETS=($(zfs list -o name | grep -v root/docker))
 
