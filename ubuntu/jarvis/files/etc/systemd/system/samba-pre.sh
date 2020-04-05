@@ -12,6 +12,7 @@ SHARES=(
     Photos
     Projects
     Software
+    Storage
     Temp
 )
 
