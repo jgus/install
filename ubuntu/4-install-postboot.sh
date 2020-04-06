@@ -89,22 +89,6 @@ nvram = [
 ]
 EOF
 
-if [[ "${FLATPAKS}" != "" ]]
-then
-    echo "### Installing Flatpaks..."
-    apt install --yes flatpak
-    chmod a+rw /var/tmp
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    for i in {1..10}
-    do
-        if flatpak install -y "${FLATPAKS[@]}"
-        then
-            break
-        fi
-    done
-    flatpak install -y "${FLATPAKS[@]}"
-fi
-
 if [[ "${HAS_GUI}" == "1" ]]
 then
     echo "### Configuring Xorg..."
@@ -162,6 +146,22 @@ then
     virsh net-define "${VIRT_NET_FILE}"
     virsh net-autostart internal
     virsh net-start internal
+fi
+
+if [[ "${FLATPAKS}" != "" ]]
+then
+    echo "### Installing Flatpaks..."
+    apt install --yes flatpak
+    chmod a+rw /var/tmp
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    for i in {1..10}
+    do
+        if flatpak install -y "${FLATPAKS[@]}"
+        then
+            break
+        fi
+    done
+    flatpak install -y "${FLATPAKS[@]}"
 fi
 
 echo "### Cleaning up..."
