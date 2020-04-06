@@ -172,7 +172,7 @@ for i in monthly weekly daily hourly frequent
 do
     systemctl enable zfs-auto-snapshot-${i}.timer
 done
-for pool in root root/home root/docker root/images
+for pool in root
 do
     zfs snapshot ${pool}@post-boot-install
 done
