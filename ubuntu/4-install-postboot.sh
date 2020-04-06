@@ -40,7 +40,6 @@ PACKAGES+=(
 FLATPAKS+=()
 [[ "${HAS_GUI}" == "1" ]] && FLATPAKS+=(
     com.valvesoftware.Steam
-    com.mojang.Minecraft
     com.visualstudio.code.oss
 )
 
@@ -114,13 +113,13 @@ then
     do
         loginctl attach seat1 "${d}"
     done
-
+    
     echo "### Configuring Printer Driver..."
     cd /tmp
     curl -L -O http://gdlp01.c-wss.com/gds/6/0100009236/06/linux-UFRII-drv-v510-usen-09.tar.gz
     tar xvf linux-UFRII-drv-v510-usen-09.tar.gz
     { echo y ; echo n ; } | ./linux-UFRII-drv-v510-usen/install.sh
-
+    
     echo "### Configuring Minecraft..."
     cd /tmp
     wget https://launcher.mojang.com/download/Minecraft.deb
