@@ -168,6 +168,10 @@ echo "### Cleaning up..."
 rm -rf /install
 
 echo "### Making a snapshot..."
+for i in monthly weekly daily hourly frequent
+do
+    systemctl enable zfs-auto-snapshot-${i}.timer
+done
 for pool in root root/home root/docker root/images
 do
     zfs snapshot ${pool}@post-boot-install

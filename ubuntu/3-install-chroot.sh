@@ -82,10 +82,6 @@ for p in $(zpool list -o name -H)
 do
     systemctl enable zfs-scrub@${p}.timer
 done
-for i in monthly weekly daily hourly frequent
-do
-    systemctl enable zfs-auto-snapshot-${i}.timer
-done
 
 echo "### /tmp..."
 cp /usr/share/systemd/tmp.mount /etc/systemd/system/
