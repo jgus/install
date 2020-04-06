@@ -34,7 +34,7 @@ PACKAGES+=(
     openjdk-8-jdk openjdk-14-jdk icedtea-netx
     tigervnc-standalone-server
     gimp
-    clion pycharm-community
+    #    clion pycharm-community
 )
 
 FLATPAKS+=()
@@ -47,8 +47,8 @@ if ! zfs list root@post-boot-install-pacakages
 then
     echo "### Installing pacakages..."
     export DEBIAN_FRONTEND=noninteractive
-    curl -s https://s3.eu-central-1.amazonaws.com/jetbrains-ppa/0xA6E8698A.pub.asc | apt-key add -
-    echo "deb http://jetbrains-ppa.s3-website.eu-central-1.amazonaws.com bionic main" >/etc/apt/sources.list.d/jetbrains-ppa.list
+    # curl -s https://s3.eu-central-1.amazonaws.com/jetbrains-ppa/0xA6E8698A.pub.asc | apt-key add -
+    # echo "deb http://jetbrains-ppa.s3-website.eu-central-1.amazonaws.com bionic main" >/etc/apt/sources.list.d/jetbrains-ppa.list
     for ppa in "${PPAS[@]}"
     do
         add-apt-repository -y ${ppa}
