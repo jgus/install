@@ -11,7 +11,7 @@ lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 
 KERNEL=${KERNEL:-generic}
 
-PACKAGES+=(
+PACKAGES=(
     apt-file
     grub-efi shim
     linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
@@ -81,10 +81,6 @@ systemctl enable zfs-scrub@root.timer
 for p in $(zpool list -o name -H)
 do
     systemctl enable zfs-scrub@${p}.timer
-done
-for i in monthly weekly daily hourly frequent
-do
-    systemctl enable zfs-auto-snapshot-${i}.timer
 done
 
 echo "### /tmp..."
