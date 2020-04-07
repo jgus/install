@@ -1,0 +1,8 @@
+[Unit]
+Description=ZFS daily snapshot service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/zfs-auto-snapshot --skip-scrub --destroy-only --prefix=znap --label=daily --keep=28 -r e
+ExecStart=/usr/local/bin/zfs-auto-snapshot --skip-scrub --destroy-only --prefix=znap --label=weekly --keep=12 -r e
+ExecStart=/usr/local/bin/zfs-auto-snapshot --skip-scrub --destroy-only --prefix=znap --label=monthly --keep=24 -r e
