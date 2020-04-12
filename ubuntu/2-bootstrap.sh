@@ -72,10 +72,6 @@ echo "### Copying secrets..."
 mkdir -p /target/root/.secrets
 rsync -ar /root/.secrets/ /target/root/.secrets
 
-# echo "### Copying NVRAM-stored files..."
-# "$(cd "$(dirname "$0")" ; pwd)/read-secrets.sh" /target/tmp/machine-secrets
-# rsync -ar /target/tmp/machine-secrets/files/ /target || true
-
 echo "### Configuring openswap hook..."
 for i in "${!SWAP_DEVS[@]}"
 do

@@ -157,7 +157,10 @@ then
         setfacl -d -m group:gustafson:rwx /bulk
     fi
     
-    usermod -a -G sudo josh
+    for g in sudo plugdev docker
+    do
+        usermod -a -G ${g} josh
+    done
     /etc/mkhome.sh josh
     
     if which virsh
@@ -172,7 +175,6 @@ then
     chmod 400 /home/josh/.ssh/authorized_keys
     chown -R josh:josh /home/josh/.ssh
     
-    usermod -a -G docker josh
     zfs snapshot root@post-boot-install-users
 fi
 

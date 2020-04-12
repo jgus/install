@@ -28,7 +28,6 @@ PACKAGES=(
     git
     rsync
     network-manager
-    sssd libpam-sss libnss-sss
     rng-tools
     ntp
     cifs-utils
@@ -36,6 +35,7 @@ PACKAGES=(
 )
 [[ "${HAS_INTEL_CPU}" == "1" ]] && PACKAGES+=(intel-microcode)
 [[ "${HAS_AMD_CPU}" == "1" ]] && PACKAGES+=(amd64-microcode)
+[[ -f /root/.secrets/openldap.env ]] && PACKAGES+=(sssd libpam-sss libnss-sss)
 
 echo "### Installing pacakages..."
 #/etc/apt/sources.list
@@ -88,20 +88,26 @@ cp /usr/share/systemd/tmp.mount /etc/systemd/system/
 systemctl enable tmp.mount
 
 echo "### Configuring Network..."
-source /root/.secrets/wifi.env
-sed -i "s|@PASSWORD@|${PASSWORD}|g" /etc/netplan/99_config.yaml
+if [[ -f /root/.secrets/wifi.env ]]
+then
+    source /root/.secrets/wifi.env
+    sed -i "s|@PASSWORD@|${PASSWORD}|g" /etc/netplan/99_config.yaml
+fi
 
 echo "### Configuring LDAP auth..."
 pam-auth-update --remove pwquality --package
-source /root/.secrets/openldap.env
-echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
-sed -i "s|^TLS_CACERT*|TLS_CACERT /etc/ssl/certs/ldap.crt|g" /etc/ldap/ldap.conf
-patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
-systemctl disable sssd-nss.socket
-systemctl disable sssd-pam.socket
-systemctl disable sssd-pam-priv.socket
+if [[ -f /root/.secrets/openldap.env ]]
+then
+    source /root/.secrets/openldap.env
+    echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
+    sed -i "s|^TLS_CACERT*|TLS_CACERT /etc/ssl/certs/ldap.crt|g" /etc/ldap/ldap.conf
+    patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
+    systemctl disable sssd-nss.socket
+    systemctl disable sssd-pam.socket
+    systemctl disable sssd-pam-priv.socket
+fi
 
-if [[ "${NAS_SHARES}" != "" ]]
+if [[ "${NAS_SHARES}" != "" ]] && [[ -f /root/.secrets/nas ]]
 then
     echo "### Configuring Samba..."
     mkdir /nas
