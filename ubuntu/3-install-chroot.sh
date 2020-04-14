@@ -123,17 +123,24 @@ EOF
     done
 fi
 
-echo "### Configuring VFIO..."
-if [[ "${VFIO_IDS}" != "" ]]
-then
-    echo "options vfio_pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio.conf
-fi
-
 echo "### Installing bootloader..."
 mv /etc/default/grub /etc/default/grub.dist
 mv /etc/default/grub.new /etc/default/grub
+if [[ "${VFIO_IDS}" != "" ]]
+then
+    [[ "${HAS_INTEL_CPU}" == "1" ]] && sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="|GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu=on iommu=pt|g' /etc/default/grub
+    [[ "${HAS_AMD_CPU}" == "1" ]] && sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="|GRUB_CMDLINE_LINUX_DEFAULT="amd_iommu=on iommu=pt kvm_amd.npt=1 kvm_amd.avic=1|g' /etc/default/grub
+    for m in vfio vfio_iommu_type1 vfio_virqfd vfio_pci; do echo ${m} >> /etc/initramfs-tools/modules; done
+    for m in vfio vfio_iommu_type1 vfio_pci; do echo ${m} >> /etc/modules; done
+    echo "softdep nouveau pre: vfio-pci" >> /etc/modprobe.d/nvidia.conf
+    echo "softdep nvidia pre: vfio-pci" >> /etc/modprobe.d/nvidia.conf
+    echo "softdep nvidia* pre: vfio-pci" >> /etc/modprobe.d/nvidia.conf
+    echo "softdep amdgpu pre: vfio-pci" >> /etc/modprobe.d/amdgpu.conf
+    echo "options vfio_pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio.conf
+fi
 update-grub
 grub-install --efi-directory=/boot/efi --bootloader-id=ubuntu --recheck --no-floppy
+update-initramfs -u -k all
 
 echo "### Configuring Zsh..."
 cat << EOF >> /etc/zsh/zprofile
