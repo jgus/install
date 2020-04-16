@@ -29,7 +29,7 @@ PACKAGES+=(
     plasma-discover-flatpak-backend
     virt-manager
     displaycal colord colord-kde
-    playonlinux winetricks
+    playonlinux winetricks kdegames
     hugin libimage-exiftool-perl digikam
     openjdk-8-jdk openjdk-14-jdk icedtea-netx
     tigervnc-standalone-server
