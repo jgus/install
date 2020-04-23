@@ -12,7 +12,7 @@ lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 KERNEL=${KERNEL:-generic}
 
 PACKAGES=(
-    apt-file
+    apt-file software-properties-common
     grub-efi shim
     linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
     zfsutils-linux zfs-initramfs
