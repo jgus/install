@@ -58,7 +58,7 @@ df -h
 mount | grep target
 
 echo "### Debootstrapping..."
-debootstrap eoan /target
+debootstrap focal /target
 
 echo "### Copying install files..."
 mkdir -p /target/install
