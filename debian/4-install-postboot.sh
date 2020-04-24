@@ -147,7 +147,7 @@ zgenhostid $(hostid)
 
 mkinitcpio -P
 
-echo "### Installing pacakages..."
+echo "### Installing packages..."
 pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
 systemctl enable reflector.timer
 

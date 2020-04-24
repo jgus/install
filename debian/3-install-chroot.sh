@@ -78,7 +78,7 @@ changeme
 changeme
 EOF
 
-echo "### Installing pacakages..."
+echo "### Installing packages..."
 case "${DISTRO}" in
     arch)
         sed -i "s|#Color|Color|g" /etc/pacman.conf

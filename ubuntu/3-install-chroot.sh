@@ -37,7 +37,7 @@ PACKAGES=(
 [[ "${HAS_AMD_CPU}" == "1" ]] && PACKAGES+=(amd64-microcode)
 [[ -f /root/.secrets/openldap.env ]] && PACKAGES+=(sssd libpam-sss libnss-sss)
 
-echo "### Installing pacakages..."
+echo "### Installing packages..."
 #/etc/apt/sources.list
 #/etc/apt/preferences.d
 export DEBIAN_FRONTEND=noninteractive

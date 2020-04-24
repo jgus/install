@@ -43,9 +43,9 @@ FLATPAKS+=()
     com.visualstudio.code.oss
 )
 
-if ! zfs list root@post-boot-install-pacakages
+if ! zfs list root@post-boot-install-packages
 then
-    echo "### Installing pacakages..."
+    echo "### Installing packages..."
     export DEBIAN_FRONTEND=noninteractive
     # curl -s https://s3.eu-central-1.amazonaws.com/jetbrains-ppa/0xA6E8698A.pub.asc | apt-key add -
     # echo "deb http://jetbrains-ppa.s3-website.eu-central-1.amazonaws.com bionic main" >/etc/apt/sources.list.d/jetbrains-ppa.list
@@ -61,7 +61,7 @@ then
     apt-file update
     patch -i /etc/apt/apt.conf.d/50unattended-upgrades.patch /etc/apt/apt.conf.d/50unattended-upgrades
     rm /etc/apt/apt.conf.d/50unattended-upgrades.patch
-    zfs snapshot root@post-boot-install-pacakages
+    zfs snapshot root@post-boot-install-packages
 fi
 
 if ! zfs list root@post-boot-install-locale

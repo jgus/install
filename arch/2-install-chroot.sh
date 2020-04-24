@@ -53,7 +53,7 @@ cat <<EOF >/etc/hosts
 127.0.1.1 ${HOSTNAME}.localdomain ${HOSTNAME}
 EOF
 
-echo "### Installing pacakages..."
+echo "### Installing packages..."
 sed -i "s|#Color|Color|g" /etc/pacman.conf
 cat <<EOF >>/etc/pacman.conf
 
