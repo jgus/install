@@ -41,7 +41,6 @@ echo "### Installing packages..."
 #/etc/apt/sources.list
 #/etc/apt/preferences.d
 export DEBIAN_FRONTEND=noninteractive
-#add-apt-repository -y ppa:heyarje/makemkv-beta
 apt update
 apt upgrade --yes
 apt install --yes ${APT_EXTRA_ARGS} "${PACKAGES[@]}"
