@@ -11,6 +11,7 @@ PACKAGES=(
     efivar
     zfsutils-linux
     openssh-server
+    curl
 )
 apt-add-repository universe
 apt update

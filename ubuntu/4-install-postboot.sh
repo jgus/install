@@ -20,18 +20,17 @@ PACKAGES+=(
     docker.io
     libvirt-daemon libvirt-daemon-system libvirt-clients qemu-system-x86 qemu-utils
     gcc gdb cmake ninja-build
-    python python-pip python-virtualenv
     python3 python3-pip python3-virtualenv
     speedtest-cli
 )
 [[ "${HAS_GUI}" == "1" ]] && PACKAGES+=(
-    kubuntu-full kubuntu-restricted-extras
+    kubuntu-desktop kubuntu-restricted-extras
     plasma-discover-flatpak-backend
     virt-manager
-    displaycal colord colord-kde
+    colord colord-kde
     playonlinux winetricks kdegames
     hugin libimage-exiftool-perl digikam
-    openjdk-8-jdk openjdk-14-jdk icedtea-netx
+    openjdk-8-jdk openjdk-11-jdk icedtea-netx
     tigervnc-standalone-server
     gimp
     #    clion pycharm-community
