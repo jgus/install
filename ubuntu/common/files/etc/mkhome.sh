@@ -19,6 +19,7 @@ then
 fi
 if [[ -d /bulk ]]
 then
+    mkdir -p ${HOME_DIR}/Pictures
     ln -s /bulk/Photos/Favorites ${HOME_DIR}/Pictures/Favorites
     DOCS=$(find /bulk/Kids -maxdepth 1 -iname ${USER})
     [[ -d "${DOCS}" ]] && ln -s "${DOCS}" ${HOME_DIR}/Documents
