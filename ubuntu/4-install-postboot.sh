@@ -40,6 +40,7 @@ FLATPAKS+=()
 [[ "${HAS_GUI}" == "1" ]] && FLATPAKS+=(
     com.valvesoftware.Steam
     com.visualstudio.code.oss
+    org.musescore.MuseScore
 )
 
 if ! zfs list root@post-boot-install-packages
