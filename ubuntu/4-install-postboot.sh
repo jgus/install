@@ -94,6 +94,7 @@ if ! zfs list root@post-boot-install-docker
 then
     echo "### Configuring Docker..."
     #/etc/docker/daemon.json
+    systemctl enable docker
     systemctl enable docker-prune.timer
     zfs snapshot root@post-boot-install-docker
 fi
