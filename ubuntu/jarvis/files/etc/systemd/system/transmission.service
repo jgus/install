@@ -13,12 +13,9 @@ ExecStartPre=-/usr/sbin/zfs create d/volumes/transmission_data
 ExecStartPre=/usr/bin/docker pull haugene/transmission-openvpn
 ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
     --device /dev/net/tun:/dev/net/tun \
-    --env-file /etc/transmission.env \
     -e OPENVPN_PROVIDER=VPNAC \
     --env-file /root/.secrets/vpnac.env \
     -e LOCAL_NETWORK=172.17.0.0/16 \
-    -e TRANSMISSION_BLOCKLIST_ENABLED=true \
-    -e TRANSMISSION_BLOCKLIST_URL=http://john.bitsurge.net/public/biglist.p2p.gz \
     -e TRANSMISSION_DOWNLOAD_DIR=/peer/Complete \
     -e TRANSMISSION_INCOMPLETE_DIR=/peer/Incomplete \
     -e TRANSMISSION_INCOMPLETE_DIR_ENABLED=true \

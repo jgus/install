@@ -12,7 +12,7 @@ ExecStartPre=-/usr/bin/docker rm %n
 ExecStartPre=-/usr/sbin/zfs create d/volumes/web_db_data
 ExecStartPre=/usr/bin/docker pull mysql:5.7
 ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
-    --env-file /etc/web-db.env \
+    --env-file /root/.secrets/web-db.env \
     -v /var/volumes/web_db_data:/var/lib/mysql \
     mysql:5.7"
 Restart=always

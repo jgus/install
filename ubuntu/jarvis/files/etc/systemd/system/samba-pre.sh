@@ -4,6 +4,7 @@ set -e
 source /root/.secrets/beast
 
 SMB_CONF=/etc/samba/smb.conf
+mkdir -p /etc/samba
 
 SHARES=(
     Backup
