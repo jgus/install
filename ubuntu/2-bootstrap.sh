@@ -29,18 +29,18 @@ mkdir -p /target/etc
 #echo "root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
 mount /dev/disk/by-label/BOOT0 /target/boot
-echo "LABEL=BOOT0 /boot ext4 rw,relatime,errors=remount-ro 0 2" >> /target/etc/fstab
+echo "UUID=$(blkid /dev/disk/by-label/BOOT0 -o value -s UUID) /boot ext4 rw,relatime,errors=remount-ro 0 2" >> /target/etc/fstab
 mkdir -p /target/boot/efi
 mount /dev/disk/by-label/EFI0 /target/boot/efi
-echo "LABEL=EFI0 /boot/efi vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
+echo "UUID=$(blkid /dev/disk/by-label/EFI0 -o value -s UUID) /boot/efi vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
 for (( i=1; i<${#SYSTEM_DEVICES[@]}; i++ ));
 do
     mkdir -p /target/boot/bak.${i}
     mount /dev/disk/by-label/BOOT${i} /target/boot/bak.${i}
-    echo "LABEL=BOOT${i} /boot/bak.${i} ext4 rw,relatime,errors=remount-ro 0 2" >> /target/etc/fstab
+    echo "UUID=$(blkid /dev/disk/by-label/BOOT${i} -o value -s UUID) /boot/bak.${i} ext4 rw,relatime,errors=remount-ro 0 2" >> /target/etc/fstab
     mkdir -p /target/boot/bak.${i}/efi
     mount /dev/disk/by-label/EFI${i} /target/boot/bak.${i}/efi
-    echo "LABEL=EFI${i} /target/boot/bak.${i}/efi vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
+    echo "UUID=$(blkid /dev/disk/by-label/EFI${i} -o value -s UUID) /boot/bak.${i}/efi vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
 done
 for i in "${!SWAP_DEVS[@]}"
 do
