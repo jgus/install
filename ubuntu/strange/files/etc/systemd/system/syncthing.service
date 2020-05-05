@@ -1,0 +1,28 @@
+[Unit]
+Description=Syncthing
+After=docker.service
+Requires=docker.service
+After=NetworkManager-wait-online.service
+Requires=NetworkManager-wait-online.service
+ 
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=-/usr/bin/zfs create z/volumes/syncthing_config
+ExecStartPre=/usr/bin/chown josh:josh /var/volumes/syncthing_config
+ExecStartPre=/usr/bin/docker pull linuxserver/syncthing
+ExecStart=/usr/bin/bash -c "/usr/bin/docker run --rm --name %n \
+    -p 8384:8384 \
+    -p 22000:22000 \
+    -p 21027:21027/udp \
+    -e PUID=$$(/usr/bin/id -u josh) \
+    -e PGID=$$(/usr/bin/id -g josh) \
+    -e TZ=America/Denver \
+    -v /var/volumes/syncthing_config:/config \
+    -v /home/josh/sync:/sync \
+    linuxserver/syncthing"
+Restart=always
+ 
+[Install]
+WantedBy=multi-user.target
