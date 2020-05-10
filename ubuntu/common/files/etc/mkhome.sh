@@ -11,6 +11,8 @@ for i in .cache sync steam
 do
     zfs create -o com.sun:auto-snapshot=false root/home/${USER}/${i}
 done
+zfs set mountpoint="${HOME_DIR}"/.var/app/com.valvesoftware.Steam/.local/share/Steam root/home/${USER}/steam
+
 rsync -arP /etc/skel/ ${HOME_DIR}
 if [[ -d /nas/Published ]]
 then
