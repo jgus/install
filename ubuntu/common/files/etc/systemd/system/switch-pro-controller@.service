@@ -1,0 +1,6 @@
+[Unit]
+Description=Switch Pro Controller %i
+
+[Service]
+Type=simple
+ExecStart=xboxdrv -s --evdev /dev/input/%i --evdev-absmap ABS_X=X1,ABS_Y=Y1,ABS_RX=X2,ABS_RY=Y2,ABS_HAT0X=DPAD_X,ABS_HAT0Y=DPAD_Y --evdev-keymap BTN_TR2=Start,BTN_MODE=Guide,BTN_TL2=Back,BTN_SOUTH=A,BTN_EAST=B,BTN_C=X,BTN_NORTH=Y,BTN_WEST=LB,BTN_Z=RB,BTN_TL=LT,BTN_TR=RT --mimic-xpad --axismap -Y1=Y1,-Y2=Y2
