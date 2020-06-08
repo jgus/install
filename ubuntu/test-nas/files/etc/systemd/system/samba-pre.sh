@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-source /root/.secrets/beast
+source /root/.secrets/nas
 
 SMB_CONF=/run/user/0/smb.conf
 

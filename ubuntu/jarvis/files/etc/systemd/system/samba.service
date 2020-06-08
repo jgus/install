@@ -22,7 +22,7 @@ ExecStart=/usr/bin/docker run --rm --name %n --net host \
     --tmpfs /shares/Temp \
     -v /d/external/brown:/shares/Brown \
     jgus/samba
-EnvironmentFile=/root/.secrets/beast
+EnvironmentFile=/root/.secrets/nas
 ExecStartPost=/usr/bin/sleep 1
 ExecStartPost=/bin/bash -c "/usr/bin/docker exec %n adduser -s /sbin/nologin -h /home/samba -H -D $${username} -u $$(id -u $${username})"
 ExecStartPost=/bin/bash -c "/usr/bin/docker exec %n /bin/sh -c \"printf \\\"$${password}\\n$${password}\\n\\\" | smbpasswd -a $${username}\""

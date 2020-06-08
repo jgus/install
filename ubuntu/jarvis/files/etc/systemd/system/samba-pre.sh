@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-source /root/.secrets/beast
+source /root/.secrets/nas
 
 SMB_CONF=/etc/samba/smb.conf
 mkdir -p /etc/samba
