@@ -16,6 +16,7 @@ PACKAGES=(
     grub-efi shim
     linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
     zfsutils-linux zfs-initramfs
+    sysfsutils
     cryptsetup
     gnupg
     patch wget
