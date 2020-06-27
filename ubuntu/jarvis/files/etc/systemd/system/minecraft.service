@@ -1,0 +1,34 @@
+[Unit]
+Description=Minecraft Server
+After=docker.service
+Requires=docker.service
+After=network-online.target
+Requires=network-online.target
+ 
+# useradd -M -r -U minecraft
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=-/usr/sbin/zfs create d/volumes/minecraft_data
+ExecStartPre=/usr/bin/chown minecraft:minecraft /var/volumes/minecraft_data
+ExecStartPre=/usr/bin/docker pull itzg/minecraft-server
+ExecStart=/bin/bash -c "/usr/bin/docker run --rm --name %n \
+    -p 25565:25565 \
+    -p 8123:8123 \
+    -u $$(/usr/bin/id -u minecraft):$$(/usr/bin/id -g minecraft) \
+    -e UID=$$(/usr/bin/id -u minecraft) \
+    -e GID=$$(/usr/bin/id -g minecraft) \
+    -e EULA=TRUE \
+    -e TYPE=BUKKIT \
+    -e INIT_MEMORY=1G \
+    -e MAX_MEMORY=8G \
+    -e VERSION=1.15.2 \
+    -v /etc/timezone:/etc/timezone:ro \
+    -v /var/volumes/minecraft_data:/data \
+    itzg/minecraft-server"
+Restart=always
+ 
+[Install]
+WantedBy=multi-user.target
