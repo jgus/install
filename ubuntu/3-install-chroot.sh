@@ -45,6 +45,8 @@ export DEBIAN_FRONTEND=noninteractive
 apt update
 apt upgrade --yes
 apt install --yes ${APT_EXTRA_ARGS} "${PACKAGES[@]}"
+apt purge snapd --yes
+apt autoremove --yes
 
 echo "### Configuring hostname..."
 echo "${HOSTNAME}" >/etc/hostname
