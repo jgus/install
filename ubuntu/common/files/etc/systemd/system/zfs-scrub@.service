@@ -5,4 +5,4 @@ Description=zpool scrub on %i
 Nice=19
 IOSchedulingClass=idle
 KillSignal=SIGINT
-ExecStart=/usr/bin/zpool scrub %i
+ExecStart=/usr/sbin/zpool scrub %i
