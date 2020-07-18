@@ -1,8 +1,0 @@
-[Desktop Entry]
-Categories=Office;Publishing;
-Exec=xfreerdp /u:gustafson /p:zcm9XtK2vEkMFyMN /drive:home,${HOME} +fonts /app:"||Microsoft Publisher" /v:win-srv
-GenericName=Desktop Publishing
-Icon=Publisher-2013.png
-Name=Publisher 2013
-Type=Application
-Version=1.0

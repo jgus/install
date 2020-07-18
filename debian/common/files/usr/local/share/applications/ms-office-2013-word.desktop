@@ -1,8 +1,0 @@
-[Desktop Entry]
-Categories=Office;WordProcessor;
-Exec=xfreerdp /u:gustafson /p:zcm9XtK2vEkMFyMN /drive:home,${HOME} +fonts /app:"||Microsoft Word" /v:win-srv
-GenericName=Word Processor
-Icon=Word-2013.png
-Name=Word 2013
-Type=Application
-Version=1.0
