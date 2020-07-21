@@ -129,6 +129,14 @@ then
         do
             loginctl attach seat1 "${d}"
         done
+        for d in "${SEAT2_DEVICES[@]}"
+        do
+            loginctl attach seat2 "${d}"
+        done
+        for d in "${SEAT3_DEVICES[@]}"
+        do
+            loginctl attach seat3 "${d}"
+        done
         
         echo "### Configuring Printer Driver..."
         cd /tmp
