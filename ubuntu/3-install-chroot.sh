@@ -142,6 +142,10 @@ then
     echo "options vfio-pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio-pci.conf
 fi
 update-grub
+# for DEVICE in "${SYSTEM_DEVICES[@]}"
+# do
+#     grub-install --target=i386-pc "${DEVICE}"
+# done
 grub-install --efi-directory=/boot/efi --bootloader-id=ubuntu --recheck --no-floppy
 update-initramfs -u -k all
 
