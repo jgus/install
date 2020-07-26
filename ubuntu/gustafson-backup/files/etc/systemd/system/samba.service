@@ -1,0 +1,33 @@
+[Unit]
+Description=Samba Server
+After=docker.service
+Requires=docker.service
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=/bin/bash -c "/etc/systemd/system/samba-pre.sh"
+ExecStart=/usr/bin/docker run --rm --name %n --net host \
+    -v /etc/samba/smb.conf:/etc/samba/smb.conf \
+    -v /d/backup:/shares/Backup \
+    -v /d/media:/shares/Media \
+    -v /d/scratch/peer:/shares/Peer \
+    -v /d/photos:/shares/Photos \
+    -v /d/projects:/shares/Projects \
+    -v /d/software:/shares/Software \
+    -v /home/josh/Storage:/shares/Storage \
+    --tmpfs /shares/Temp \
+    -v /d/external/brown:/shares/Brown \
+    jgus/samba
+EnvironmentFile=/root/.secrets/nas
+ExecStartPost=/usr/bin/sleep 1
+ExecStartPost=/bin/bash -c "/usr/bin/docker exec %n adduser -s /sbin/nologin -h /home/samba -H -D $${username} -u $$(id -u $${username})"
+ExecStartPost=/bin/bash -c "/usr/bin/docker exec %n /bin/sh -c \"printf \\\"$${password}\\n$${password}\\n\\\" | smbpasswd -a $${username}\""
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
