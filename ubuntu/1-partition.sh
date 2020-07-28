@@ -43,25 +43,25 @@ do
     then
         echo "### Creating EFI partition ${p} on ${DEVICE}..."
         parted ${DEVICE} mkpart primary fat32 ${MBR_GAP} ${EFI_END}
-        parted name ${p} ${HOSTNAME}_EFI_${i}
+        parted ${DEVICE} name ${p} ${HOSTNAME}_EFI_${i}
         ((++p))
     fi
 
     echo "### Creating BOOT partition ${p} on ${DEVICE}..."
     parted ${DEVICE} mkpart primary zfs ${EFI_END} ${BOOT_END}
-    parted name ${p} ${HOSTNAME}_BOOT_${i}
+    parted ${DEVICE} name ${p} ${HOSTNAME}_BOOT_${i}
     ((++p))
 
     echo "### Creating ROOT partition ${p} on ${DEVICE}..."
     parted ${DEVICE} mkpart primary zfs ${BOOT_END} ${ROOT_END}
-    parted name ${p} ${HOSTNAME}_ROOT_${i}
+    parted ${DEVICE} name ${p} ${HOSTNAME}_ROOT_${i}
     ((++p))
 
     if [[ "${ROOT_END}" != "${SWAP_END}" ]]
     then
         echo "### Creating SWAP partition ${p} on ${DEVICE}..."
         parted ${DEVICE} mkpart primary linux-swap ${ROOT_END} ${SWAP_END}
-        parted name ${p} ${HOSTNAME}_SWAP_${i}
+        parted ${DEVICE} name ${p} ${HOSTNAME}_SWAP_${i}
         ((++p))
     fi
 
@@ -69,7 +69,7 @@ do
     then
         echo "### Creating EXT partition ${p} on ${DEVICE}..."
         parted ${DEVICE} mkpart extended zfs ${SWAP_END} 100%
-        parted name ${p} ${HOSTNAME}_EXT_${i}
+        parted ${DEVICE} name ${p} ${HOSTNAME}_EXT_${i}
         ((++p))
     fi
 done
