@@ -73,6 +73,7 @@ echo "### Copying root files..."
 # rsync -ar ~/opt /target/root/
 # rsync -ar ~/.ssh/ /target/root/opt/dotfiles/ssh
 rsync -ar ~/.ssh/ /target/root/.ssh
+[[ "${KEY_FILE}" =~ ^/sys/ ]] || cp ${KEY_FILE} /target/${KEY_FILE}
 
 echo "### Running further install in the chroot..."
 mount --rbind /dev  /target/dev

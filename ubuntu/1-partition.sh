@@ -4,6 +4,9 @@ set -e
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
+KEY_FILE=${KEY_FILE:-/sys/firmware/efi/vars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b/data}
+[[ "${KEY_FILE}" =~ ^/sys/ ]] || dd bs=1 count=32 if=/dev/urandom of=${KEY_FILE}
+
 HAS_UEFI=${HAS_UEFI:-1}
 MBR_GAP="2MiB"
 if ((HAS_UEFI))
