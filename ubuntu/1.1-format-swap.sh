@@ -12,6 +12,10 @@ for i in $(swapon --show=NAME --noheadings)
 do
     swapoff "${i}" || true
 done
+for i in $(cd /dev/mapper; ls ${HOSTNAME}-swap-*)
+do
+    cryptsetup close "${i}" || true
+done
 
 for i in "${!SWAP_IDS[@]}"
 do

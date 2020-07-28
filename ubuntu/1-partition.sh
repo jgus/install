@@ -22,10 +22,15 @@ SWAP_END=${SWAP_END:-100%}
 
 echo "### Cleaning up prior partitions..."
 umount -Rl /target || true
+zpool destroy boot || true
 zpool destroy root || true
 for i in $(swapon --show=NAME --noheadings)
 do
     swapoff "${i}" || true
+done
+for i in $(cd /dev/mapper; ls ${HOSTNAME}-swap-*)
+do
+    cryptsetup close "${i}" || true
 done
 
 EFI_IDS=()
