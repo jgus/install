@@ -3,6 +3,7 @@ set -e
 
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+source /tmp/partids
 
 KEY_FILE=${KEY_FILE:-/sys/firmware/efi/vars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b/data}
 
@@ -23,7 +24,12 @@ ZPOOL_OPTS=(
     -O keyformat=raw
     -O keylocation=file://${KEY_FILE}
 )
-zpool create -f "${ZPOOL_OPTS[@]}" -m none root ${SYSTEM_Z_TYPE} /dev/disk/by-partlabel/${HOSTNAME}_ROOT_*
+ROOT_DEVS=()
+for id in "${ROOT_IDS[@]}"
+do
+    ROOT_DEVS+=(/dev/disk/by-partuuid/${id})
+done
+zpool create -f "${ZPOOL_OPTS[@]}" -m none root ${SYSTEM_Z_TYPE} "${ROOT_DEVS[@]}"
 zfs create -o canmount=off                          -o com.sun:auto-snapshot=false  root/var
 zfs create                                                                          root/var/cache
 zfs create                                                                          root/var/log

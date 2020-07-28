@@ -3,9 +3,10 @@ set -e
 
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+source /tmp/partids
 
 echo "### Formatting EFI partitions..."
-for i in "${!SYSTEM_DEVICES[@]}"
+for i in "${!EFI_IDS[@]}"
 do
-    mkfs.fat -F 32 -n "EFI${i}" /dev/disk/by-partlabel/${HOSTNAME}_EFI_${i}
+    mkfs.fat -F 32 -n "EFI${i}" /dev/disk/by-partuuid/${EFI_IDS[$i]}
 done

@@ -5,6 +5,7 @@ set -e
 
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+source /tmp/partids
 
 KEY_FILE=${KEY_FILE:-/sys/firmware/efi/vars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b/data}
 
@@ -20,16 +21,19 @@ mkdir -p /target/etc
 #echo "root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
 zpool import -R /target -l boot
-mkdir -p /target/boot/efi
-mount /dev/disk/by-partlabel/${HOSTNAME}_EFI_0 /target/boot/efi
-echo "UUID=$(blkid /dev/disk/by-partlabel/${HOSTNAME}_EFI_0 -o value -s UUID) /boot/efi vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
-for (( i=1; i<${#SYSTEM_DEVICES[@]}; i++ ));
-do
-    mkdir -p /target/boot/efi.${i}
-    mount /dev/disk/by-partlabel/${HOSTNAME}_EFI_${i} /target/boot/efi.${i}
-    echo "UUID=$(blkid /dev/disk/by-partlabel/${HOSTNAME}_EFI_${i} -o value -s UUID) /boot/efi.${i} vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
-done
-for p in /dev/mapper/${HOSTNAME}_SWAP_*
+if ((HAS_UEFI))
+then
+    mkdir -p /target/boot/efi
+    mount /dev/disk/by-partuuid/${EFI_IDS[0]} /target/boot/efi
+    echo "UUID=$(blkid /dev/disk/by-partuuid/${EFI_IDS[0]} -o value -s PARTUUID) /boot/efi vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
+    for (( i=1; i<${#SYSTEM_DEVICES[@]}; i++ ))
+    do
+        mkdir -p /target/boot/efi.${i}
+        mount /dev/disk/by-partuuid/${EFI_IDS[$i]} /target/boot/efi.${i}
+        echo "UUID=$(blkid /dev/disk/by-partuuid/${EFI_IDS[$i]} -o value -s PARTUUID) /boot/efi.${i} vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
+    done
+fi
+for p in /dev/mapper/${HOSTNAME}-swap-*
 do
     echo "${p} none swap defaults,discard,pri=100 0 0" >> /target/etc/fstab
 done
@@ -60,9 +64,9 @@ mkdir -p /target/root/.secrets
 rsync -ar /root/.secrets/ /target/root/.secrets
 
 echo "### Configuring openswap hook..."
-for p in $(cd /dev/disk/by-partlabel; ls ${HOSTNAME}_SWAP_*)
+for i in "${!SWAP_IDS[@]}"
 do
-    echo "${p} /dev/disk/by-partlabel/${p} ${KEY_FILE} plain,cipher=aes-xts-plain64,size=256,discard" >> /target/etc/crypttab
+    echo "${HOSTNAME}-swap-${i} /dev/disk/by-partuuid/${SWAP_IDS[$i]} ${KEY_FILE} plain,cipher=aes-xts-plain64,size=256,discard" >> /target/etc/crypttab
 done
 
 echo "### Copying root files..."

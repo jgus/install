@@ -25,6 +25,11 @@ do
     swapoff "${i}" || true
 done
 
+EFI_IDS=()
+BOOT_IDS=()
+ROOT_IDS=()
+SWAP_IDS=()
+EXT_IDS=()
 for i in "${!SYSTEM_DEVICES[@]}"
 do
     DEVICE="${SYSTEM_DEVICES[$i]}"
@@ -43,25 +48,25 @@ do
     then
         echo "### Creating EFI partition ${p} on ${DEVICE}..."
         parted ${DEVICE} mkpart primary fat32 ${MBR_GAP} ${EFI_END}
-        parted ${DEVICE} name ${p} ${HOSTNAME}_EFI_${i}
+        EFI_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
 
     echo "### Creating BOOT partition ${p} on ${DEVICE}..."
     parted ${DEVICE} mkpart primary zfs ${EFI_END} ${BOOT_END}
-    parted ${DEVICE} name ${p} ${HOSTNAME}_BOOT_${i}
+    BOOT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
     ((++p))
 
     echo "### Creating ROOT partition ${p} on ${DEVICE}..."
     parted ${DEVICE} mkpart primary zfs ${BOOT_END} ${ROOT_END}
-    parted ${DEVICE} name ${p} ${HOSTNAME}_ROOT_${i}
+    ROOT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
     ((++p))
 
     if [[ "${ROOT_END}" != "${SWAP_END}" ]]
     then
         echo "### Creating SWAP partition ${p} on ${DEVICE}..."
         parted ${DEVICE} mkpart primary linux-swap ${ROOT_END} ${SWAP_END}
-        parted ${DEVICE} name ${p} ${HOSTNAME}_SWAP_${i}
+        SWAP_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
 
@@ -69,10 +74,17 @@ do
     then
         echo "### Creating EXT partition ${p} on ${DEVICE}..."
         parted ${DEVICE} mkpart extended zfs ${SWAP_END} 100%
-        parted ${DEVICE} name ${p} ${HOSTNAME}_EXT_${i}
+        EXT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
 done
+cat << EOF >/tmp/partids
+EFI_IDS=("${EFI_IDS[@]}")
+BOOT_IDS=("${BOOT_IDS[@]}")
+ROOT_IDS=("${ROOT_IDS[@]}")
+SWAP_IDS=("${SWAP_IDS[@]}")
+EXT_IDS=("${EXT_IDS[@]}")
+EOF
 sleep 1
 
 # "$(cd "$(dirname "$0")" ; pwd)"/1.1-format-bulk.sh "${HOSTNAME}"

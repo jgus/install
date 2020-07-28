@@ -3,6 +3,7 @@ set -e
 
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+source /tmp/partids
 
 echo "### Creating zpool boot..."
 ZPOOL_OPTS=(
@@ -30,7 +31,11 @@ ZPOOL_OPTS=(
     -O com.sun:auto-snapshot=false
     -R /target
 )
-zpool create -f "${ZPOOL_OPTS[@]}" -m none boot mirror /dev/disk/by-partlabel/${HOSTNAME}_BOOT_*
-
+BOOT_DEVS=()
+for id in "${BOOT_IDS[@]}"
+do
+    BOOT_DEVS+=(/dev/disk/by-partuuid/${id})
+done
+zpool create -f "${ZPOOL_OPTS[@]}" -m none boot mirror "${BOOT_DEVS[@]}"
 zfs unmount -a
 zpool export boot
