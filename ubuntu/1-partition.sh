@@ -78,7 +78,7 @@ do
         ((++p))
     fi
 done
-cat << EOF >/tmp/partids
+cat >/tmp/partids << EOF
 EFI_IDS=("${EFI_IDS[@]}")
 BOOT_IDS=("${BOOT_IDS[@]}")
 ROOT_IDS=("${ROOT_IDS[@]}")
