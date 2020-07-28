@@ -73,7 +73,7 @@ do
     if [[ "${SWAP_END}" != "100%" ]]
     then
         echo "### Creating EXT partition ${p} on ${DEVICE}..."
-        parted ${DEVICE} mkpart extended zfs ${SWAP_END} 100%
+        parted ${DEVICE} mkpart extended ${SWAP_END} 100%
         EXT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
