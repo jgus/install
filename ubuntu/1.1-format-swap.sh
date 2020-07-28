@@ -8,10 +8,10 @@ source /tmp/partids
 KEY_FILE=${KEY_FILE:-/sys/firmware/efi/vars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b/data}
 
 echo "### Setting up swap..."
-# for i in /dev/mapper/*SWAP*
-# do
-#     swapoff "${i}" || true
-# done
+for i in $(swapon --show=NAME --noheadings)
+do
+    swapoff "${i}" || true
+done
 
 for i in "${!SWAP_IDS[@]}"
 do

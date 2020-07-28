@@ -23,7 +23,7 @@ SWAP_END=${SWAP_END:-100%}
 echo "### Cleaning up prior partitions..."
 umount -Rl /target || true
 zpool destroy root || true
-for i in /dev/disk/by-label/SWAP*
+for i in $(swapon --show=NAME --noheadings)
 do
     swapoff "${i}" || true
 done
