@@ -36,6 +36,11 @@ for id in "${BOOT_IDS[@]}"
 do
     BOOT_DEVS+=(/dev/disk/by-partuuid/${id})
 done
-zpool create -f "${ZPOOL_OPTS[@]}" -m none boot mirror "${BOOT_DEVS[@]}"
+MIRROR=mirror
+if ((${#SYSTEM_DEVICES[@]} == 1))
+then
+    MIRROR=
+fi
+zpool create -f "${ZPOOL_OPTS[@]}" -m none boot ${MIRROR} "${BOOT_DEVS[@]}"
 zfs unmount -a
 zpool export boot
