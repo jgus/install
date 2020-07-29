@@ -18,6 +18,7 @@ PACKAGES=(
     linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
     zfsutils-linux zfs-initramfs
     sysfsutils
+    parted
     cryptsetup
     gnupg
     patch wget
