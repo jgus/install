@@ -15,7 +15,6 @@ KERNEL=${KERNEL:-generic}
 
 PACKAGES=(
     apt-file software-properties-common
-    grub-efi shim
     linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
     zfsutils-linux zfs-initramfs
     sysfsutils
@@ -36,6 +35,12 @@ PACKAGES=(
     cifs-utils
     smbnetfs sshfs fuseiso hfsprogs
 )
+if ((HAS_UEFI))
+then
+    PACKAGES+=(grub-efi shim)
+else
+    PACKAGES+=(grub-pc)
+fi
 [[ "${HAS_INTEL_CPU}" == "1" ]] && PACKAGES+=(intel-microcode)
 [[ "${HAS_AMD_CPU}" == "1" ]] && PACKAGES+=(amd64-microcode)
 [[ -f /root/.secrets/openldap.env ]] && PACKAGES+=(sssd libpam-sss libnss-sss)
