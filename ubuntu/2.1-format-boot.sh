@@ -28,7 +28,6 @@ ZPOOL_OPTS=(
     -O relatime=on
     -O xattr=sa
     -O com.sun:auto-snapshot=false
-    -O mountpoint=/boot
     -R /target
 )
 BOOT_DEVS=()
@@ -41,6 +40,8 @@ if ((${#SYSTEM_DEVICES[@]} == 1))
 then
     MIRROR=
 fi
-zpool create -f "${ZPOOL_OPTS[@]}" boot ${MIRROR} "${BOOT_DEVS[@]}"
+rm -rf /target
+zpool create -f "${ZPOOL_OPTS[@]}" -m none boot ${MIRROR} "${BOOT_DEVS[@]}"
 zfs unmount -a
+zfs set mountpoint=/boot boot || true
 zpool export boot
