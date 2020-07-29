@@ -6,6 +6,8 @@ set -e
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
+HAS_UEFI=${HAS_UEFI:-1}
+
 lscpu | grep GenuineIntel && HAS_INTEL_CPU=1
 lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 
@@ -142,11 +144,19 @@ then
     echo "options vfio-pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio-pci.conf
 fi
 update-grub
-# for DEVICE in "${SYSTEM_DEVICES[@]}"
-# do
-#     grub-install --target=i386-pc "${DEVICE}"
-# done
-grub-install --efi-directory=/boot/efi --bootloader-id=ubuntu --recheck --no-floppy
+if ((HAS_UEFI))
+then
+    for d in $(cd /boot; ls efi.*)
+    do
+        grub-install --efi-directory=/boot/${d} --bootloader-id=ubuntu.${d} --recheck --no-floppy
+    done
+    grub-install --efi-directory=/boot/efi --bootloader-id=ubuntu --recheck --no-floppy
+else
+    for DEVICE in "${SYSTEM_DEVICES[@]}"
+    do
+        grub-install --target=i386-pc "${DEVICE}"
+    done
+fi
 update-initramfs -u -k all
 
 echo "### Configuring Zsh..."
