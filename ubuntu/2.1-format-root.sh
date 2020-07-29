@@ -16,8 +16,8 @@ ZPOOL_OPTS=(
     -O atime=off
     -O xattr=sa
     -O com.sun:auto-snapshot=true
+    -O mountpoint=/
     -R /target
-    -f
 )
 [[ "${KEY_FILE}" == "/zfs-keyfile" ]] || ZPOOL_OPTS+=(
     -O encryption=on
@@ -29,7 +29,7 @@ for id in "${ROOT_IDS[@]}"
 do
     ROOT_DEVS+=(/dev/disk/by-partuuid/${id})
 done
-zpool create -f "${ZPOOL_OPTS[@]}" -m none root ${SYSTEM_Z_TYPE} "${ROOT_DEVS[@]}"
+zpool create -f "${ZPOOL_OPTS[@]}" root ${SYSTEM_Z_TYPE} "${ROOT_DEVS[@]}"
 zfs create -o canmount=off                          -o com.sun:auto-snapshot=false  root/var
 zfs create                                                                          root/var/cache
 zfs create                                                                          root/var/log
