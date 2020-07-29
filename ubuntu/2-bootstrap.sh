@@ -52,7 +52,7 @@ df -h
 mount | grep target
 
 echo "### Debootstrapping..."
-debootstrap focal /target
+debootstrap focal /target http://archive.ubuntu.com/ubuntu/
 
 echo "### Copying install files..."
 mkdir -p /target/install
