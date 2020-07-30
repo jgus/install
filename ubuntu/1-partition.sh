@@ -49,25 +49,25 @@ do
     if [[ "${MBR_GAP}" != "${EFI_END}" ]]
     then
         echo "### Creating EFI partition ${p} on ${DEVICE}..."
-        parted ${DEVICE} -- mkpart primary fat32 ${MBR_GAP} ${EFI_END}
+        timeout -k 15 10 -- while ! parted ${DEVICE} -- mkpart primary fat32 ${MBR_GAP} ${EFI_END}; do sleep 1; done
         EFI_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
 
     echo "### Creating BOOT partition ${p} on ${DEVICE}..."
-    parted ${DEVICE} -- mkpart primary zfs ${EFI_END} ${BOOT_END}
+    timeout -k 15 10 -- while ! parted ${DEVICE} -- mkpart primary zfs ${EFI_END} ${BOOT_END}; do sleep 1; done
     BOOT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
     ((++p))
 
     echo "### Creating ROOT partition ${p} on ${DEVICE}..."
-    parted ${DEVICE} -- mkpart primary zfs ${BOOT_END} ${ROOT_END}
+    timeout -k 15 10 -- while ! parted ${DEVICE} -- mkpart primary zfs ${BOOT_END} ${ROOT_END}; do sleep 1; done
     ROOT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
     ((++p))
 
     if [[ "${ROOT_END}" != "${SWAP_END}" ]]
     then
         echo "### Creating SWAP partition ${p} on ${DEVICE}..."
-        parted ${DEVICE} -- mkpart primary linux-swap ${ROOT_END} ${SWAP_END}
+        timeout -k 15 10 -- while ! parted ${DEVICE} -- mkpart primary linux-swap ${ROOT_END} ${SWAP_END}; do sleep 1; done
         SWAP_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
@@ -75,7 +75,7 @@ do
     if [[ "${SWAP_END}" != "100%" ]]
     then
         echo "### Creating EXT partition ${p} on ${DEVICE}..."
-        parted ${DEVICE} -- mkpart extended ${SWAP_END} 100%
+        timeout -k 15 10 -- while ! parted ${DEVICE} -- mkpart extended ${SWAP_END} 100%; do sleep 1; done
         EXT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
