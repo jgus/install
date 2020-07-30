@@ -14,7 +14,7 @@ ZPOOL_OPTS=(
     -O com.sun:auto-snapshot=true
     -R /target
 )
-case ${ZFS_KEY}
+case ${ZFS_KEY} in
     efi)
         ZPOOL_OPTS+=(
             -O encryption=on
