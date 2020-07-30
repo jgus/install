@@ -1,13 +1,7 @@
-#!/bin/bash
-set -e
+#!/bin/bash -e
 
-HOSTNAME=$1
-source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+source "$(cd "$(dirname "$0")" ; pwd)"/common.sh "$@"
 
-KEY_FILE=${KEY_FILE:-/sys/firmware/efi/vars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b/data}
-[[ "${KEY_FILE}" =~ ^/sys/ ]] || dd bs=1 count=32 if=/dev/urandom of=${KEY_FILE}
-
-HAS_UEFI=${HAS_UEFI:-1}
 MBR_GAP="2MiB"
 if ((HAS_UEFI))
 then
@@ -95,7 +89,7 @@ EXT_IDS=("${EXT_IDS[@]}")
 EOF
 sleep 1
 
-# "$(cd "$(dirname "$0")" ; pwd)"/1.1-format-bulk.sh "${HOSTNAME}"
-"$(cd "$(dirname "$0")" ; pwd)"/1.1-format-swap.sh "${HOSTNAME}"
+# "$(cd "$(dirname "$0")" ; pwd)"/1.1-format-bulk.sh "$@"
+"$(cd "$(dirname "$0")" ; pwd)"/1.1-format-swap.sh "$@"
 
 echo "### Done partitioning!"

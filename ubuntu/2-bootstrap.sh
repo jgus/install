@@ -1,14 +1,8 @@
-#!/bin/bash
-set -e
+#!/bin/bash -e
 
 [[ -d /root/.secrets ]] || { echo "No secrets found, did you forget to install them?"; exit 1; }
 
-HOSTNAME=$1
-source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
-source /tmp/partids
-
-KEY_FILE=${KEY_FILE:-/sys/firmware/efi/vars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b/data}
-HAS_UEFI=${HAS_UEFI:-1}
+source "$(cd "$(dirname "$0")" ; pwd)"/common.sh "$@"
 
 echo "### Importing/mounting filesystems..."
 zpool export -a || true
@@ -70,14 +64,14 @@ rsync -ar /root/.secrets/ /target/root/.secrets
 echo "### Configuring openswap hook..."
 for i in "${!SWAP_IDS[@]}"
 do
-    echo "${HOSTNAME}-swap-${i} /dev/disk/by-partuuid/${SWAP_IDS[$i]} ${KEY_FILE} plain,cipher=aes-xts-plain64,size=256,discard" >> /target/etc/crypttab
+    echo "${HOSTNAME}-swap-${i} /dev/disk/by-partuuid/${SWAP_IDS[$i]} ${SWAP_KEY_FILE} plain,cipher=aes-xts-plain64,size=256,discard" >> /target/etc/crypttab
 done
 
 echo "### Copying root files..."
 # rsync -ar ~/opt /target/root/
 # rsync -ar ~/.ssh/ /target/root/opt/dotfiles/ssh
 rsync -ar ~/.ssh/ /target/root/.ssh
-[[ "${KEY_FILE}" =~ ^/sys/ ]] || cp ${KEY_FILE} /target/${KEY_FILE}
+[[ ! "${ZFS_KEY}" == "root" ]] || cp ${KEY_FILE} /target/${KEY_FILE}
 
 echo "### Running further install in the chroot..."
 mount --rbind /dev  /target/dev

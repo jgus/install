@@ -1,11 +1,7 @@
 #!/bin/bash
 set -e
 
-HOSTNAME=$1
-source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
-source /tmp/partids
-
-KEY_FILE=${KEY_FILE:-/sys/firmware/efi/vars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b/data}
+source "$(cd "$(dirname "$0")" ; pwd)"/common.sh "$@"
 
 echo "### Creating zpool root..."
 ZPOOL_OPTS=(
@@ -18,11 +14,25 @@ ZPOOL_OPTS=(
     -O com.sun:auto-snapshot=true
     -R /target
 )
-[[ "${KEY_FILE}" == "/zfs-keyfile" ]] || ZPOOL_OPTS+=(
-    -O encryption=on
-    -O keyformat=raw
-    -O keylocation=file://${KEY_FILE}
-)
+case ${ZFS_KEY}
+    efi)
+        ZPOOL_OPTS+=(
+            -O encryption=on
+            -O keyformat=raw
+            -O keylocation=file://${KEY_FILE}
+        )
+        ;;
+    prompt)
+        ZPOOL_OPTS+=(
+            -O encryption=on
+            -O keyformat=passphrase
+            -O keylocation=prompt
+        )
+        ;;
+    root|none)
+        ;;
+esac
+
 ROOT_DEVS=()
 for id in "${ROOT_IDS[@]}"
 do

@@ -3,10 +3,7 @@ set -e
 
 [[ -d /root/.secrets ]] || { echo "No secrets found, did you forget to install them?"; exit 1; }
 
-HOSTNAME=$1
-source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
-
-HAS_UEFI=${HAS_UEFI:-1}
+source "$(cd "$(dirname "$0")" ; pwd)"/common.sh "$@"
 
 lscpu | grep GenuineIntel && HAS_INTEL_CPU=1
 lscpu | grep AuthenticAMD && HAS_AMD_CPU=1

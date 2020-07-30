@@ -5,8 +5,7 @@ set -e
 # vnc?
 # https://wiki.archlinux.org/index.php/Fan_speed_control#Fancontrol_(lm-sensors)
 
-HOSTNAME=$(hostname)
-source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+source "$(cd "$(dirname "$0")" ; pwd)"/common.sh $(hostname)
 
 TIME_ZONE=${TIME_ZONE:-US/Mountain}
 HAS_GUI=${HAS_GUI:-1}

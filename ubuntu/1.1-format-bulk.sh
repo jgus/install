@@ -1,10 +1,7 @@
 #!/bin/bash
 set -e
 
-HOSTNAME=$1
-source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
-
-KEY_FILE=${KEY_FILE:-/sys/firmware/efi/vars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b/data}
+source "$(cd "$(dirname "$0")" ; pwd)"/common.sh "$@"
 
 echo "### Cleaning up prior partitions..."
 zpool destroy bulk || true
@@ -21,7 +18,7 @@ ZPOOL_OPTS=(
     -R /target
     -f
 )
-[[ "${KEY_FILE}" == "_" ]] || ZPOOL_OPTS+=(
+[[ "${KEY_FILE}" == "" ]] || ZPOOL_OPTS+=(
     -O encryption=on
     -O keyformat=raw
     -O keylocation=file://${KEY_FILE}
