@@ -1,9 +1,7 @@
 #!/bin/bash
 set -e
 
-HOSTNAME=$1
-source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
-source /tmp/partids
+source "$(cd "$(dirname "$0")" ; pwd)"/common.sh "$@"
 
 echo "### Creating zpool boot..."
 ZPOOL_OPTS=(
