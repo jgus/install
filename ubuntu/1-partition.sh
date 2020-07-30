@@ -38,9 +38,9 @@ do
     echo "### Wiping and re-partitioning ${DEVICE}..."
     if ((HAS_UEFI))
     then
-        parted ${DEVICE} mklabel gpt
+        parted ${DEVICE} -- mklabel gpt
     else
-        parted ${DEVICE} mklabel msdos
+        parted ${DEVICE} -- mklabel msdos
     fi
     sleep 2
     
@@ -49,25 +49,25 @@ do
     if [[ "${MBR_GAP}" != "${EFI_END}" ]]
     then
         echo "### Creating EFI partition ${p} on ${DEVICE}..."
-        parted ${DEVICE} mkpart primary fat32 ${MBR_GAP} ${EFI_END}
+        parted ${DEVICE} -- mkpart primary fat32 ${MBR_GAP} ${EFI_END}
         EFI_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
 
     echo "### Creating BOOT partition ${p} on ${DEVICE}..."
-    parted ${DEVICE} mkpart primary zfs ${EFI_END} ${BOOT_END}
+    parted ${DEVICE} -- mkpart primary zfs ${EFI_END} ${BOOT_END}
     BOOT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
     ((++p))
 
     echo "### Creating ROOT partition ${p} on ${DEVICE}..."
-    parted ${DEVICE} mkpart primary zfs ${BOOT_END} ${ROOT_END}
+    parted ${DEVICE} -- mkpart primary zfs ${BOOT_END} ${ROOT_END}
     ROOT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
     ((++p))
 
     if [[ "${ROOT_END}" != "${SWAP_END}" ]]
     then
         echo "### Creating SWAP partition ${p} on ${DEVICE}..."
-        parted ${DEVICE} mkpart primary linux-swap ${ROOT_END} ${SWAP_END}
+        parted ${DEVICE} -- mkpart primary linux-swap ${ROOT_END} ${SWAP_END}
         SWAP_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
@@ -75,7 +75,7 @@ do
     if [[ "${SWAP_END}" != "100%" ]]
     then
         echo "### Creating EXT partition ${p} on ${DEVICE}..."
-        parted ${DEVICE} mkpart extended ${SWAP_END} 100%
+        parted ${DEVICE} -- mkpart extended ${SWAP_END} 100%
         EXT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
