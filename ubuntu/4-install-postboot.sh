@@ -1,5 +1,4 @@
-#!/bin/bash
-set -e
+#!/bin/bash -e
 
 # TODO
 # vnc?
@@ -16,7 +15,6 @@ PPAS+=(
 ((HAS_POP_OS)) && PPAS+=(ppa:system76-dev/stable)
 
 PACKAGES+=(
-    ubuntu-drivers-common
     unattended-upgrades
     docker.io
     libvirt-daemon libvirt-daemon-system libvirt-clients qemu-system-x86 qemu-utils
@@ -36,11 +34,18 @@ PACKAGES+=(
     gimp
     pycharm-community
 )
-((HAS_POP_OS)) && PACKAGES+=(
-    system76-driver
-    system76-driver-nvidia
-    system76-power
-)
+if ((HAS_POP_OS))
+then
+    PACKAGES+=(
+        system76-driver
+        system76-driver-nvidia
+        system76-power
+    )
+else
+    PACKAGES+=(
+        ubuntu-drivers-common
+    )
+fi
 
 FLATPAKS+=()
 ((HAS_GUI)) && FLATPAKS+=(
@@ -69,7 +74,7 @@ Pin: release o=LP-PPA-system76-dev-pre-stable
 Pin-Priority: 1001
 EOF
     apt update
-    apt upgrade --yes
+    apt upgrade --yes --allow-downgrades
     apt install --yes ${APT_EXTRA_ARGS} "${PACKAGES[@]}"
     apt install --yes ${APT_EXTRA_ARGS} $(check-language-support -l en_US)
     apt autoremove --yes
@@ -94,7 +99,7 @@ fi
 if ! zfs list root@post-boot-install-drivers
 then
     echo "### Updating drivers..."
-    ubuntu-drivers autoinstall
+    ((HAS_POP_OS)) || ubuntu-drivers autoinstall
     
     if ((HAS_OPTIMUS))
     then

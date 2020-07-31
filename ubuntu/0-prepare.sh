@@ -1,5 +1,4 @@
-#!/bin/bash
-set -e
+#!/bin/bash -e
 
 # sudo -i
 # git clone https://github.com/jgus/install

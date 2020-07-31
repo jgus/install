@@ -1,5 +1,4 @@
-#!/bin/bash
-set -e
+#!/bin/bash -e
 
 source "$(cd "$(dirname "$0")" ; pwd)"/common.sh "$@"
 

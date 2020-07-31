@@ -1,5 +1,4 @@
-#!/bin/bash
-set -e
+#!/bin/bash -e
 
 [[ -d /root/.secrets ]] || { echo "No secrets found, did you forget to install them?"; exit 1; }
 
