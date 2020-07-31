@@ -51,12 +51,14 @@ do
     then
         echo "### Creating EFI partition ${p} on ${DEVICE}..."
         timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart primary fat32 ${MBR_GAP} ${EFI_END}; do sleep 1; done"
+        sleep 1
         EFI_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
 
     echo "### Creating BOOT partition ${p} on ${DEVICE}..."
     timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart primary zfs ${EFI_END} ${BOOT_END}; do sleep 1; done"
+    sleep 1
     BOOT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
     ((++p))
 
@@ -64,12 +66,14 @@ do
     then
         echo "### Creating SWAP partition ${p} on ${DEVICE}..."
         timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart primary linux-swap ${BOOT_END} ${SWAP_END}; do sleep 1; done"
+        sleep 1
         SWAP_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
 
     echo "### Creating ROOT partition ${p} on ${DEVICE}..."
     timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart primary zfs ${SWAP_END} ${ROOT_END}; do sleep 1; done"
+    sleep 1
     ROOT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
     ((++p))
 
@@ -77,6 +81,7 @@ do
     then
         echo "### Creating EXT partition ${p} on ${DEVICE}..."
         timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart extended ${ROOT_END} 100%; do sleep 1; done"
+        sleep 1
         EXT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
