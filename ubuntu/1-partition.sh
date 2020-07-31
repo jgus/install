@@ -37,6 +37,7 @@ for i in "${!SYSTEM_DEVICES[@]}"
 do
     DEVICE="${SYSTEM_DEVICES[$i]}"
     echo "### Wiping and re-partitioning ${DEVICE}..."
+    blkdiscard "${DEVICE}" || true
     if ((HAS_UEFI))
     then
         parted ${DEVICE} -- mklabel gpt
