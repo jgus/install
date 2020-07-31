@@ -87,11 +87,11 @@ do
     fi
 done
 cat >/tmp/partids << EOF
-EFI_IDS=("${EFI_IDS[@]}")
-BOOT_IDS=("${BOOT_IDS[@]}")
-ROOT_IDS=("${ROOT_IDS[@]}")
-SWAP_IDS=("${SWAP_IDS[@]}")
-EXT_IDS=("${EXT_IDS[@]}")
+EFI_IDS=(${EFI_IDS[@]})
+BOOT_IDS=(${BOOT_IDS[@]})
+ROOT_IDS=(${ROOT_IDS[@]})
+SWAP_IDS=(${SWAP_IDS[@]})
+EXT_IDS=(${EXT_IDS[@]})
 EOF
 sleep 1
 
