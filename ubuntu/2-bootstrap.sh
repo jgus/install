@@ -64,7 +64,7 @@ rsync -ar /root/.secrets/ /target/root/.secrets
 echo "### Configuring openswap hook..."
 for i in "${!SWAP_IDS[@]}"
 do
-    echo "${HOSTNAME}-swap-${i} /dev/disk/by-partuuid/${SWAP_IDS[$i]} ${SWAP_KEY_FILE} plain,cipher=aes-xts-plain64,size=256,discard" >> /target/etc/crypttab
+    echo "${HOSTNAME}-swap-${i} /dev/disk/by-partuuid/${SWAP_IDS[$i]} /dev/urandom swap,cipher=aes-xts-plain64,size=256,discard" >> /target/etc/crypttab
 done
 
 echo "### Copying root files..."

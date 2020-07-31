@@ -28,9 +28,6 @@ case ${ZFS_KEY} in
         ;;
 esac
 
-#SWAP_KEY_FILE=${KEY_FILE:-/dev/urandom}
-SWAP_KEY_FILE=/dev/urandom
-
 [[ ! -f /tmp/partids ]] || source /tmp/partids
 
 HAS_UEFI=${HAS_UEFI:-1}
