@@ -7,12 +7,13 @@ if ((HAS_UEFI))
 then
     EFI_END=${EFI_END:-256MiB}
     BOOT_END=${BOOT_END:-768MiB}
+    SWAP_END=${SWAP_END:-17152MiB}
 else
     EFI_END=${MBR_GAP}
     BOOT_END=${BOOT_END:-512MiB}
+    SWAP_END=${SWAP_END:-16896MiB}
 fi
-ROOT_END=${ROOT_END:--16GiB}
-SWAP_END=${SWAP_END:-100%}
+ROOT_END=${ROOT_END:-100%}
 
 echo "### Cleaning up prior partitions..."
 umount -Rl /target || true
@@ -59,23 +60,23 @@ do
     BOOT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
     ((++p))
 
-    echo "### Creating ROOT partition ${p} on ${DEVICE}..."
-    timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart primary zfs ${BOOT_END} ${ROOT_END}; do sleep 1; done"
-    ROOT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
-    ((++p))
-
-    if [[ "${ROOT_END}" != "${SWAP_END}" ]]
+    if [[ "${BOOT_END}" != "${SWAP_END}" ]]
     then
         echo "### Creating SWAP partition ${p} on ${DEVICE}..."
-        timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart primary linux-swap ${ROOT_END} ${SWAP_END}; do sleep 1; done"
+        timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart primary linux-swap ${BOOT_END} ${SWAP_END}; do sleep 1; done"
         SWAP_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi
 
-    if [[ "${SWAP_END}" != "100%" ]]
+    echo "### Creating ROOT partition ${p} on ${DEVICE}..."
+    timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart primary zfs ${SWAP_END} ${ROOT_END}; do sleep 1; done"
+    ROOT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
+    ((++p))
+
+    if [[ "${ROOT_END}" != "100%" ]]
     then
         echo "### Creating EXT partition ${p} on ${DEVICE}..."
-        timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart extended ${SWAP_END} 100%; do sleep 1; done"
+        timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart extended ${ROOT_END} 100%; do sleep 1; done"
         EXT_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
     fi

@@ -13,6 +13,8 @@ HAS_GUI=${HAS_GUI:-1}
 PPAS+=(
 )
 
+((HAS_POP_OS)) && PPAS+=(ppa:system76-dev/stable)
+
 PACKAGES+=(
     ubuntu-drivers-common
     unattended-upgrades
@@ -22,7 +24,7 @@ PACKAGES+=(
     python3 python3-pip python3-virtualenv
     speedtest-cli
 )
-[[ "${HAS_GUI}" == "1" ]] && PACKAGES+=(
+((HAS_GUI)) && PACKAGES+=(
     kubuntu-desktop kubuntu-restricted-extras
     plasma-discover-flatpak-backend
     virt-manager
@@ -34,9 +36,14 @@ PACKAGES+=(
     gimp
     pycharm-community
 )
+((HAS_POP_OS)) && PACKAGES+=(
+    system76-driver
+    system76-driver-nvidia
+    system76-power
+)
 
 FLATPAKS+=()
-[[ "${HAS_GUI}" == "1" ]] && FLATPAKS+=(
+((HAS_GUI)) && FLATPAKS+=(
     com.valvesoftware.Steam
     com.visualstudio.code.oss
     org.musescore.MuseScore
@@ -52,6 +59,15 @@ then
     do
         add-apt-repository -y ${ppa}
     done
+    ((HAS_POP_OS)) && cat << EOF >> /etc/apt/preferences.d/system76-apt-preferences
+Package: *
+Pin: release o=LP-PPA-system76-dev-stable
+Pin-Priority: 1001
+
+Package: *
+Pin: release o=LP-PPA-system76-dev-pre-stable
+Pin-Priority: 1001
+EOF
     apt update
     apt upgrade --yes
     apt install --yes ${APT_EXTRA_ARGS} "${PACKAGES[@]}"
@@ -80,7 +96,7 @@ then
     echo "### Updating drivers..."
     ubuntu-drivers autoinstall
     
-    if [[ "${HAS_OPTIMUS}" == "1" ]]
+    if ((HAS_OPTIMUS))
     then
         echo "### Configuring PRIME..."
         prime-select on-demand
@@ -118,7 +134,7 @@ EOF
     zfs snapshot root@post-boot-install-kvm
 fi
 
-if [[ "${HAS_GUI}" == "1" ]]
+if ((HAS_GUI))
 then
     if ! zfs list root@post-boot-install-gui
     then

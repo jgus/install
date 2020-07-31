@@ -8,8 +8,8 @@ DEVICE=$1
 MBR_GAP="2MiB"
 EFI_END=${MBR_GAP}
 BOOT_END=512MiB
-ROOT_END=32GiB
-SWAP_END=36GiB
+SWAP_END=2560MiB
+ROOT_END=36GiB
 
 KEY_FILE="/zfs-keyfile"
 
@@ -24,18 +24,18 @@ parted ${DEVICE} mkpart primary zfs ${EFI_END} ${BOOT_END}
 BOOT_ID=$(blkid ${DEVICE}-part${p} -o value -s PARTUUID)
 ((++p))
 
-echo "### Creating ROOT partition ${p} on ${DEVICE}..."
-parted ${DEVICE} mkpart primary zfs ${BOOT_END} ${ROOT_END}
-ROOT_ID=$(blkid ${DEVICE}-part${p} -o value -s PARTUUID)
-((++p))
-
 echo "### Creating SWAP partition ${p} on ${DEVICE}..."
-parted ${DEVICE} mkpart primary linux-swap ${ROOT_END} ${SWAP_END}
+parted ${DEVICE} mkpart primary linux-swap ${BOOT_END} ${SWAP_END}
 SWAP_ID=$(blkid ${DEVICE}-part${p} -o value -s PARTUUID)
 ((++p))
 
+echo "### Creating ROOT partition ${p} on ${DEVICE}..."
+parted ${DEVICE} mkpart primary zfs ${SWAP_END} ${ROOT_END}
+ROOT_ID=$(blkid ${DEVICE}-part${p} -o value -s PARTUUID)
+((++p))
+
 echo "### Creating EXT partition ${p} on ${DEVICE}..."
-parted ${DEVICE} mkpart extended ${SWAP_END} 100%
+parted ${DEVICE} mkpart extended ${ROOT_END} 100%
 EXT_ID=$(blkid ${DEVICE}-part${p} -o value -s PARTUUID)
 ((++p))
 
