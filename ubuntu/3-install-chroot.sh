@@ -8,6 +8,7 @@ lscpu | grep GenuineIntel && HAS_INTEL_CPU=1
 lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 
 KERNEL=${KERNEL:-generic}
+((HAS_POP_OS)) && KERNEL=generic
 
 PACKAGES=(
     apt-file software-properties-common
