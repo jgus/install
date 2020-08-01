@@ -13,12 +13,12 @@ ZPOOL_OPTS=(
     -O com.sun:auto-snapshot=true
     -R /target
 )
-case ${ZFS_KEY} in
+case ${VKEY_TYPE} in
     efi)
         ZPOOL_OPTS+=(
             -O encryption=on
             -O keyformat=raw
-            -O keylocation=file://${KEY_FILE}
+            -O keylocation=file://${VKEY_FILE}
         )
         ;;
     prompt)
@@ -28,7 +28,7 @@ case ${ZFS_KEY} in
             -O keylocation=prompt
         )
         ;;
-    root|none)
+    root)
         ;;
 esac
 

@@ -64,14 +64,14 @@ rsync -ar /root/.secrets/ /target/root/.secrets
 echo "### Configuring openswap hook..."
 for i in "${!SWAP_IDS[@]}"
 do
-    echo "${HOSTNAME}-swap-${i} /dev/disk/by-partuuid/${SWAP_IDS[$i]} /dev/urandom swap,cipher=aes-xts-plain64,size=256,discard" >> /target/etc/crypttab
+    echo "${HOSTNAME}-swap-${i} /dev/disk/by-partuuid/${SWAP_IDS[$i]} ${SWAP_VKEY_FILE} swap,cipher=aes-xts-plain64,size=256,discard" >> /target/etc/crypttab
 done
 
 echo "### Copying root files..."
 # rsync -ar ~/opt /target/root/
 # rsync -ar ~/.ssh/ /target/root/opt/dotfiles/ssh
 rsync -ar ~/.ssh/ /target/root/.ssh
-[[ ! "${ZFS_KEY}" == "root" ]] || cp ${KEY_FILE} /target/${KEY_FILE}
+[[ ! "${VKEY_TYPE}" == "root" ]] || cp ${VKEY_FILE} /target/${VKEY_FILE}
 
 echo "### Running further install in the chroot..."
 mount --rbind /dev  /target/dev

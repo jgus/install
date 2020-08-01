@@ -17,10 +17,10 @@ ZPOOL_OPTS=(
     -R /target
     -f
 )
-[[ "${KEY_FILE}" == "" ]] || ZPOOL_OPTS+=(
+[[ "${VKEY_FILE}" == "" ]] || ZPOOL_OPTS+=(
     -O encryption=on
     -O keyformat=raw
-    -O keylocation=file://${KEY_FILE}
+    -O keylocation=file://${VKEY_FILE}
 )
 
 zpool create -f "${ZPOOL_OPTS[@]}" -m /bulk bulk "${BULK_DEVICE}"

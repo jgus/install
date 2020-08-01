@@ -11,7 +11,7 @@ BOOT_END=512MiB
 SWAP_END=2560MiB
 ROOT_END=36GiB
 
-KEY_FILE="/zfs-keyfile"
+VKEY_FILE="/root/vkey"
 
 echo "### Wiping and re-partitioning ${DEVICE}..."
 parted ${DEVICE} mklabel msdos
@@ -41,7 +41,7 @@ EXT_ID=$(blkid ${DEVICE}-part${p} -o value -s PARTUUID)
 
 echo "### Setting up swap..."
 i=$(ls -1 /dev/mapper/${HOSTNAME}-swap-* | wc -l)
-cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file="${KEY_FILE}" --allow-discards open --type plain "/dev/disk/by-partuuid/${SWAP_ID}" ${HOSTNAME}-swap-${i}
+cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file="${VKEY_FILE}" --allow-discards open --type plain "/dev/disk/by-partuuid/${SWAP_ID}" ${HOSTNAME}-swap-${i}
 mkswap -L swap-${i}-${HOSTNAME} /dev/mapper/${HOSTNAME}-swap-${i}
 swapon -p 100 /dev/mapper/${HOSTNAME}-swap-${i}
 
