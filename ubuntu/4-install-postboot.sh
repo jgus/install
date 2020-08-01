@@ -50,7 +50,7 @@ fi
 FLATPAKS+=()
 ((HAS_GUI)) && FLATPAKS+=(
     com.valvesoftware.Steam
-    com.visualstudio.code.oss
+    com.visualstudio.code-oss
     org.musescore.MuseScore
 )
 
@@ -99,9 +99,20 @@ fi
 if ! zfs list root@post-boot-install-drivers
 then
     echo "### Updating drivers..."
-    ((HAS_POP_OS)) || ubuntu-drivers autoinstall
+    if ((HAS_POP_OS))
+    then
+        system76-driver-cli
+    else
+        ubuntu-drivers autoinstall
+    endif
     
-    if ((HAS_OPTIMUS))
+    if ((HAS_POP_OS))
+    then
+        echo "### Configuring PRIME..."
+        system76-power graphics hybrid
+        system76-power graphics power auto
+        # TODO: Add __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia
+    elif ((HAS_OPTIMUS))
     then
         echo "### Configuring PRIME..."
         prime-select on-demand
