@@ -65,7 +65,7 @@ then
     do
         add-apt-repository -y ${ppa}
     done
-    ((HAS_POP_OS)) && cat << EOF >> /etc/apt/preferences.d/system76-apt-preferences
+    ((HAS_POP_OS)) && cat << EOF >> /etc/apt/preferences.d/system76-apt-preferences-local
 Package: *
 Pin: release o=LP-PPA-system76-dev-stable
 Pin-Priority: 1001
@@ -103,6 +103,9 @@ then
     if ((HAS_POP_OS))
     then
         for p in system76-driver system76-driver-nvidia system76-power system76-firmware
+        do
+            apt install --yes ${p}
+        done
 
         system76-driver-cli
 
