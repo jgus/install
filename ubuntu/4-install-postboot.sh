@@ -40,6 +40,7 @@ then
         system76-driver
         system76-driver-nvidia
         system76-power
+        system76-firmware
     )
 else
     PACKAGES+=(
@@ -104,7 +105,7 @@ then
         system76-driver-cli
     else
         ubuntu-drivers autoinstall
-    endif
+    fi
     
     if ((HAS_POP_OS))
     then
