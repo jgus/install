@@ -5,9 +5,9 @@ source "$(cd "$(dirname "$0")" ; pwd)"/common.sh "$@"
 MBR_GAP="2MiB"
 if ((HAS_UEFI))
 then
-    EFI_END=${EFI_END:-256MiB}
-    BOOT_END=${BOOT_END:-768MiB}
-    SWAP_END=${SWAP_END:-17152MiB}
+    EFI_END=${EFI_END:-512MiB}
+    BOOT_END=${BOOT_END:-1024MiB}
+    SWAP_END=${SWAP_END:-17408MiB}
 else
     EFI_END=${MBR_GAP}
     BOOT_END=${BOOT_END:-512MiB}
