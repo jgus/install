@@ -1,0 +1,10 @@
+[Unit]
+Description=Prune Docker
+
+[Timer]
+OnCalendar=Weekly
+RandomizedDelaySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
