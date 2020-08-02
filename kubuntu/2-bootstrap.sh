@@ -16,7 +16,10 @@ fi
 "$(cd "$(dirname "$0")" ; pwd)"/2.1-format-root.sh "${HOSTNAME}"
 rm -rf /target
 zpool import -R /target -l rpool
+zfs unmount -a
+rm -rf /target
 zfs mount rpool/ROOT/ubuntu_${HOSTNAME}
+zfs mount -a
 mkdir -p /target/etc
 #echo "root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
