@@ -147,6 +147,8 @@ then
     echo "softdep amdgpu pre: vfio-pci" >> /etc/modprobe.d/amdgpu.conf
     echo "options vfio-pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio-pci.conf
 fi
+grub-probe /boot
+update-initramfs -c -k all
 update-grub
 if ((HAS_UEFI))
 then
@@ -161,18 +163,17 @@ else
         grub-install --target=i386-pc "${DEVICE}"
     done
 fi
-update-initramfs -u -k all
 systemctl mask grub-initrd-fallback.service
 
-echo "### Configuring Zsh..."
-cat << EOF >> /etc/zsh/zprofile
-emulate sh -c 'source /etc/profile'
-EOF
-wget -O /etc/zsh/zshrc https://git.grml.org/f/grml-etc-core/etc/zsh/zshrc
-wget -O /etc/skel/.zshrc https://git.grml.org/f/grml-etc-core/etc/skel/.zshrc
-cp /etc/skel/.zshrc /root/
-chsh -s /bin/zsh
-useradd -D --shell /bin/zsh
+# echo "### Configuring Zsh..."
+# cat << EOF >> /etc/zsh/zprofile
+# emulate sh -c 'source /etc/profile'
+# EOF
+# wget -O /etc/zsh/zshrc https://git.grml.org/f/grml-etc-core/etc/zsh/zshrc
+# wget -O /etc/skel/.zshrc https://git.grml.org/f/grml-etc-core/etc/skel/.zshrc
+# cp /etc/skel/.zshrc /root/
+# chsh -s /bin/zsh
+# useradd -D --shell /bin/zsh
 
 #echo "### Configuring Environment..."
 #/etc/profile.d/editor.sh
