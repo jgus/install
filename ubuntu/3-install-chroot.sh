@@ -13,7 +13,7 @@ KERNEL=${KERNEL:-generic}
 PACKAGES=(
     apt-file software-properties-common
     linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
-    zfsutils-linux zfs-initramfs
+    zfsutils-linux zfs-initramfs zsys
     sysfsutils
     parted
     cryptsetup
@@ -161,6 +161,7 @@ else
     done
 fi
 update-initramfs -u -k all
+systemctl mask grub-initrd-fallback.service
 
 echo "### Configuring Zsh..."
 cat << EOF >> /etc/zsh/zprofile

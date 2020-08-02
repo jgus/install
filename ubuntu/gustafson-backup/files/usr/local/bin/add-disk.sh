@@ -7,8 +7,8 @@ DEVICE=$1
 
 MBR_GAP="2MiB"
 EFI_END=${MBR_GAP}
-BOOT_END=512MiB
-SWAP_END=2560MiB
+BOOT_END=2048MiB
+SWAP_END=4096MiB
 ROOT_END=36GiB
 
 VKEY_FILE="/root/vkey"
@@ -46,8 +46,8 @@ mkswap -L swap-${i}-${HOSTNAME} /dev/mapper/${HOSTNAME}-swap-${i}
 swapon -p 100 /dev/mapper/${HOSTNAME}-swap-${i}
 
 echo "### Growing boot pool..."
-CURRENT=$(zpool list boot -vH | head -2 | tail -1 | awk '{print $1}')
-zpool attach boot ${CURRENT} ${BOOT_ID}
+CURRENT=$(zpool list bpool -vH | head -2 | tail -1 | awk '{print $1}')
+zpool attach bpool ${CURRENT} ${BOOT_ID}
 
 echo "### Growing root pool..."
 CURRENT=$(zpool list root -vH | head -2 | tail -1 | awk '{print $1}')

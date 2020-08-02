@@ -25,6 +25,7 @@ ZPOOL_OPTS=(
     -O relatime=on
     -O xattr=sa
     -O com.sun:auto-snapshot=false
+    -O mountpoint=none
     -R /target
 )
 BOOT_DEVS=()
@@ -38,7 +39,9 @@ then
     MIRROR=
 fi
 rm -rf /target
-zpool create -f "${ZPOOL_OPTS[@]}" -m none boot ${MIRROR} "${BOOT_DEVS[@]}"
+zpool create -f "${ZPOOL_OPTS[@]}" -m none bpool ${MIRROR} "${BOOT_DEVS[@]}"
+zfs create -o canmount=off bpool/BOOT
+zfs create -o canmount=noauto -o mountpoint=/boot bpool/BOOT/ubuntu_${HOSTNAME}
+zfs create bpool/BOOT/ubuntu_${HOSTNAME}/grub
 zfs unmount -a
-zfs set mountpoint=/boot boot || true
-zpool export boot
+zpool export bpool

@@ -6,19 +6,19 @@ MBR_GAP="2MiB"
 if ((HAS_UEFI))
 then
     EFI_END=${EFI_END:-512MiB}
-    BOOT_END=${BOOT_END:-1024MiB}
-    SWAP_END=${SWAP_END:-17408MiB}
+    BOOT_END=${BOOT_END:-2560MiB}
+    SWAP_END=${SWAP_END:-18944MiB}
 else
     EFI_END=${MBR_GAP}
-    BOOT_END=${BOOT_END:-512MiB}
-    SWAP_END=${SWAP_END:-16896MiB}
+    BOOT_END=${BOOT_END:-2048MiB}
+    SWAP_END=${SWAP_END:-18432MiB}
 fi
 ROOT_END=${ROOT_END:-100%}
 
 echo "### Cleaning up prior partitions..."
 umount -Rl /target || true
-zpool destroy boot || true
-zpool destroy root || true
+zpool destroy bpool || true
+zpool destroy rpool || true
 for i in $(swapon --show=NAME --noheadings)
 do
     swapoff "${i}" || true

@@ -14,11 +14,11 @@ fi
 "$(cd "$(dirname "$0")" ; pwd)"/2.1-format-boot.sh "${HOSTNAME}"
 "$(cd "$(dirname "$0")" ; pwd)"/2.1-format-root.sh "${HOSTNAME}"
 rm -rf /target
-zpool import -R /target -l root
+zpool import -R /target -l rpool
 mkdir -p /target/etc
 #echo "root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
-zpool import -R /target -l boot
+zpool import -R /target -l bpool
 if ((HAS_UEFI))
 then
     mkdir -p /target/boot/efi
@@ -84,7 +84,7 @@ mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf 
 zfs unmount -a
 
 echo "### Snapshotting..."
-for pool in root
+for pool in rpool
 do
     zfs snapshot ${pool}@pre-boot-install
 done
