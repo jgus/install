@@ -41,7 +41,7 @@ fi
 rm -rf /target
 zpool create -f "${ZPOOL_OPTS[@]}" -m none bpool ${MIRROR} "${BOOT_DEVS[@]}"
 zfs create -o canmount=off bpool/BOOT
-zfs create -o canmount=noauto -o mountpoint=/boot bpool/BOOT/ubuntu_${HOSTNAME}
-zfs create bpool/BOOT/ubuntu_${HOSTNAME}/grub
+zfs create -o canmount=noauto -o mountpoint=/boot bpool/BOOT/ubuntu_${ZFS_UUID}
+zfs create bpool/BOOT/ubuntu_${ZFS_UUID}/grub
 zfs unmount -a
 zpool export bpool

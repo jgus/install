@@ -18,13 +18,13 @@ rm -rf /target
 zpool import -R /target -l rpool
 zfs unmount -a
 rm -rf /target
-zfs mount rpool/ROOT/ubuntu_${HOSTNAME}
+zfs mount rpool/ROOT/ubuntu_${ZFS_UUID}
 zfs mount -a
 mkdir -p /target/etc
 #echo "root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
 zpool import -R /target -l bpool
-zfs mount bpool/BOOT/ubuntu_${HOSTNAME}
+zfs mount bpool/BOOT/ubuntu_${ZFS_UUID}
 if ((HAS_UEFI))
 then
     mkdir -p /target/boot/efi
@@ -78,6 +78,7 @@ echo "### Copying root files..."
 # rsync -ar ~/.ssh/ /target/root/opt/dotfiles/ssh
 rsync -ar ~/.ssh/ /target/root/.ssh
 [[ ! "${VKEY_TYPE}" == "root" ]] || cp ${VKEY_FILE} /target/${VKEY_FILE}
+cp /root/zfs-uuid /target/root/zfs-uuid
 
 cp /etc/resolv.conf /target/etc/resolv.conf
 

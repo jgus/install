@@ -1,6 +1,9 @@
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
+[[ -f /root/zfs-uuid ]] || dd if=/dev/urandom of=/dev/stdout bs=1 count=100 2>/dev/null | tr -dc 'a-z0-9' | cut -c-6 >/root/zfs-uuid
+ZFS_UUID=$(cat /root/zfs-uuid)
+
 VKEY_TYPE=${VKEY_TYPE:-efi} # efi|root|prompt
 case ${VKEY_TYPE} in
     efi)
