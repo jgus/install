@@ -12,8 +12,6 @@ HAS_GUI=${HAS_GUI:-1}
 PPAS+=(
 )
 
-((HAS_POP_OS)) && PPAS+=(ppa:system76-dev/stable)
-
 PACKAGES+=(
     unattended-upgrades
     docker.io
@@ -39,8 +37,6 @@ then
     PACKAGES+=(
         # system76-driver
         # system76-driver-nvidia
-        system76-power
-        system76-firmware
     )
 else
     PACKAGES+=(
@@ -55,25 +51,32 @@ FLATPAKS+=()
     org.musescore.MuseScore
 )
 
+export DEBIAN_FRONTEND=noninteractive
+
+if ((HAS_POP_OS))
+then
+    if ! zfs list root@post-boot-install-system76
+    then
+        echo "### Installing System76 drivers..."
+        apt-add-repository -y ppa:system76-dev/stable
+        apt update
+        apt install --yes system76-driver
+        apt install --yes system76-driver-nvidia
+        zfs snapshot root@post-boot-install-system76
+        echo "### Rebooting. Re-run this script on next boot..."
+        reboot
+    fi
+fi
+
 if ! zfs list root@post-boot-install-packages
 then
     echo "### Installing packages..."
-    export DEBIAN_FRONTEND=noninteractive
     curl -s https://s3.eu-central-1.amazonaws.com/jetbrains-ppa/0xA6E8698A.pub.asc | apt-key add -
     echo "deb http://jetbrains-ppa.s3-website.eu-central-1.amazonaws.com bionic main" >/etc/apt/sources.list.d/jetbrains-ppa.list
     for ppa in "${PPAS[@]}"
     do
-        add-apt-repository -y ${ppa}
+        apt-add-repository -y ${ppa}
     done
-    ((HAS_POP_OS)) && cat << EOF >> /etc/apt/preferences.d/system76-apt-preferences-local
-Package: *
-Pin: release o=LP-PPA-system76-dev-stable
-Pin-Priority: 1001
-
-Package: *
-Pin: release o=LP-PPA-system76-dev-pre-stable
-Pin-Priority: 1001
-EOF
     apt update
     apt upgrade --yes --allow-downgrades
     apt install --yes ${APT_EXTRA_ARGS} "${PACKAGES[@]}"
@@ -102,13 +105,6 @@ then
     echo "### Updating drivers..."
     if ((HAS_POP_OS))
     then
-        for p in system76-driver system76-driver-nvidia system76-power system76-firmware
-        do
-            apt install --yes ${p}
-        done
-
-        system76-driver-cli
-
         echo "### Configuring System76 Graphics..."
         system76-power graphics hybrid
         system76-power graphics power auto
