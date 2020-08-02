@@ -21,6 +21,65 @@ PACKAGES+=(
     speedtest-cli
 )
 ((HAS_GUI)) && PACKAGES+=(
+    base-passwd
+    bash
+    console-setup
+    cryptsetup-initramfs
+    dash
+    diffutils
+    dmeventd
+    e2fsprogs
+    findutils
+    firefox-locale-en
+    fonts-indic
+    grep
+    # grub-common
+    # grub-efi-amd64-signed
+    # grub-gfxpayload-lists
+    # grub-pc-bin
+    # grub-pc
+    # grub2-common
+    gzip
+    hostname
+    hunspell-en-us
+    hyphen-en-us
+    init
+    keyboard-configuration
+    kubuntu-desktop
+    kubuntu-wallpapers
+    language-pack-en-base
+    language-pack-en
+    language-pack-kde-en
+    libaio1
+    libdebconfclient0
+    libdevmapper-event1.02.1
+    liblvm2cmd2.03
+    libreadline5
+    libreoffice-help-en-us
+    # linux-generic
+    locales
+    lvm2
+    mokutil
+    mythes-en-us
+    ncurses-base
+    ncurses-bin
+    os-prober
+    pciutils
+    poppler-data
+    python3-nacl
+    python3-pymacaroons
+    shim-signed
+    thin-provisioning-tools
+    # thunderbird-locale-en-us
+    # thunderbird-locale-en
+    ubuntu-minimal
+    ubuntu-standard
+    udev
+    usbutils
+    wamerican
+    wbritish
+)
+((HAS_GUI)) && PACKAGES+=(
     kubuntu-desktop kubuntu-restricted-extras
     plasma-discover-flatpak-backend
     virt-manager
