@@ -5,6 +5,7 @@
 source "$(cd "$(dirname "$0")" ; pwd)"/common.sh "$@"
 
 echo "### Importing/mounting filesystems..."
+mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf {} || true
 zpool export -a || true
 umount -Rl /target || true
 if ((HAS_UEFI))
@@ -15,10 +16,12 @@ fi
 "$(cd "$(dirname "$0")" ; pwd)"/2.1-format-root.sh "${HOSTNAME}"
 rm -rf /target
 zpool import -R /target -l rpool
+zfs mount rpool/ROOT/ubuntu_${HOSTNAME}
 mkdir -p /target/etc
 #echo "root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
 zpool import -R /target -l bpool
+zfs mount bpool/BOOT/ubuntu_${HOSTNAME}
 if ((HAS_UEFI))
 then
     mkdir -p /target/boot/efi
@@ -47,8 +50,7 @@ df -h
 mount | grep target
 
 echo "### Bootstrapping..."
-cd /target
-wget https://www.gustafson.me/linux/kubuntu-20.04-root.tar.zst -O - | tar -x --zstd
+(cd /target; wget https://www.gustafson.me/linux/kubuntu-20.04-root.tar.zst -O - | tar -x --zstd --exclude='./dev/*' --exclude='./proc/*' --exclude='./sys/*')
 
 echo "### Copying install files..."
 mkdir -p /target/install
@@ -73,6 +75,8 @@ echo "### Copying root files..."
 # rsync -ar ~/.ssh/ /target/root/opt/dotfiles/ssh
 rsync -ar ~/.ssh/ /target/root/.ssh
 [[ ! "${VKEY_TYPE}" == "root" ]] || cp ${VKEY_FILE} /target/${VKEY_FILE}
+
+cp /etc/resolv.conf /target/etc/resolv.conf
 
 echo "### Running further install in the chroot..."
 mount --rbind /dev  /target/dev

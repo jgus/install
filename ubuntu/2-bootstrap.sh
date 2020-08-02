@@ -5,6 +5,7 @@
 source "$(cd "$(dirname "$0")" ; pwd)"/common.sh "$@"
 
 echo "### Importing/mounting filesystems..."
+mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf {} || true
 zpool export -a || true
 umount -Rl /target || true
 if ((HAS_UEFI))

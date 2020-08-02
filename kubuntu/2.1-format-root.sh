@@ -40,8 +40,7 @@ done
 zpool create -f "${ZPOOL_OPTS[@]}" -m none rpool ${SYSTEM_Z_TYPE} "${ROOT_DEVS[@]}"
 
 zfs create -o canmount=off rpool/ROOT
-zfs create -o com.ubuntu.zsys:bootfs=yes -o com.ubuntu.zsys:last-used=$(date +%s) -o com.sun:auto-snapshot=true
- -o canmount=noauto -o mountpoint=/ rpool/ROOT/ubuntu_${HOSTNAME}
+zfs create -o com.ubuntu.zsys:bootfs=yes -o com.ubuntu.zsys:last-used=$(date +%s) -o com.sun:auto-snapshot=true -o canmount=noauto -o mountpoint=/ rpool/ROOT/ubuntu_${HOSTNAME}
 zfs create -o com.ubuntu.zsys:bootfs=no -o canmount=off -o com.sun:auto-snapshot=false  rpool/ROOT/ubuntu_${HOSTNAME}/var
 zfs create                                                                              rpool/ROOT/ubuntu_${HOSTNAME}/var/cache
 zfs create                                                                              rpool/ROOT/ubuntu_${HOSTNAME}/var/log

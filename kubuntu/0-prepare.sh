@@ -11,6 +11,7 @@ PACKAGES=(
     zfsutils-linux
     openssh-server
     curl
+    zstd
 )
 apt-add-repository universe
 apt update

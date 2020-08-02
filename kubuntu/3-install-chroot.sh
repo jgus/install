@@ -12,8 +12,8 @@ KERNEL=${KERNEL:-generic}
 
 PACKAGES=(
     # apt-file software-properties-common
-    linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
-    # zfsutils-linux zfs-initramfs zsys
+    # linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
+    zfsutils-linux zfs-initramfs zsys
     # sysfsutils
     # parted
     # cryptsetup
@@ -32,10 +32,11 @@ PACKAGES=(
     # ntp
     # cifs-utils
     # smbnetfs sshfs fuseiso hfsprogs
+    openssh-server
 )
 if ((HAS_UEFI))
 then
-    PACKAGES+=(grub-efi shim)
+    PACKAGES+=(grub-efi-amd64-signed shim-signed)
 else
     PACKAGES+=(grub-pc)
 fi
@@ -48,10 +49,10 @@ echo "### Installing packages..."
 #/etc/apt/preferences.d
 export DEBIAN_FRONTEND=noninteractive
 apt update
-apt upgrade --yes
+#apt upgrade --yes
 apt install --yes ${APT_EXTRA_ARGS} "${PACKAGES[@]}"
 apt purge snapd --yes
-apt autoremove --yes
+#apt autoremove --yes
 
 echo "### Configuring hostname..."
 echo "${HOSTNAME}" >/etc/hostname
