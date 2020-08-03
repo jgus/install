@@ -187,4 +187,7 @@ cat <<EOF
 #
 #####
 EOF
-passwd
+while ! passwd
+do
+    echo "Try again:"
+done
