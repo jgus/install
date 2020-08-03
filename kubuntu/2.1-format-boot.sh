@@ -19,13 +19,14 @@ ZPOOL_OPTS=(
     -o feature@spacemap_histogram=enabled
     -o feature@zpool_checkpoint=enabled
     -O acltype=posixacl
-    -O compression=off
+    -O canmount=off
+    -O compression=lz4
     -O devices=off
     -O normalization=formD
     -O relatime=on
     -O xattr=sa
+    -O mountpoint=/boot
     -O com.sun:auto-snapshot=false
-    -O mountpoint=none
     -R /target
 )
 BOOT_DEVS=()
@@ -39,8 +40,8 @@ then
     MIRROR=
 fi
 rm -rf /target
-zpool create -f "${ZPOOL_OPTS[@]}" -m none bpool ${MIRROR} "${BOOT_DEVS[@]}"
-zfs create -o canmount=off bpool/BOOT
+zpool create -f "${ZPOOL_OPTS[@]}" bpool ${MIRROR} "${BOOT_DEVS[@]}"
+zfs create -o canmount=off -o mountpoint=none bpool/BOOT
 zfs create -o canmount=noauto -o mountpoint=/boot bpool/BOOT/ubuntu_${ZFS_UUID}
 zfs create bpool/BOOT/ubuntu_${ZFS_UUID}/grub
 zfs unmount -a
