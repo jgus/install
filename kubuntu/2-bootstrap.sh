@@ -25,6 +25,7 @@ mkdir -p /target/etc
 mkdir -p /target/boot
 zpool import -R /target -l bpool
 zfs mount bpool/BOOT/ubuntu_${ZFS_UUID}
+zfs mount bpool/BOOT/ubuntu_${ZFS_UUID}/grub
 if ((HAS_UEFI))
 then
     mkdir -p /target/boot/efi
