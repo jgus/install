@@ -11,28 +11,20 @@ KERNEL=${KERNEL:-generic}
 ((HAS_POP_OS)) && KERNEL=generic
 
 PACKAGES=(
-    # apt-file software-properties-common
-    # linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
-    zfsutils-linux zfs-initramfs zsys
-    # sysfsutils
-    # parted
-    # cryptsetup
-    # gnupg
-    # patch wget
-    # zsh
-    # nano
-    # man
-    # ssh
-    # curl
-    # locales
-    # git
-    # rsync
-    # network-manager
-    # rng-tools
-    # ntp
-    # cifs-utils
-    # smbnetfs sshfs fuseiso hfsprogs
-    openssh-server
+    zfsutils-linux zfs-initramfs
+    ssh
+)
+# PACKAGES+=(
+#     linux-${KERNEL} linux-headers-${KERNEL} linux-image-${KERNEL}
+# )
+PACKAGES+=(
+    apt-file
+    sysfsutils
+    zsh
+    rng-tools
+    ntp
+    cifs-utils
+    smbnetfs sshfs fuseiso hfsprogs
 )
 if ((HAS_UEFI))
 then
@@ -42,7 +34,7 @@ else
 fi
 ((HAS_INTEL_CPU)) && PACKAGES+=(intel-microcode)
 ((HAS_AMD_CPU)) && PACKAGES+=(amd64-microcode)
-# [[ -f /root/.secrets/openldap.env ]] && PACKAGES+=(sssd libpam-sss libnss-sss)
+[[ -f /root/.secrets/openldap.env ]] && PACKAGES+=(sssd libpam-sss libnss-sss)
 
 echo "### Installing packages..."
 #/etc/apt/sources.list
@@ -101,34 +93,34 @@ then
     sed -i "s|@PASSWORD@|${PASSWORD}|g" /etc/netplan/99_config.yaml
 fi
 
-# echo "### Configuring LDAP auth..."
-# pam-auth-update --remove pwquality --package
-# if [[ -f /root/.secrets/openldap.env ]]
-# then
-#     source /root/.secrets/openldap.env
-#     echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
-#     sed -i "s|^TLS_CACERT*|TLS_CACERT /etc/ssl/certs/ldap.crt|g" /etc/ldap/ldap.conf
-#     patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
-#     systemctl disable sssd-nss.socket
-#     systemctl disable sssd-pam.socket
-#     systemctl disable sssd-pam-priv.socket
-# fi
+echo "### Configuring LDAP auth..."
+pam-auth-update --remove pwquality --package
+if [[ -f /root/.secrets/openldap.env ]]
+then
+    source /root/.secrets/openldap.env
+    echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
+    sed -i "s|^TLS_CACERT*|TLS_CACERT /etc/ssl/certs/ldap.crt|g" /etc/ldap/ldap.conf
+    patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
+    systemctl disable sssd-nss.socket
+    systemctl disable sssd-pam.socket
+    systemctl disable sssd-pam-priv.socket
+fi
 
-# if [[ "${NAS_SHARES}" != "" ]] && [[ -f /root/.secrets/nas ]]
-# then
-#     echo "### Configuring Samba..."
-#     mkdir /nas
-#     cat <<EOF >>/etc/fstab
+if [[ "${NAS_SHARES}" != "" ]] && [[ -f /root/.secrets/nas ]]
+then
+    echo "### Configuring Samba..."
+    mkdir /nas
+    cat <<EOF >>/etc/fstab
 
-# # NAS
-# EOF
-#     for share in "${NAS_SHARES[@]}"
-#     do
-#         mkdir /nas/${share}
-#         echo "//nas.gustafson.me/${share} /nas/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/root/.secrets/nas 0 0" >>/etc/fstab
-#         # mount /nas/${share}
-#     done
-# fi
+# NAS
+EOF
+    for share in "${NAS_SHARES[@]}"
+    do
+        mkdir /nas/${share}
+        echo "//nas.gustafson.me/${share} /nas/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/root/.secrets/nas 0 0" >>/etc/fstab
+        # mount /nas/${share}
+    done
+fi
 
 echo "### Installing bootloader..."
 mv /etc/default/grub /etc/default/grub.dist
@@ -164,15 +156,15 @@ else
 fi
 systemctl mask grub-initrd-fallback.service
 
-# echo "### Configuring Zsh..."
-# cat << EOF >> /etc/zsh/zprofile
-# emulate sh -c 'source /etc/profile'
-# EOF
-# wget -O /etc/zsh/zshrc https://git.grml.org/f/grml-etc-core/etc/zsh/zshrc
-# wget -O /etc/skel/.zshrc https://git.grml.org/f/grml-etc-core/etc/skel/.zshrc
-# cp /etc/skel/.zshrc /root/
-# chsh -s /bin/zsh
-# useradd -D --shell /bin/zsh
+echo "### Configuring Zsh..."
+cat << EOF >> /etc/zsh/zprofile
+emulate sh -c 'source /etc/profile'
+EOF
+wget -O /etc/zsh/zshrc https://git.grml.org/f/grml-etc-core/etc/zsh/zshrc
+wget -O /etc/skel/.zshrc https://git.grml.org/f/grml-etc-core/etc/skel/.zshrc
+cp /etc/skel/.zshrc /root/
+chsh -s /bin/zsh
+useradd -D --shell /bin/zsh
 
 #echo "### Configuring Environment..."
 #/etc/profile.d/editor.sh

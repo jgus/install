@@ -23,9 +23,10 @@ zfs mount -a
 mkdir -p /target/etc
 #echo "root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
-zpool import -R /target -l bpool
-zfs mount bpool/BOOT/ubuntu_${ZFS_UUID}
-zfs mount bpool/BOOT/ubuntu_${ZFS_UUID}/grub
+# zpool import -R /target -l bpool
+# zfs mount bpool/BOOT/ubuntu_${ZFS_UUID}
+# zfs mount bpool/BOOT/ubuntu_${ZFS_UUID}/grub
+mount /dev/disk/by-partlabel/BOOT /target/boot
 if ((HAS_UEFI))
 then
     mkdir -p /target/boot/efi

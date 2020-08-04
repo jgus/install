@@ -19,7 +19,6 @@ ZPOOL_OPTS=(
     -o feature@spacemap_histogram=enabled
     -o feature@zpool_checkpoint=enabled
     -O acltype=posixacl
-    -O canmount=off
     -O compression=lz4
     -O devices=off
     -O normalization=formD
@@ -41,8 +40,5 @@ then
 fi
 rm -rf /target
 zpool create -f "${ZPOOL_OPTS[@]}" bpool ${MIRROR} "${BOOT_DEVS[@]}"
-zfs create -o canmount=off -o mountpoint=none bpool/BOOT
-zfs create -o canmount=noauto -o mountpoint=/boot bpool/BOOT/ubuntu_${ZFS_UUID}
-zfs create bpool/BOOT/ubuntu_${ZFS_UUID}/grub
 zfs unmount -a
 zpool export bpool
