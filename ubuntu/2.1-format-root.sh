@@ -40,6 +40,7 @@ for id in "${ROOT_IDS[@]}"
 do
     ROOT_DEVS+=(/dev/disk/by-partuuid/${id})
 done
+rm -rf /target
 zpool create -f "${ZPOOL_OPTS[@]}" rpool ${SYSTEM_Z_TYPE} "${ROOT_DEVS[@]}"
 
 zfs create -o com.sun:auto-snapshot=false   -o canmount=off                         rpool/var
