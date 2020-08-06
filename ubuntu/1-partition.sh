@@ -9,7 +9,7 @@ then
     BOOT_END=${BOOT_END:-2560MiB}
     SWAP_END=${SWAP_END:-18944MiB}
 else
-    EFI_END=${MBR_GAP}
+    EFI_END="4MiB"
     BOOT_END=${BOOT_END:-2048MiB}
     SWAP_END=${SWAP_END:-18432MiB}
 fi
@@ -38,23 +38,23 @@ do
     DEVICE="${SYSTEM_DEVICES[$i]}"
     echo "### Wiping and re-partitioning ${DEVICE}..."
     blkdiscard "${DEVICE}" || true
-    if ((HAS_UEFI))
-    then
-        parted ${DEVICE} -- mklabel gpt
-    else
-        parted ${DEVICE} -- mklabel msdos
-    fi
+    parted ${DEVICE} -- mklabel gpt
     sleep 2
     
     p=1
 
-    if [[ "${MBR_GAP}" != "${EFI_END}" ]]
+    if ((HAS_UEFI))
     then
         echo "### Creating EFI partition ${p} on ${DEVICE}..."
         timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart primary fat32 ${MBR_GAP} ${EFI_END}; do sleep 1; done"
         sleep 1
         EFI_IDS+=($(blkid ${DEVICE}-part${p} -o value -s PARTUUID))
         ((++p))
+    else
+        echo "### Creating GRUB BOOT partition ${p} on ${DEVICE}..."
+        timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart primary fat32 ${MBR_GAP} ${EFI_END}; do sleep 1; done"
+        parted ${DEVICE} -- set ${p} bios_grub on
+        sleep 1
     fi
 
     echo "### Creating BOOT partition ${p} on ${DEVICE}..."
