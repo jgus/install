@@ -12,7 +12,7 @@ do
 done
 rsync -arPx --delete /boot/ root@nas:/e/$(hostname)/boot
 
-DATASETS=($(zfs list -o name | grep -v root/docker))
+DATASETS=($(zfs list -o name | grep -v rpool/docker))
 
 for x in "${DATASETS[@]}"
 do

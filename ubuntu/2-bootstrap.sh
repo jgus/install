@@ -17,7 +17,7 @@ fi
 rm -rf /target
 zpool import -R /target -l rpool
 mkdir -p /target/etc
-#echo "root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
+#echo "rpool / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 mkdir -p /target/boot
 zpool import -R /target -l bpool
 if ((HAS_UEFI))

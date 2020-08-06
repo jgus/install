@@ -8,7 +8,6 @@ lscpu | grep GenuineIntel && HAS_INTEL_CPU=1
 lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 
 KERNEL=${KERNEL:-generic}
-((HAS_POP_OS)) && KERNEL=generic
 
 PACKAGES=(
     apt-file software-properties-common
@@ -84,7 +83,6 @@ systemctl enable zfs-import-cache
 systemctl enable zfs-mount
 systemctl enable zfs-import.target
 systemctl enable zfs-load-key.service
-systemctl enable zfs-scrub@root.timer
 for p in $(zpool list -o name -H)
 do
     systemctl enable zfs-scrub@${p}.timer

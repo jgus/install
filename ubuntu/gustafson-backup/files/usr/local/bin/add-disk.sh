@@ -50,8 +50,8 @@ CURRENT=$(zpool list bpool -vH | head -2 | tail -1 | awk '{print $1}')
 zpool attach bpool ${CURRENT} ${BOOT_ID}
 
 echo "### Growing root pool..."
-CURRENT=$(zpool list root -vH | head -2 | tail -1 | awk '{print $1}')
-zpool attach root ${CURRENT} ${ROOT_ID}
+CURRENT=$(zpool list rpool -vH | head -2 | tail -1 | awk '{print $1}')
+zpool attach rpool ${CURRENT} ${ROOT_ID}
 
 echo "### Installing GRUB..."
 grub-install --target=i386-pc "${DEVICE}"

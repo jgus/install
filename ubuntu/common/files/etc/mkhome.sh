@@ -6,12 +6,12 @@ HOME_DIR=${HOME_DIR%/}
 
 [[ -d "${HOME_DIR}" ]] && exit 0
 
-zfs create -o mountpoint="${HOME_DIR}" -o com.sun:auto-snapshot=true root/home/${USER}
+zfs create -o mountpoint="${HOME_DIR}" -o com.sun:auto-snapshot=true rpool/home/${USER}
 for i in .cache sync steam
 do
-    zfs create -o com.sun:auto-snapshot=false root/home/${USER}/${i}
+    zfs create -o com.sun:auto-snapshot=false rpool/home/${USER}/${i}
 done
-zfs set mountpoint="${HOME_DIR}"/.var/app/com.valvesoftware.Steam/.local/share/Steam root/home/${USER}/steam
+zfs set mountpoint="${HOME_DIR}"/.var/app/com.valvesoftware.Steam/.local/share/Steam rpool/home/${USER}/steam
 
 rsync -arP /etc/skel/ ${HOME_DIR}
 if [[ -d /nas/Published ]]

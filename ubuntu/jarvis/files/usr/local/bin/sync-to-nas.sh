@@ -11,15 +11,15 @@ do
 done
 rsync -arPx --delete /boot/ /e/$(hostname)/boot
 
-#DATASETS=($(zfs list -o name | grep -v root/docker))
-DATASETS=(root)
+#DATASETS=($(zfs list -o name | grep -v rpool/docker))
+DATASETS=(rpool)
 
 for x in "${DATASETS[@]}"
 do
     zfs_send_new_snapshots "" ${x} "" e/$(hostname)/${x}
 done
 
-DATASETS=(root)
+DATASETS=(rpool)
 for s in backup git home photos projects images volumes
 do
     DATASETS+=($(zfs list -H -o name -r d/${s}))

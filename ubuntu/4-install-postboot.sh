@@ -91,17 +91,9 @@ PACKAGES+=(
     gimp
     pycharm-community
 )
-if ((HAS_POP_OS))
-then
-    PACKAGES+=(
-        # system76-driver
-        # system76-driver-nvidia
-    )
-else
-    PACKAGES+=(
-        ubuntu-drivers-common
-    )
-fi
+PACKAGES+=(
+    ubuntu-drivers-common
+)
 
 FLATPAKS+=()
 ((HAS_GUI)) && FLATPAKS+=(
@@ -112,22 +104,7 @@ FLATPAKS+=()
 
 export DEBIAN_FRONTEND=noninteractive
 
-if ((HAS_POP_OS))
-then
-    if ! zfs list root@post-boot-install-system76
-    then
-        echo "### Installing System76 drivers..."
-        apt-add-repository -y ppa:system76-dev/stable
-        apt update
-        apt install --yes system76-driver
-        apt install --yes system76-driver-nvidia
-        zfs snapshot root@post-boot-install-system76
-        echo "### Rebooting. Re-run this script on next boot..."
-        reboot
-    fi
-fi
-
-if ! zfs list root@post-boot-install-packages
+if ! zfs list rpool@post-boot-install-packages
 then
     echo "### Installing packages..."
     curl -s https://s3.eu-central-1.amazonaws.com/jetbrains-ppa/0xA6E8698A.pub.asc | apt-key add -
@@ -144,10 +121,10 @@ then
     apt-file update
     patch -i /etc/apt/apt.conf.d/50unattended-upgrades.patch /etc/apt/apt.conf.d/50unattended-upgrades
     rm /etc/apt/apt.conf.d/50unattended-upgrades.patch
-    zfs snapshot root@post-boot-install-packages
+    zfs snapshot rpool@post-boot-install-packages
 fi
 
-if ! zfs list root@post-boot-install-locale
+if ! zfs list rpool@post-boot-install-locale
 then
     echo "### Configuring clock..."
     timedatectl set-timezone "${TIME_ZONE}"
@@ -156,42 +133,34 @@ then
     locale-gen en_US
     locale-gen en_US.utf8
     update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
-    zfs snapshot root@post-boot-install-locale
+    zfs snapshot rpool@post-boot-install-locale
 fi
 
-if ! zfs list root@post-boot-install-drivers
+if ! zfs list rpool@post-boot-install-drivers
 then
     echo "### Updating drivers..."
-    if ((HAS_POP_OS))
-    then
-        echo "### Configuring System76 Graphics..."
-        system76-power graphics hybrid
-        system76-power graphics power auto
-        # TODO: Add __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia
-    else
-        ubuntu-drivers --free-only autoinstall
+    ubuntu-drivers --free-only autoinstall
 
-        if ((HAS_OPTIMUS))
-        then
-            echo "### Configuring PRIME..."
-            prime-select on-demand
-            # TODO: Add __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia
-        fi
+    if ((HAS_OPTIMUS))
+    then
+        echo "### Configuring PRIME..."
+        prime-select on-demand
+        # TODO: Add __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia
     fi
     
-    zfs snapshot root@post-boot-install-drivers
+    zfs snapshot rpool@post-boot-install-drivers
 fi
 
-if ! zfs list root@post-boot-install-docker
+if ! zfs list rpool@post-boot-install-docker
 then
     echo "### Configuring Docker..."
     #/etc/docker/daemon.json
     systemctl enable docker
     systemctl enable docker-prune.timer
-    zfs snapshot root@post-boot-install-docker
+    zfs snapshot rpool@post-boot-install-docker
 fi
 
-if ! zfs list root@post-boot-install-kvm
+if ! zfs list rpool@post-boot-install-kvm
 then
     echo "### Configuring KVM..."
     cat << EOF >> /etc/libvirt/qemu.conf
@@ -208,12 +177,12 @@ EOF
         virsh net-autostart internal
         virsh net-start internal
     fi
-    zfs snapshot root@post-boot-install-kvm
+    zfs snapshot rpool@post-boot-install-kvm
 fi
 
 if ((HAS_GUI))
 then
-    if ! zfs list root@post-boot-install-gui
+    if ! zfs list rpool@post-boot-install-gui
     then
         echo "### Configuring Xorg..."
         which ratbagd && systemctl enable ratbagd.service
@@ -243,11 +212,11 @@ then
         mkdir -p /etc/skel/.local/share/applications/
         cp /usr/share/applications/minecraft-launcher.desktop /etc/skel/.local/share/applications/
         sed -i "s|Exec=|Exec=env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia |g" /etc/skel/.local/share/applications/minecraft-launcher.desktop
-        zfs snapshot root@post-boot-install-gui
+        zfs snapshot rpool@post-boot-install-gui
     fi
 fi
 
-if ! zfs list root@post-boot-install-users
+if ! zfs list rpool@post-boot-install-users
 then
     echo "### Configuring users..."
     if [[ -d /bulk ]]
@@ -276,10 +245,10 @@ then
     chmod 400 /home/josh/.ssh/authorized_keys
     chown -R josh:josh /home/josh/.ssh
     
-    zfs snapshot root@post-boot-install-users
+    zfs snapshot rpool@post-boot-install-users
 fi
 
-if ! zfs list root@post-boot-install-flatpak
+if ! zfs list rpool@post-boot-install-flatpak
 then
     if [[ "${FLATPAKS}" != "" ]]
     then
@@ -296,7 +265,7 @@ then
         done
         flatpak install -y "${FLATPAKS[@]}"
     fi
-    zfs snapshot root@post-boot-install-flatpak
+    zfs snapshot rpool@post-boot-install-flatpak
 fi
 
 echo "### Cleaning up..."
@@ -307,7 +276,7 @@ for i in monthly weekly daily hourly frequent
 do
     systemctl enable zfs-auto-snapshot-${i}.timer
 done
-for pool in root
+for pool in rpool
 do
     zfs snapshot ${pool}@post-boot-install
 done
