@@ -81,7 +81,7 @@ PACKAGES+=(
 # )
 ((HAS_GUI)) && PACKAGES+=(
     kubuntu-desktop kubuntu-restricted-extras
-    plasma-discover-flatpak-backend
+    plasma-discover-backend-flatpak
     virt-manager
     colord colord-kde
     playonlinux winetricks kdegames
