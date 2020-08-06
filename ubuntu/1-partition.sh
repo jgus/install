@@ -55,6 +55,7 @@ do
         timeout -k 15 10 bash -c -- "while ! parted ${DEVICE} -- mkpart primary fat32 ${MBR_GAP} ${EFI_END}; do sleep 1; done"
         parted ${DEVICE} -- set ${p} bios_grub on
         sleep 1
+        ((++p))
     fi
 
     echo "### Creating BOOT partition ${p} on ${DEVICE}..."
