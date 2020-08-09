@@ -136,8 +136,8 @@ then
     sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="|GRUB_CMDLINE_LINUX_DEFAULT="vfio-pci.ids=${VFIO_IDS} |g' /etc/default/grub
     ((HAS_INTEL_CPU)) && sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="|GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu=on iommu=pt |g' /etc/default/grub
     ((HAS_AMD_CPU)) && sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="|GRUB_CMDLINE_LINUX_DEFAULT="amd_iommu=on iommu=pt kvm_amd.npt=1 kvm_amd.avic=1 |g' /etc/default/grub
-    for m in vfio vfio_iommu_type1 vfio_virqfd vfio_pci; do echo ${m} >> /etc/initramfs-tools/modules; done
-    for m in vfio vfio_iommu_type1 vfio_pci; do echo ${m} >> /etc/modules; done
+    for m in vfio vfio_iommu_type1 vfio_pci vfio_virqfd vhost-net; do echo ${m} >> /etc/initramfs-tools/modules; done
+    for m in vfio vfio_iommu_type1 vfio_pci vfio_virqfd vhost-net; do echo ${m} >> /etc/modules; done
     echo "softdep nouveau pre: vfio-pci" >> /etc/modprobe.d/nvidia.conf
     echo "softdep nvidia pre: vfio-pci" >> /etc/modprobe.d/nvidia.conf
     echo "softdep nvidia* pre: vfio-pci" >> /etc/modprobe.d/nvidia.conf

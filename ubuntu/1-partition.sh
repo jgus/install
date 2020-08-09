@@ -2,14 +2,14 @@
 
 source "$(cd "$(dirname "$0")" ; pwd)"/common.sh "$@"
 
-MBR_GAP="2MiB"
+MBR_GAP=2MiB
 if ((HAS_UEFI))
 then
     EFI_END=${EFI_END:-512MiB}
     BOOT_END=${BOOT_END:-2560MiB}
     SWAP_END=${SWAP_END:-18944MiB}
 else
-    EFI_END="4MiB"
+    EFI_END=4MiB
     BOOT_END=${BOOT_END:-2048MiB}
     SWAP_END=${SWAP_END:-18432MiB}
 fi

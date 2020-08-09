@@ -139,7 +139,7 @@ fi
 if ! zfs list rpool@post-boot-install-drivers
 then
     echo "### Updating drivers..."
-    ubuntu-drivers --free-only autoinstall
+    ubuntu-drivers autoinstall
 
     if ((HAS_OPTIMUS))
     then
@@ -216,41 +216,44 @@ then
     fi
 fi
 
-if ! zfs list rpool@post-boot-install-users
+if [[ -f /root/.secrets/openldap.env ]]
 then
-    echo "### Configuring users..."
-    if [[ -d /bulk ]]
+    if ! zfs list rpool@post-boot-install-users
     then
-        chown -R gustafson:gustafson /bulk
-        chmod 775 /bulk
-        chmod g+s /bulk
-        setfacl -d -m group:gustafson:rwx /bulk
+        echo "### Configuring users..."
+        if [[ -d /bulk ]]
+        then
+            chown -R gustafson:gustafson /bulk
+            chmod 775 /bulk
+            chmod g+s /bulk
+            setfacl -d -m group:gustafson:rwx /bulk
+        fi
+        
+        for g in sudo plugdev docker
+        do
+            usermod -a -G ${g} josh
+        done
+        /etc/mkhome.sh josh
+        
+        if which virsh
+        then
+            usermod -a -G libvirt josh
+            mkdir -p /home/josh/.config/libvirt
+            echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
+            chown -R josh:josh /home/josh/.config/libvirt
+        fi
+        mkdir -p /home/josh/.ssh
+        curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
+        chmod 400 /home/josh/.ssh/authorized_keys
+        chown -R josh:josh /home/josh/.ssh
+        
+        zfs snapshot rpool@post-boot-install-users
     fi
-    
-    for g in sudo plugdev docker
-    do
-        usermod -a -G ${g} josh
-    done
-    /etc/mkhome.sh josh
-    
-    if which virsh
-    then
-        usermod -a -G libvirt josh
-        mkdir -p /home/josh/.config/libvirt
-        echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
-        chown -R josh:josh /home/josh/.config/libvirt
-    fi
-    mkdir -p /home/josh/.ssh
-    curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
-    chmod 400 /home/josh/.ssh/authorized_keys
-    chown -R josh:josh /home/josh/.ssh
-    
-    zfs snapshot rpool@post-boot-install-users
 fi
 
-if ! zfs list rpool@post-boot-install-flatpak
+if [[ "${FLATPAKS}" != "" ]]
 then
-    if [[ "${FLATPAKS}" != "" ]]
+    if ! zfs list rpool@post-boot-install-flatpak
     then
         echo "### Installing Flatpaks..."
         apt install --yes flatpak
@@ -264,8 +267,9 @@ then
             fi
         done
         flatpak install -y "${FLATPAKS[@]}"
+    
+        zfs snapshot rpool@post-boot-install-flatpak
     fi
-    zfs snapshot rpool@post-boot-install-flatpak
 fi
 
 echo "### Cleaning up..."
