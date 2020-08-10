@@ -52,9 +52,8 @@ EXT_ID=$(blkid ${DEVICE}-part${p} -o value -s PARTUUID)
 
 echo "### Setting up swap..."
 i=$(ls -1 /dev/mapper/${HOSTNAME}-swap-* | wc -l)
-cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file=${VKEY_FILE} --allow-discards open --type plain "/dev/disk/by-partuuid/${SWAP_ID}" ${HOSTNAME}-swap-${i}
-mkswap -L swap-${i}-${HOSTNAME} /dev/mapper/${HOSTNAME}-swap-${i}
-swapon -p 100 /dev/mapper/${HOSTNAME}-swap-${i}
+echo "${HOSTNAME}-swap-${i} /dev/disk/by-partuuid/${SWAP_ID} /dev/urandom swap,cipher=aes-xts-plain64,size=256,discard" >> /etc/crypttab
+echo "/dev/mapper/${HOSTNAME}-swap-${i} none swap defaults,discard,pri=100 0 0" >> /etc/fstab
 
 echo "### Growing boot pool..."
 CURRENT=$(zpool list bpool -vH | head -2 | tail -1 | awk '{print $1}')
