@@ -19,65 +19,7 @@ PACKAGES+=(
     gcc gdb cmake ninja-build
     python3 python3-pip python3-virtualenv
     speedtest-cli
-)
-((HAS_GUI)) && PACKAGES+=(
-    base-passwd
-    bash
-    console-setup
-    cryptsetup-initramfs
-    dash
-    diffutils
-    dmeventd
-    e2fsprogs
-    findutils
-    firefox-locale-en
-    fonts-indic
-    grep
-    # grub-common
-    # grub-efi-amd64-signed
-    # grub-gfxpayload-lists
-    # grub-pc-bin
-    # grub-pc
-    # grub2-common
-    gzip
-    hostname
-    hunspell-en-us
-    hyphen-en-us
-    init
-    keyboard-configuration
-    kubuntu-desktop
-    kubuntu-wallpapers
-    language-pack-en-base
-    language-pack-en
-    language-pack-kde-en
-    libaio1
-    libdebconfclient0
-    libdevmapper-event1.02.1
-    liblvm2cmd2.03
-    libreadline5
-    libreoffice-help-en-us
-    # linux-generic
-    locales
-    lvm2
-    mokutil
-    mythes-en-us
-    ncurses-base
-    ncurses-bin
-    os-prober
-    pciutils
-    poppler-data
-    python3-nacl
-    python3-pymacaroons
-    shim-signed
-    thin-provisioning-tools
-    # thunderbird-locale-en-us
-    # thunderbird-locale-en
-    ubuntu-minimal
-    ubuntu-standard
-    udev
-    usbutils
-    wamerican
-    wbritish
+    ssmtp
 )
 ((HAS_GUI)) && PACKAGES+=(
     kubuntu-desktop kubuntu-restricted-extras
@@ -248,6 +190,24 @@ then
         chown -R josh:josh /home/josh/.ssh
         
         zfs snapshot rpool@post-boot-install-users
+    fi
+fi
+
+if [[ -f /root/.secrets/gmail.env ]]
+then
+    if ! zfs list rpool@post-boot-install-ssmtp
+    then
+        echo "### Configuring sSMTP..."
+        source /root/.secrets/gmail.env
+        cat <<EOF >/etc/ssmtp/ssmtp.conf
+root=joshgstfsn@gmail.com
+mailhub=smtp.gmail.com:587
+AuthUser=joshgstfsn
+AuthPass=${GMAIL_PASSWORD}
+UseSTARTTLS=YES
+UseTLS=YES
+hostname=gustafson.me
+EOF
     fi
 fi
 
