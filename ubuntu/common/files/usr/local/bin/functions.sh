@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+mirror_boot() {
+    for bak in /boot/bak*
+    do
+        [ -d "${bak}" ] || continue
+        rsync -arPx --delete /boot/ "${bak}"
+        rsync -arPx --delete /boot/efi/ "${bak}"/efi
+    done
+    rsync -arP --exclude=bak\* --delete /boot/ /boot-mirror
+}
+
 zfs_cmd () {
     if [[ "$1" == "" ]]
     then
@@ -10,7 +20,7 @@ zfs_cmd () {
 }
 
 zfs_list_snapshots () {
-    $(zfs_cmd $1) list -H -t snapshot -o name | grep -v @znap_.\*_frequent | grep -v @znap_.\*_hourly || true
+    $(zfs_cmd $1) list -H -t snapshot -o name | grep -v @znap_.\*_frequent | grep -v @znap_.\*_hourly | grep -v @clam || true
 }
 
 zfs_has_snapshot () {

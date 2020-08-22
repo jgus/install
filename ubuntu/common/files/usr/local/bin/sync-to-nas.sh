@@ -4,13 +4,7 @@ set -e
 
 source "$( dirname "${BASH_SOURCE[0]}" )/functions.sh"
 
-for bak in /boot/bak*
-do
-    [ -d "${bak}" ] || continue
-    rsync -arPx --delete /boot/ "${bak}"
-    rsync -arPx --delete /boot/efi/ "${bak}"/efi
-done
-rsync -arPx --delete /boot/ root@nas:/e/$(hostname)/boot
+mirror_boot
 
 DATASETS=($(zfs list -o name | grep -v rpool/docker))
 
