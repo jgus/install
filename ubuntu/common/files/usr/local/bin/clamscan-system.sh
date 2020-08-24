@@ -73,7 +73,7 @@ do
         if (( ${#DIFF_FILES[@]} ))
         then
             echo "# Scanning ${#DIFF_FILES[@]} files..." | tee -a ${LOG_FILE}
-            clamscan -i "${EXCLUDE_ARGS[@]}" --follow-dir-symlinks=0 --follow-file-symlinks=0 -f <(for f in "${DIFF_FILES[@]}"; do echo "${f}"; done) | tee -a ${LOG_FILE} ${CURRENT_LOG_FILE}
+            clamscan -i "${EXCLUDE_ARGS[@]}" --follow-dir-symlinks=0 --follow-file-symlinks=0 -f <(for f in "${DIFF_FILES[@]}"; do echo "${f}"; done) 2>&1 | tee -a ${LOG_FILE} ${CURRENT_LOG_FILE}
             RESULT=$?
         else
             echo "# No files changed." | tee -a ${LOG_FILE}
@@ -83,7 +83,7 @@ do
     else
         echo "# Scanning ${d} completely as of $(zfs get -H -o value creation ${d}@clam-scanning)..." | tee -a ${LOG_FILE}
         set +e
-        clamdscan -m --fdpass -i "${SCAN_MOUNT}" | tee -a ${LOG_FILE} ${CURRENT_LOG_FILE}
+        clamdscan -m --fdpass -i "${SCAN_MOUNT}" 2>&1 | tee -a ${LOG_FILE} ${CURRENT_LOG_FILE}
         RESULT=$?
         set -e
     fi

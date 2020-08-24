@@ -16,10 +16,12 @@ PACKAGES+=(
     unattended-upgrades
     docker.io
     libvirt-daemon libvirt-daemon-system libvirt-clients qemu-system-x86 qemu-utils
+    tmux
     gcc gdb cmake ninja-build
     python3 python3-pip python3-virtualenv
     speedtest-cli
     ssmtp
+    clamav-daemon
 )
 ((HAS_GUI)) && PACKAGES+=(
     kubuntu-desktop kubuntu-restricted-extras
@@ -208,7 +210,21 @@ UseSTARTTLS=YES
 UseTLS=YES
 hostname=gustafson.me
 EOF
+
+        zfs snapshot rpool@post-boot-install-ssmtp
     fi
+fi
+
+if ! zfs list rpool@post-boot-install-clamav
+then
+    echo "### Configuring ClamAV..."
+    sed -i "s|MaxThreads.*|MaxThreads $(nproc)|g" /etc/clamav/clamd.conf
+    sed -i "s|MaxDirectoryRecursion.*|MaxDirectoryRecursion 100|g" /etc/clamav/clamd.conf
+    systemctl enable --now clamav-daemon.service
+    echo "### Running initial virus scan..."
+    /usr/local/bin/clamscan-system.sh
+
+    zfs snapshot rpool@post-boot-install-clamav
 fi
 
 if [[ "${FLATPAKS}" != "" ]]
