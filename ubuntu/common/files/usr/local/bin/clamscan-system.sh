@@ -37,6 +37,7 @@ ANY_INFECTION=0
 ANY_ERROR=0
 LOG_FILE=/tmp/clamscan.log
 : >${LOG_FILE}
+CURRENT_LOG_FILE=/tmp/clamscan-current.log
 
 for d in "${DATASETS[@]}"
 do
@@ -53,6 +54,7 @@ do
     fi
     mkdir -p ${SCAN_MOUNT}
     mount -t zfs ${d}@clam-scanning ${SCAN_MOUNT}
+    : >${CURRENT_LOG_FILE}
     echo "" | tee -a ${LOG_FILE}
     echo "" | tee -a ${LOG_FILE}
     echo "# Scanning ${d}..." | tee -a ${LOG_FILE}
@@ -71,7 +73,7 @@ do
         if (( ${#DIFF_FILES[@]} ))
         then
             echo "# Scanning ${#DIFF_FILES[@]} files..." | tee -a ${LOG_FILE}
-            clamscan -i "${EXCLUDE_ARGS[@]}" --follow-dir-symlinks=0 --follow-file-symlinks=0 -f <(for f in "${DIFF_FILES[@]}"; do echo "${f}"; done) | tee -a ${LOG_FILE}
+            clamscan -i "${EXCLUDE_ARGS[@]}" --follow-dir-symlinks=0 --follow-file-symlinks=0 -f <(for f in "${DIFF_FILES[@]}"; do echo "${f}"; done) | tee -a ${LOG_FILE} ${CURRENT_LOG_FILE}
             RESULT=$?
         else
             echo "# No files changed." | tee -a ${LOG_FILE}
@@ -81,13 +83,16 @@ do
     else
         echo "# Scanning ${d} completely as of $(zfs get -H -o value creation ${d}@clam-scanning)..." | tee -a ${LOG_FILE}
         set +e
-        clamdscan -m --fdpass -i "${SCAN_MOUNT}" | tee -a ${LOG_FILE}
+        clamdscan -m --fdpass -i "${SCAN_MOUNT}" | tee -a ${LOG_FILE} ${CURRENT_LOG_FILE}
         RESULT=$?
-        if ((RESULT==2)); then RESULT=0; fi
         set -e
     fi
     umount ${SCAN_MOUNT}
     umount ${BASE_MOUNT} >/dev/null 2>&1 || true
+    if ((RESULT==2)) && ! grep "ERROR:" ${CURRENT_LOG_FILE}
+    then
+        RESULT=0
+    fi
     case ${RESULT} in
         0)
         echo "### ${d} looks clean" | tee -a ${LOG_FILE}
