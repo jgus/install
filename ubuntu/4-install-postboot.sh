@@ -10,6 +10,7 @@ TIME_ZONE=${TIME_ZONE:-US/Mountain}
 HAS_GUI=${HAS_GUI:-1}
 
 PPAS+=(
+    ppa:mscore-ubuntu/mscore3-stable
 )
 
 PACKAGES+=(
@@ -25,7 +26,6 @@ PACKAGES+=(
 )
 ((HAS_GUI)) && PACKAGES+=(
     kubuntu-desktop kubuntu-restricted-extras
-    plasma-discover-flatpak-backend
     virt-manager
     colord colord-kde
     playonlinux winetricks kdegames
@@ -34,16 +34,15 @@ PACKAGES+=(
     tigervnc-standalone-server
     gimp
     pycharm-community
+    steam
+    musescore3
 )
 PACKAGES+=(
     ubuntu-drivers-common
 )
-
-FLATPAKS+=()
-((HAS_GUI)) && FLATPAKS+=(
-    com.valvesoftware.Steam
-    com.visualstudio.code-oss
-    org.musescore.MuseScore
+DEBS+=(
+    https://zoom.us/client/latest/zoom_amd64.deb
+    https://go.microsoft.com/fwlink/?LinkID=760868
 )
 
 export DEBIAN_FRONTEND=noninteractive
@@ -61,10 +60,20 @@ then
     apt upgrade --yes --allow-downgrades
     apt install --yes ${APT_EXTRA_ARGS} "${PACKAGES[@]}"
     apt install --yes ${APT_EXTRA_ARGS} $(check-language-support -l en_US)
+
+    for deb in "${DEBS[@]}"
+    do
+        rm /tmp/temp.deb || true
+        curl -L -o /tmp/temp.deb "${deb}"
+        apt install --yes /tmp/temp.deb
+        rm /tmp/temp.deb
+    done
+
     apt autoremove --yes
     apt-file update
     patch -i /etc/apt/apt.conf.d/50unattended-upgrades.patch /etc/apt/apt.conf.d/50unattended-upgrades
     rm /etc/apt/apt.conf.d/50unattended-upgrades.patch
+
     zfs snapshot rpool@post-boot-install-packages
 fi
 
@@ -225,27 +234,6 @@ then
     /usr/local/bin/clamscan-system.sh
 
     zfs snapshot rpool@post-boot-install-clamav
-fi
-
-if [[ "${FLATPAKS}" != "" ]]
-then
-    if ! zfs list rpool@post-boot-install-flatpak
-    then
-        echo "### Installing Flatpaks..."
-        apt install --yes flatpak
-        chmod a+rw /var/tmp
-        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-        for i in {1..10}
-        do
-            if flatpak install -y "${FLATPAKS[@]}"
-            then
-                break
-            fi
-        done
-        flatpak install -y "${FLATPAKS[@]}"
-    
-        zfs snapshot rpool@post-boot-install-flatpak
-    fi
 fi
 
 echo "### Cleaning up..."

@@ -4,8 +4,6 @@ set -o pipefail
 
 EMAIL_TO="j@gustafson.me"
 EXCLUDE_FILES=(
-    /var/lib/flatpak/repo/objects/34/32b76db9f3df9ffb126a55624df56417c367c47d95e3f619585af51e448144.file
-    /var/lib/flatpak/runtime/org.gnome.Platform/x86_64/3.34/c177f62da0f4f40cb0ac814f12c1b2d1f36c764a5b54c0466f4858bed56b94c4/files/libexec/installed-tests/gdk-pixbuf/test-images/gif-test-suite/max-width.gif
 )
 SCAN_MOUNT=/mnt/clam-scan
 BASE_MOUNT=/mnt/clam-base
