@@ -229,6 +229,7 @@ then
     echo "### Configuring ClamAV..."
     sed -i "s|MaxThreads.*|MaxThreads $(nproc)|g" /etc/clamav/clamd.conf
     sed -i "s|MaxDirectoryRecursion.*|MaxDirectoryRecursion 100|g" /etc/clamav/clamd.conf
+    echo "VirusEvent /usr/local/bin/virus_event.sh" >>/etc/clamav/clamd.conf
     systemctl enable --now clamav-daemon.service
     echo "### Running initial virus scan..."
     /usr/local/bin/clamscan-system.sh
