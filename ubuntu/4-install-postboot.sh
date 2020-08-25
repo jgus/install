@@ -233,6 +233,7 @@ then
     systemctl enable --now clamav-daemon.service
     echo "### Running initial virus scan..."
     /usr/local/bin/clamscan-system.sh
+    systemctl enable --now clamscan-system.timer
 
     zfs snapshot rpool@post-boot-install-clamav
 fi
