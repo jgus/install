@@ -44,6 +44,9 @@ DEBS+=(
     https://zoom.us/client/latest/zoom_amd64.deb
     https://go.microsoft.com/fwlink/?LinkID=760868
 )
+PIPS+=(
+    speedtest-cli
+)
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -73,6 +76,8 @@ then
     apt-file update
     patch -i /etc/apt/apt.conf.d/50unattended-upgrades.patch /etc/apt/apt.conf.d/50unattended-upgrades
     rm /etc/apt/apt.conf.d/50unattended-upgrades.patch
+
+    pip3 install "${PIPS[@]}"
 
     zfs snapshot rpool@post-boot-install-packages
 fi
