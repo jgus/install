@@ -5,7 +5,7 @@ Description=AIO startup service
 Type=oneshot
 ExecStart=liquidctl initialize
 ExecStart=liquidctl set pump speed 100
-ExecStart=liquidctl set fan speed 30 30 40 60 45 100
+ExecStart=liquidctl set fan speed 30 30 35 50 40 100
 ExecStart=liquidctl set logo color rainbow --speed 3
  
 [Install]
