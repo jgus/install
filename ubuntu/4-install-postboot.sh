@@ -243,6 +243,14 @@ then
     zfs snapshot rpool@post-boot-install-clamav
 fi
 
+if ! zfs list rpool@post-boot-install-misc
+then
+    echo "### Misc..."
+    sed -i "s|ENABLED=.*|ENABLED=0|g" /etc/default/motd-news
+
+    zfs snapshot rpool@post-boot-install-misc
+fi
+
 echo "### Cleaning up..."
 rm -rf /install
 
