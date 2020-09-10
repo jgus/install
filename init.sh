@@ -18,6 +18,10 @@ then
     apt install --yes "${PACKAGES[@]}"
 elif command -v pacman 
 then
+    PACKAGES=(
+        git
+    )
+    pacman -Sy "${PACKAGES[@]}"
     curl -s https://eoli3n.github.io/archzfs/init | bash
 fi
 
@@ -30,6 +34,10 @@ uniq -i ~/.ssh/authorized_keys
 chmod 400 ~/.ssh/authorized_keys
 
 systemctl start ssh || systemctl start sshd
+
+echo "### Cloning repo..."
+cd ~
+git clone https://github.com/jgus/install
 
 echo "### System prep complete; SSH available at:"
 ip a | grep inet
