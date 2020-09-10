@@ -3,7 +3,7 @@
 # curl -s https://jgus.github.io/install/init.sh | bash
 
 echo "### Adding packages..."
-if which apt
+if command -v apt
 then
     PACKAGES=(
         debootstrap
@@ -16,7 +16,7 @@ then
     apt-add-repository universe
     apt update
     apt install --yes "${PACKAGES[@]}"
-elif which pacman 
+elif command -v pacman 
 then
     curl -s https://eoli3n.github.io/archzfs/init | bash
 fi
