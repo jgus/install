@@ -21,9 +21,9 @@ then
     PACKAGES=(
         git
     )
-    pacman -Sy "${PACKAGES[@]}" || true
-    #curl -s https://eoli3n.github.io/archzfs/init | bash || true
-fi
+    pacman -Sy "${PACKAGES[@]}"
+    #curl -s https://eoli3n.github.io/archzfs/init | bash
+fi || true
 
 echo "### Setting up SSH..."
 mkdir -p ~/.ssh || true
