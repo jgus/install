@@ -22,7 +22,6 @@ then
         git
     )
     pacman -Sy "${PACKAGES[@]}"
-    bash <(curl -s https://eoli3n.github.io/archzfs/init)
 fi
 
 echo "### Setting up SSH..."
@@ -36,7 +35,6 @@ chmod 400 ~/.ssh/authorized_keys
 systemctl start ssh || systemctl start sshd
 
 echo "### Cloning repo..."
-cd ~
 git clone https://github.com/jgus/install
 
 echo "### System prep complete; SSH available at:"
