@@ -16,14 +16,15 @@ then
     apt-add-repository universe
     apt update
     apt install --yes "${PACKAGES[@]}"
-elif command -v pacman 
+fi
+if command -v pacman 
 then
     PACKAGES=(
         git
     )
     pacman -Sy "${PACKAGES[@]}"
-    #curl -s https://eoli3n.github.io/archzfs/init | bash
-fi || true
+    curl -s https://eoli3n.github.io/archzfs/init | bash
+fi
 
 echo "### Setting up SSH..."
 mkdir -p ~/.ssh || true
