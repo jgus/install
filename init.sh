@@ -21,7 +21,7 @@ then
     PACKAGES=(
         git
     )
-    pacman -Sy --noconfirm "${PACKAGES[@]}"
+    pacman -Sy --needed --noconfirm "${PACKAGES[@]}"
     curl -s https://eoli3n.github.io/archzfs/init | bash
 fi
 

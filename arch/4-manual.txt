@@ -1,0 +1,6 @@
+- remote-install opt on root and josh
+- restore as needed
+- enable docker services
+- set up syncthing (if not restored)
+- start zfs replication
+- add printer

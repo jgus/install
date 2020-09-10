@@ -1,0 +1,178 @@
+#!/bin/bash -e
+
+HOSTNAME=$1
+source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+
+KERNEL=${KERNEL:-linux}
+HAS_CK_KERNEL=0
+case ${KERNEL}
+    linux-ck-*) HAS_CK_KERNEL=1 ;;
+esac
+ZFS_PACAKGE=zfs-dkms
+case ${KERNEL}
+    linux|linux-lts|linux-hardened|linux-zen) ZFS_PACAKGE=zfs-${KERNEL} ;;
+esac
+NVIDIA_PACAKGE=nvidia-dkms
+case ${KERNEL}
+    linux) NVIDIA_PACAKGE=nvidia ;;
+    linux-lts) NVIDIA_PACAKGE=nvidia-lts ;;
+esac
+
+lscpu | grep GenuineIntel && HAS_INTEL_CPU=1
+lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
+lspci | grep NVIDIA && HAS_NVIDIA=1
+
+BOOT_PACKAGES=(
+    # Base
+    diffutils logrotate man-db man-pages nano netctl usbutils vi which
+    # Kernel
+    ${KERNEL}-headers linux-firmware dkms base-devel
+    # Bootloader
+    intel-ucode efibootmgr
+    # Firmware
+    fwupd
+    # ZFS
+    ${ZFS_PACAKGE}
+    # Network
+    openresolv networkmanager dhclient
+    # ZSH
+    zsh grml-zsh-config
+    # LDAP Auth
+    openldap nss-pam-ldapd sssd
+)
+((HAS_INTEL_CPU)) && PACKAGES+=(intel-ucode)
+((HAS_AMD_CPU)) && PACKAGES+=(amd-ucode)
+((HAS_NVIDIA)) && BOOT_PACKAGES+=(${NVIDIA_PACAKGE})
+
+/root/opt/install.sh
+
+echo "### Configuring clock..."
+ln -sf "/usr/share/zoneinfo/${TIME_ZONE}" /etc/localtime
+hwclock --systohc
+
+echo "### Configuring locale..."
+echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
+locale-gen
+echo "LANG=en_US.UTF-8" >/etc/locale.conf
+
+echo "### Configuring hostname..."
+echo "${HOSTNAME}" >/etc/hostname
+cat <<EOF >/etc/hosts
+127.0.0.1 localhost
+::1 localhost
+127.0.1.1 ${HOSTNAME}.localdomain ${HOSTNAME}
+EOF
+
+echo "### Installing packages..."
+sed -i "s|#Color|Color|g" /etc/pacman.conf
+cat <<EOF >>/etc/pacman.conf
+
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+
+[archzfs]
+# Origin Server - France
+Server = http://archzfs.com/\$repo/\$arch
+# Mirror - Germany
+Server = http://mirror.sum7.eu/archlinux/archzfs/\$repo/\$arch
+# Mirror - Germany
+Server = https://mirror.biocrafting.net/archlinux/archzfs/\$repo/\$arch
+# Mirror - India
+Server = https://mirror.in.themindsmaze.com/archzfs/\$repo/\$arch
+
+[archzfs-kernels]
+Server = http://end.re/$repo/
+
+EOF
+pacman-key -r DDF7DB817396A49B2A2723F7403BD972F75D9D76
+pacman-key --lsign-key DDF7DB817396A49B2A2723F7403BD972F75D9D76
+
+if ((HAS_CK_KERNEL))
+then
+    cat <<EOF >>/etc/pacman.conf
+
+[repo-ck]
+Server = http://repo-ck.com/\$arch
+EOF
+    pacman-key -r 5EE46C4C
+    pacman-key --lsign-key 5EE46C4C
+fi
+
+pacman -Syyu --needed --noconfirm "${BOOT_PACKAGES[@]}"
+
+echo "### Configuring network..."
+systemctl enable NetworkManager.service
+
+echo "### Configuring VFIO..."
+if [[ "${VFIO_IDS}" != "" ]]
+then
+    echo "options vfio_pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio.conf
+fi
+
+echo "### Configuring boot image..."
+MODULES=(efivarfs)
+[[ "${VFIO_IDS}" != "" ]] && MODULES+=(vfio_pci vfio vfio_iommu_type1 vfio_virqfd)
+((HAS_NVIDIA)) && MODULES+=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
+sed -i "s|MODULES=(\(.*\))|MODULES=(${MODULES[*]})|g" /etc/mkinitcpio.conf
+#original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
+HOOKS=(base udev autodetect modconf block encrypt openswap)
+((ALLOW_SUSPEND)) && HOOKS+=(resume)
+HOOKS+=(zfs filesystems keyboard)
+sed -i "s|HOOKS=(\(.*\))|HOOKS=(${HOOKS[*]})|g" /etc/mkinitcpio.conf
+#echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
+mkinitcpio -P
+
+echo "### Installing bootloader..."
+bootctl --path=/boot install
+KERNEL_PARAMS=()
+((HAS_INTEL_CPU)) && KERNEL_PARAMS+=(initrd=/intel-ucode.img)
+((HAS_AMD_CPU)) && KERNEL_PARAMS+=(initrd=/amd-ucode.img)
+KERNEL_PARAMS+=(initrd=/initramfs-${KERNEL}.img loglevel=3 zfs=z/root rw)
+((HAS_INTEL_CPU)) && [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS+=(intel_iommu=on iommu=pt)
+((HAS_NVIDIA)) && KERNEL_PARAMS+=(nvidia-drm.modeset=1)
+((ALLOW_SUSPEND)) && KERNEL_PARAMS+=(resume=/dev/mapper/swap0)
+mkdir -p /boot/loader
+echo "default arch" >/boot/loader/loader.conf
+mkdir -p /boot/loader/entries
+cat << EOF >>/boot/loader/entries/arch.conf
+title   Arch Linux
+efi     /vmlinuz-${KERNEL}
+options ${KERNEL_PARAMS[*]}
+EOF
+
+echo "### Configuring nVidia updates..."
+mkdir -p /etc/pacman.d/hooks
+cat << EOF >>/etc/pacman.d/hooks/nvidia.hook
+[Trigger]
+Operation=Install
+Operation=Upgrade
+Operation=Remove
+Type=Package
+Target=${NVIDIA_PACAKGE}
+Target=${KERNEL}
+
+[Action]
+Description=Update Nvidia module in initcpio
+Depends=mkinitcpio
+When=PostTransaction
+NeedsTargets
+Exec=/bin/sh -c 'while read -r trg; do case $trg in linux) exit 0; esac; done; /usr/bin/mkinitcpio -P'
+EOF
+
+echo "### Configuring Zsh..."
+chsh -s /bin/zsh
+
+echo "### Preparing post-boot install..."
+#/etc/systemd/system/getty@tty1.service.d/override.conf
+#/root/.zlogin
+#/root/.runonce.sh
+chmod a+x ~/.runonce.sh
+
+cat <<EOF
+#####
+#
+# Please enter a root password:
+#
+#####
+EOF
+passwd
