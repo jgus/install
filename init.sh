@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# curl -s https://jgus.github.io/install/init.sh | bash
+# bash <(curl -s https://jgus.github.io/install/init.sh)
 
 echo "### Adding packages..."
 if command -v apt
@@ -16,13 +16,12 @@ then
     apt-add-repository universe
     apt update
     apt install --yes "${PACKAGES[@]}"
-fi
-if command -v pacman 
+elif command -v pacman 
 then
     PACKAGES=(
         git
     )
-    pacman -Sy "${PACKAGES[@]}"
+    pacman -Sy --noconfirm "${PACKAGES[@]}"
     curl -s https://eoli3n.github.io/archzfs/init | bash
 fi
 
