@@ -28,7 +28,7 @@ BOOT_PACKAGES=(
     # Kernel
     ${KERNEL}-headers linux-firmware dkms base-devel
     # Bootloader
-    intel-ucode efibootmgr
+    efibootmgr refind
     # Firmware
     fwupd
     # ZFS
@@ -123,7 +123,7 @@ sed -i "s|HOOKS=(\(.*\))|HOOKS=(${HOOKS[*]})|g" /etc/mkinitcpio.conf
 mkinitcpio -P
 
 echo "### Installing bootloader..."
-bootctl --path=/boot install
+refind-install --alldrivers
 KERNEL_PARAMS=()
 ((HAS_INTEL_CPU)) && KERNEL_PARAMS+=(initrd=/intel-ucode.img)
 ((HAS_AMD_CPU)) && KERNEL_PARAMS+=(initrd=/amd-ucode.img)
@@ -131,14 +131,9 @@ KERNEL_PARAMS+=(initrd=/initramfs-${KERNEL}.img loglevel=3 zfs=z/root rw)
 ((HAS_INTEL_CPU)) && [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS+=(intel_iommu=on iommu=pt)
 ((HAS_NVIDIA)) && KERNEL_PARAMS+=(nvidia-drm.modeset=1)
 ((ALLOW_SUSPEND)) && KERNEL_PARAMS+=(resume=/dev/mapper/swap0)
-mkdir -p /boot/loader
-echo "default arch" >/boot/loader/loader.conf
-mkdir -p /boot/loader/entries
-cat << EOF >>/boot/loader/entries/arch.conf
-title   Arch Linux
-efi     /vmlinuz-${KERNEL}
-options ${KERNEL_PARAMS[*]}
-EOF
+
+echo "### TEMP!!!"
+zsh
 
 echo "### Configuring nVidia updates..."
 mkdir -p /etc/pacman.d/hooks
