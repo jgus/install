@@ -141,11 +141,11 @@ do
     mkfs.fat -F 32 -n "EFI${i}" "${EFI_DEVS[$i]}"
 done
 mkdir -p "/target/efi"
-mount "${EFI_DEVICES[0]}" "/target/efi"
-for (( i=1; i<${#EFI_DEVICES[@]}; i++ ))
+mount "${EFI_DEVS[0]}" "/target/efi"
+for (( i=1; i<${#EFI_DEVS[@]}; i++ ))
 do
     mkdir -p "/target/efi.${i}"
-    mount "${EFI_DEVICES[$i]}" "/target/efi.${i}"
+    mount "${EFI_DEVS[$i]}" "/target/efi.${i}"
 done
 
 echo "### Setting up swap... (${SWAP_DEVS[@]})"
@@ -203,7 +203,7 @@ echo "### Configuring fstab..."
 #genfstab -U /target >> /target/etc/fstab
 #echo "z/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
 echo "PARTUUID=${EFI_IDS[0]} /efi vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
-for (( i=1; i<${#EFI_DEVICES[@]}; i++ ))
+for (( i=1; i<${#EFI_DEVS[@]}; i++ ))
 do
     echo "PARTUUID=${EFI_IDS[$i]} /efi.${i} vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
 done
