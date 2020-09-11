@@ -44,8 +44,6 @@ BOOT_PACKAGES=(
 ((HAS_AMD_CPU)) && PACKAGES+=(amd-ucode)
 ((HAS_NVIDIA)) && BOOT_PACKAGES+=(${NVIDIA_PACAKGE})
 
-/root/opt/install.sh
-
 echo "### Configuring clock..."
 ln -sf "/usr/share/zoneinfo/${TIME_ZONE}" /etc/localtime
 hwclock --systohc
