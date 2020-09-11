@@ -10,21 +10,18 @@ KERNEL=${KERNEL:-linux}
 VKEY_TYPE=${VKEY_TYPE:-efi} # efi|root|prompt
 case ${VKEY_TYPE} in
     efi)
-        VKEY_FILE=/sys/firmware/efi/vars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b/data
+        VKEY_FILE=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b
         if [[ ! -f "${VKEY_FILE}" ]]
         then
+            echo "### Creating EFI keyfile..."
             TMPFILE=$(mktemp)
-            dd bs=1 count=32 if=/dev/urandom of="${TMPFILE}"
+            dd bs=1 count=28 if=/dev/urandom of="${TMPFILE}"
             efivar -n 77fa9abd-0359-4d32-bd60-28f4e78f784b-keyfile -t 7 -w -f "${TMPFILE}"
             rm "${TMPFILE}"
         fi
         ;;
     root|prompt)
         VKEY_FILE=/root/vkey
-        if [[ ! -f "${VKEY_FILE}" ]]
-        then
-            dd bs=1 count=32 if=/dev/urandom of=${VKEY_FILE}
-        fi
         ;;
     *)
         echo "Bad VKEY_TYPE: ${VKEY_TYPE}"
@@ -40,6 +37,8 @@ case ${VKEY_TYPE} in
         ;;
 esac
 
+echo "### Creating root keyfile..."
+dd bs=1 count=32 if=/dev/urandom of=/root/vkey
 
 echo "### Adding packages..."
 PACKAGES=(
