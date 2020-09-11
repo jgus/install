@@ -72,7 +72,7 @@ do
     wipefs --all "${DEVICE}"
     parted -s "${DEVICE}" -- mklabel "${TABLE_TYPE}"
     while [ -L "${DEVICE}-part2" ] ; do : ; done
-    parted -s "${DEVICE}" -- mkpart primary 0 "${EFI_SIZE}"
+    parted -s "${DEVICE}" -- mkpart primary 0% "${EFI_SIZE}"
     parted -s "${DEVICE}" -- set 1 esp on
     parted -s "${DEVICE}" -- mkpart primary "${EFI_SIZE}" -"${SWAP_SIZE}"
     parted -s "${DEVICE}" -- mkpart primary -"${SWAP_SIZE}" 100%
@@ -82,6 +82,7 @@ do
     Z_IDS+=($(blkid ${DEVICE}-part2 -o value -s PARTUUID))
     SWAP_DEVS+=("${DEVICE}-part3")
     SWAP_IDS+=($(blkid ${DEVICE}-part3 -o value -s PARTUUID))
+    true
 done
 sleep 1
 
