@@ -25,8 +25,8 @@ lspci | grep NVIDIA && HAS_NVIDIA=1
 BOOT_PACKAGES=(
     # Base
     diffutils logrotate man-db man-pages nano netctl usbutils vi which
-    # Kernel
-    ${KERNEL}-headers linux-firmware dkms base-devel
+    # DKMS
+    base-devel dkms ${KERNEL}-headers
     # Bootloader
     efibootmgr refind
     # Firmware

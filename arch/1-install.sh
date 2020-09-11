@@ -166,7 +166,7 @@ mount | grep target
 # curl -s "https://www.archlinux.org/mirrorlist/?country=US&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
 
 echo "### Pacstrapping..."
-pacstrap /target base ${KERNEL}
+pacstrap /target base ${KERNEL} linux-firmware
 
 echo "### Copying install files..."
 mkdir -p /target/install
@@ -174,7 +174,7 @@ cp -rf "$(cd "$(dirname "$0")" ; pwd)"/* /target/install
 
 echo "### Copying preset files..."
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/common/files/ /target
-rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/files/ /target
+rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/files/ /target || true
 
 echo "### Copying ZFS files..."
 mkdir -p /target/etc/zfs
