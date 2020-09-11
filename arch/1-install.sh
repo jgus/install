@@ -54,8 +54,11 @@ PACKAGES=(
 pacman -Sy --needed --noconfirm "${PACKAGES[@]}"
 
 echo "### Cleaning up prior partitions..."
-umount -R /target || true
+mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf {}
+zfs unmount -a || true
+zpool export z || true
 zpool destroy z || true
+rm -rf /target || true
 
 EFI_DEVS=()
 EFI_IDS=()
@@ -119,7 +122,7 @@ esac
 
 zpool create -f "${ZPOOL_ARGS[@]}" -m none -R /target z ${SYSTEM_Z_TYPE} "${Z_DEVS[@]}"
 zpool set cachefile=/etc/zfs/zpool.cache z
-zfs create z/root
+zfs create z/root -o mountpoint=/
 zpool set bootfs=z/root z
 zfs create -o canmount=off -o com.sun:auto-snapshot=false z/root/var
 zfs create z/root/var/cache
@@ -221,7 +224,7 @@ echo "### Running further install in the chroot..."
 arch-chroot /target /install/2-install-chroot.sh ${HOSTNAME}
 
 echo "### Unmounting..."
-umount -R /target
+mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf {}
 zfs unmount -a
 
 echo "### Snapshotting..."
