@@ -5,15 +5,15 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 KERNEL=${KERNEL:-linux}
 HAS_CK_KERNEL=0
-case ${KERNEL}
+case ${KERNEL} in
     linux-ck-*) HAS_CK_KERNEL=1 ;;
 esac
 ZFS_PACAKGE=zfs-dkms
-case ${KERNEL}
+case ${KERNEL} in
     linux|linux-lts|linux-hardened|linux-zen) ZFS_PACAKGE=zfs-${KERNEL} ;;
 esac
 NVIDIA_PACAKGE=nvidia-dkms
-case ${KERNEL}
+case ${KERNEL} in
     linux) NVIDIA_PACAKGE=nvidia ;;
     linux-lts) NVIDIA_PACAKGE=nvidia-lts ;;
 esac
