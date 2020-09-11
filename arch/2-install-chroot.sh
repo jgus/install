@@ -79,7 +79,7 @@ Server = https://mirror.biocrafting.net/archlinux/archzfs/\$repo/\$arch
 Server = https://mirror.in.themindsmaze.com/archzfs/\$repo/\$arch
 
 [archzfs-kernels]
-Server = http://end.re/$repo/
+Server = http://end.re/$repo
 
 EOF
 pacman-key --recv-keys F75D9D76 --keyserver hkp://pool.sks-keyservers.net:80
