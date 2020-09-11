@@ -66,9 +66,8 @@ SWAP_DEVS=()
 SWAP_IDS=()
 
 TABLE_TYPE="gpt"
-for i in "${!SYSTEM_DEVICES[@]}"
+for DEVICE in "${SYSTEM_DEVICES[@]}"
 do
-    DEVICE="${SYSTEM_DEVICES[$i]}"
     echo "### Wiping and re-partitioning ${DEVICE}..."
     wipefs --all "${DEVICE}"
     parted -s "${DEVICE}" -- mklabel "${TABLE_TYPE}"
