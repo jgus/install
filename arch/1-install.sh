@@ -58,12 +58,12 @@ echo "### Cleaning up prior partitions..."
 umount -R /target || true
 zpool destroy z || true
 
-EFI_DEVS+=()
-Z_DEVS+=()
-SWAP_DEVS+=()
-EFI_IDS+=()
-Z_IDS+=()
-SWAP_IDS+=()
+EFI_DEVS=()
+EFI_IDS=()
+Z_DEVS=()
+Z_IDS=()
+SWAP_DEVS=()
+SWAP_IDS=()
 
 TABLE_TYPE="gpt"
 for i in "${!SYSTEM_DEVICES[@]}"
@@ -73,7 +73,7 @@ do
     wipefs --all "${DEVICE}"
     parted -s "${DEVICE}" -- mklabel "${TABLE_TYPE}"
     while [ -L "${DEVICE}-part2" ] ; do : ; done
-    parted -s "${DEVICE}" -- mkpart primary 4MiB "${EFI_SIZE}"
+    parted -s "${DEVICE}" -- mkpart primary 0 "${EFI_SIZE}"
     parted -s "${DEVICE}" -- set 1 esp on
     parted -s "${DEVICE}" -- mkpart primary "${EFI_SIZE}" -"${SWAP_SIZE}"
     parted -s "${DEVICE}" -- mkpart primary -"${SWAP_SIZE}" 100%
