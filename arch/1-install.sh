@@ -54,6 +54,7 @@ PACKAGES=(
 pacman -Sy --needed --noconfirm "${PACKAGES[@]}"
 
 echo "### Cleaning up prior partitions..."
+for d in /dev/mapper/swap*; do cryptsetup close ${i} || true; done
 mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf {}
 zfs unmount -a || true
 zpool export z || true
