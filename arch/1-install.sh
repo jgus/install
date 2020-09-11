@@ -8,6 +8,7 @@ SWAP_SIZE=${SWAP_SIZE:-$(free --giga | grep \^Mem | awk '{print $2}')GiB}
 KERNEL=${KERNEL:-linux}
 
 VKEY_TYPE=${VKEY_TYPE:-efi} # efi|root|prompt
+VKEY_TYPE=root
 case ${VKEY_TYPE} in
     efi)
         VKEY_FILE=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b
