@@ -127,9 +127,6 @@ do
     wget -L -O /efi/EFI/refind/drivers_x64/${fs}_x64.efi https://efi.akeo.ie/downloads/efifs-1.6/x64/${fs}_x64.efi
 done
 
-echo "### TEMP!!!"
-zsh
-
 echo "### Configuring nVidia updates..."
 mkdir -p /etc/pacman.d/hooks
 cat << EOF >>/etc/pacman.d/hooks/nvidia.hook
@@ -157,12 +154,3 @@ echo "### Preparing post-boot install..."
 #/root/.zlogin
 #/root/.runonce.sh
 chmod a+x ~/.runonce.sh
-
-cat <<EOF
-#####
-#
-# Please enter a root password:
-#
-#####
-EOF
-passwd

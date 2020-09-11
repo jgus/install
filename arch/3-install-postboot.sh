@@ -1,5 +1,8 @@
-#!/bin/bash
-set -e
+#!/bin/bash -e
+
+echo "### TEMP!!!"
+zsh
+
 
 # TODO
 # vnc?

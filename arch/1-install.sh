@@ -233,6 +233,15 @@ EOF
 echo "### Running further install in the chroot..."
 arch-chroot /target /install/2-install-chroot.sh
 
+cat <<EOF
+#####
+#
+# Please enter a root password:
+#
+#####
+EOF
+passwd --root /target
+
 echo "### Unmounting..."
 mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf {}
 zfs unmount -a
