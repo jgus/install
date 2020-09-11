@@ -9,9 +9,9 @@ case ${KERNEL} in
     linux-ck-*) HAS_CK_KERNEL=1 ;;
 esac
 ZFS_PACAKGE=zfs-dkms
-case ${KERNEL} in
-    linux|linux-lts|linux-hardened|linux-zen) ZFS_PACAKGE=zfs-${KERNEL} ;;
-esac
+# case ${KERNEL} in
+#     linux|linux-lts|linux-hardened|linux-zen) ZFS_PACAKGE=zfs-${KERNEL} ;;
+# esac
 NVIDIA_PACAKGE=nvidia-dkms
 case ${KERNEL} in
     linux) NVIDIA_PACAKGE=nvidia ;;
@@ -77,9 +77,6 @@ Server = http://mirror.sum7.eu/archlinux/archzfs/\$repo/\$arch
 Server = https://mirror.biocrafting.net/archlinux/archzfs/\$repo/\$arch
 # Mirror - India
 Server = https://mirror.in.themindsmaze.com/archzfs/\$repo/\$arch
-
-[archzfs-kernels]
-Server = http://end.re/$repo
 
 EOF
 pacman-key --recv-keys F75D9D76 --keyserver hkp://pool.sks-keyservers.net:80
