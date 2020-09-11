@@ -213,8 +213,9 @@ done
 echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime,size=${TMP_SIZE} 0 0" >> /target/etc/fstab
 
 echo "### Copying root files..."
-rsync -ar ~/opt /target/root/
-rsync -ar ~/.ssh/ /target/root/opt/dotfiles/ssh
+rsync -ar ~/.ssh/ /target/root/.ssh
+rsync -ar ~/.secrets/ /target/root/.secrets
+cp /root/vkey /target/root/vkey
 
 echo "### Running further install in the chroot..."
 arch-chroot /target /install/2-install-chroot.sh ${HOSTNAME}
