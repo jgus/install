@@ -150,12 +150,12 @@ do
     mount "${EFI_DEVS[$i]}" "/target/efi.${i}"
 done
 
-echo "### Setting up swap... (${SWAP_DEVS[@]})"
-for i in "${!SWAP_DEVS[@]}"
-do
-    cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file=${SWAP_VKEY_FILE} --allow-discards open --type plain "/dev/disk/by-partuuid/${SWAP_IDS[$i]}" swap${i}
-    mkswap -L SWAP${i} /dev/mapper/swap${i}
-done
+# echo "### Setting up swap... (${SWAP_DEVS[@]})"
+# for i in "${!SWAP_DEVS[@]}"
+# do
+#     cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file=${SWAP_VKEY_FILE} --allow-discards open --type plain "/dev/disk/by-partuuid/${SWAP_IDS[$i]}" swap${i}
+#     mkswap -L SWAP${i} /dev/mapper/swap${i}
+# done
 
 echo "### Mounting tmp..."
 mkdir -p /target/tmp
