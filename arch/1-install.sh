@@ -221,8 +221,16 @@ rsync -ar ~/.ssh/ /target/root/.ssh
 rsync -ar ~/.secrets/ /target/root/.secrets
 cp /root/vkey /target/root/vkey
 
+echo "### Configuring hostname..."
+echo "${HOSTNAME}" >/target/etc/hostname
+cat <<EOF >/target/etc/hosts
+127.0.0.1 localhost
+::1 localhost
+127.0.1.1 ${HOSTNAME}.localdomain ${HOSTNAME}
+EOF
+
 echo "### Running further install in the chroot..."
-arch-chroot /target /install/2-install-chroot.sh ${HOSTNAME}
+arch-chroot /target /install/2-install-chroot.sh
 
 echo "### Unmounting..."
 mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf {}

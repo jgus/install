@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-HOSTNAME=$1
+HOSTNAME=$(cat /etc/hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 KERNEL=${KERNEL:-linux}
@@ -24,7 +24,7 @@ lspci | grep NVIDIA && HAS_NVIDIA=1
 
 BOOT_PACKAGES=(
     # Base
-    diffutils logrotate man-db man-pages nano netctl usbutils vi which
+    diffutils logrotate man-db man-pages nano netctl usbutils vi which wget
     # DKMS
     base-devel dkms ${KERNEL}-headers
     # Bootloader
@@ -52,14 +52,6 @@ echo "### Configuring locale..."
 echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
 locale-gen
 echo "LANG=en_US.UTF-8" >/etc/locale.conf
-
-echo "### Configuring hostname..."
-echo "${HOSTNAME}" >/etc/hostname
-cat <<EOF >/etc/hosts
-127.0.0.1 localhost
-::1 localhost
-127.0.1.1 ${HOSTNAME}.localdomain ${HOSTNAME}
-EOF
 
 echo "### Installing packages..."
 sed -i "s|#Color|Color|g" /etc/pacman.conf
@@ -118,7 +110,7 @@ sed -i "s|HOOKS=(\(.*\))|HOOKS=(${HOOKS[*]})|g" /etc/mkinitcpio.conf
 mkinitcpio -P
 
 echo "### Installing bootloader..."
-refind-install --alldrivers
+refind-install
 KERNEL_PARAMS=()
 ((HAS_INTEL_CPU)) && KERNEL_PARAMS+=(initrd=/intel-ucode.img)
 ((HAS_AMD_CPU)) && KERNEL_PARAMS+=(initrd=/amd-ucode.img)
@@ -126,6 +118,13 @@ KERNEL_PARAMS+=(initrd=/initramfs-${KERNEL}.img loglevel=3 zfs=z/root rw)
 ((HAS_INTEL_CPU)) && [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS+=(intel_iommu=on iommu=pt)
 ((HAS_NVIDIA)) && KERNEL_PARAMS+=(nvidia-drm.modeset=1)
 ((ALLOW_SUSPEND)) && KERNEL_PARAMS+=(resume=/dev/mapper/swap0)
+cat <<EOF >/boot/refind_linux.conf
+"Standard" "${KERNEL_PARAMS[@]}"
+EOF
+for fs in zfs ntfs
+do
+    wget -L -O /efi/EFI/refind/drivers_x64/${fs}_x64.efi https://efi.akeo.ie/downloads/efifs-1.6/x64/${fs}_x64.efi
+done
 
 echo "### TEMP!!!"
 zsh
