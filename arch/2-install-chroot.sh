@@ -82,8 +82,8 @@ Server = https://mirror.in.themindsmaze.com/archzfs/\$repo/\$arch
 Server = http://end.re/$repo/
 
 EOF
-pacman-key -r DDF7DB817396A49B2A2723F7403BD972F75D9D76
-pacman-key --lsign-key DDF7DB817396A49B2A2723F7403BD972F75D9D76
+pacman-key --recv-keys F75D9D76 --keyserver hkp://pool.sks-keyservers.net:80
+pacman-key --lsign-key F75D9D76
 
 if ((HAS_CK_KERNEL))
 then
