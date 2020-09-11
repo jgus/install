@@ -76,17 +76,14 @@ do
     parted -s "${DEVICE}" -- set 1 esp on
     parted -s "${DEVICE}" -- mkpart primary "${EFI_SIZE}" -"${SWAP_SIZE}"
     parted -s "${DEVICE}" -- mkpart primary -"${SWAP_SIZE}" 100%
+    sleep 1
     EFI_DEVS+=("${DEVICE}-part1")
-    while ! blkid ${DEVICE}-part1 -o value -s PARTUUID ; do : ; done
     EFI_IDS+=($(blkid ${DEVICE}-part1 -o value -s PARTUUID))
     Z_DEVS+=("${DEVICE}-part2")
-    while ! blkid ${DEVICE}-part2 -o value -s PARTUUID ; do : ; done
     Z_IDS+=($(blkid ${DEVICE}-part2 -o value -s PARTUUID))
     SWAP_DEVS+=("${DEVICE}-part3")
-    while ! blkid ${DEVICE}-part3 -o value -s PARTUUID ; do : ; done
     SWAP_IDS+=($(blkid ${DEVICE}-part3 -o value -s PARTUUID))
 done
-sleep 1
 
 echo "### Creating zpool z... (${Z_DEVS[@]})"
 ZPOOL_ARGS=(
