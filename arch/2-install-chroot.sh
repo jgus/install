@@ -121,11 +121,15 @@ KERNEL_PARAMS+=(initrd=/initramfs-${KERNEL}.img loglevel=3 zfs=z/root rw)
 cat <<EOF >/boot/refind_linux.conf
 "Standard" "${KERNEL_PARAMS[@]}"
 EOF
-# mkdir -p /efi/EFI/refind/drivers_x64
-# for fs in zfs ntfs
-# do
-#     wget -L -O /efi/EFI/refind/drivers_x64/${fs}_x64.efi https://efi.akeo.ie/downloads/efifs-1.6/x64/${fs}_x64.efi
-# done
+mkdir -p /efi/EFI/refind/drivers_x64
+FS_DRIVERS=(
+    zfs
+    #ntfs
+)
+for fs in "${FS_DRIVERS[@]}"
+do
+    wget -L -O /efi/EFI/refind/drivers_x64/${fs}_x64.efi https://efi.akeo.ie/downloads/efifs-1.6/x64/${fs}_x64.efi
+done
 
 # echo "### TEMP!!!"
 # zsh
