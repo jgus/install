@@ -28,7 +28,7 @@ BOOT_PACKAGES=(
     # DKMS
     base-devel dkms ${KERNEL}-headers
     # Bootloader
-    efibootmgr refind
+    efibootmgr
     # Firmware
     fwupd
     # ZFS
@@ -110,29 +110,15 @@ sed -i "s|HOOKS=(\(.*\))|HOOKS=(${HOOKS[*]})|g" /etc/mkinitcpio.conf
 mkinitcpio -P
 
 echo "### Installing bootloader..."
-refind-install
 KERNEL_PARAMS=()
 ((HAS_INTEL_CPU)) && KERNEL_PARAMS+=(initrd=/intel-ucode.img)
-((HAS_AMD_CPU)) && KERNEL_PARAMS+=(initrd=/amd-ucode.img)
 KERNEL_PARAMS+=(initrd=/initramfs-${KERNEL}.img loglevel=3 zfs=z/root rw)
 ((HAS_INTEL_CPU)) && [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS+=(intel_iommu=on iommu=pt)
 ((HAS_NVIDIA)) && KERNEL_PARAMS+=(nvidia-drm.modeset=1)
 ((ALLOW_SUSPEND)) && KERNEL_PARAMS+=(resume=/dev/mapper/swap0)
-cat <<EOF >/boot/refind_linux.conf
-"Standard" "${KERNEL_PARAMS[@]}"
-EOF
-mkdir -p /efi/EFI/refind/drivers_x64
-FS_DRIVERS=(
-    zfs
-    #ntfs
-)
-for fs in "${FS_DRIVERS[@]}"
-do
-    wget -L -O /efi/EFI/refind/drivers_x64/${fs}_x64.efi https://efi.akeo.ie/downloads/efifs-1.6/x64/${fs}_x64.efi
-done
 
-# echo "### TEMP!!!"
-# zsh
+echo "### TEMP!!!"
+zsh
 
 echo "### Configuring nVidia updates..."
 mkdir -p /etc/pacman.d/hooks

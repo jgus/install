@@ -3,7 +3,7 @@
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
-EFI_SIZE=${EFI_SIZE:-512MiB}
+BOOT_SIZE=${BOOT_SIZE:-1GiB}
 SWAP_SIZE=${SWAP_SIZE:-$(free --giga | grep \^Mem | awk '{print $2}')GiB}
 KERNEL=${KERNEL:-linux}
 
@@ -62,8 +62,8 @@ zpool export z || true
 zpool destroy z || true
 rm -rf /target || true
 
-EFI_DEVS=()
-EFI_IDS=()
+BOOT_DEVS=()
+BOOT_IDS=()
 Z_DEVS=()
 Z_IDS=()
 SWAP_DEVS=()
@@ -76,13 +76,13 @@ do
     wipefs -af "${DEVICE}"
     parted -s "${DEVICE}" -- mklabel "${TABLE_TYPE}"
     while [ -L "${DEVICE}-part2" ] ; do : ; done
-    parted -s "${DEVICE}" -- mkpart primary 0% "${EFI_SIZE}"
+    parted -s "${DEVICE}" -- mkpart primary 0% "${BOOT_SIZE}"
     parted -s "${DEVICE}" -- set 1 esp on
-    parted -s "${DEVICE}" -- mkpart primary "${EFI_SIZE}" -"${SWAP_SIZE}"
+    parted -s "${DEVICE}" -- mkpart primary "${BOOT_SIZE}" -"${SWAP_SIZE}"
     parted -s "${DEVICE}" -- mkpart primary -"${SWAP_SIZE}" 100%
     sleep 1
-    EFI_DEVS+=("${DEVICE}-part1")
-    EFI_IDS+=($(blkid ${DEVICE}-part1 -o value -s PARTUUID))
+    BOOT_DEVS+=("${DEVICE}-part1")
+    BOOT_IDS+=($(blkid ${DEVICE}-part1 -o value -s PARTUUID))
     Z_DEVS+=("${DEVICE}-part2")
     Z_IDS+=($(blkid ${DEVICE}-part2 -o value -s PARTUUID))
     SWAP_DEVS+=("${DEVICE}-part3")
@@ -139,17 +139,17 @@ zfs create -o com.sun:auto-snapshot=false z/volumes/scratch
 zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images
 zfs create -o com.sun:auto-snapshot=false z/images/scratch
 
-echo "### Formatting EFI partition(s)... (${EFI_DEVS[@]})"
-for i in "${!EFI_DEVS[@]}"
+echo "### Formatting BOOT partition(s)... (${BOOT_DEVS[@]})"
+for i in "${!BOOT_DEVS[@]}"
 do
-    mkfs.fat -F 32 -n "EFI${i}" "${EFI_DEVS[$i]}"
+    mkfs.fat -F 32 -n "BOOT${i}" "${BOOT_DEVS[$i]}"
 done
-mkdir -p "/target/efi"
-mount "${EFI_DEVS[0]}" "/target/efi"
-for (( i=1; i<${#EFI_DEVS[@]}; i++ ))
+mkdir -p "/target/boot"
+mount "${BOOT_DEVS[0]}" "/target/boot"
+for (( i=1; i<${#BOOT_DEVS[@]}; i++ ))
 do
-    mkdir -p "/target/efi.${i}"
-    mount "${EFI_DEVS[$i]}" "/target/efi.${i}"
+    mkdir -p "/target/boot.${i}"
+    mount "${BOOT_DEVS[$i]}" "/target/boot.${i}"
 done
 
 echo "### Setting up swap... (${SWAP_DEVS[@]})"
@@ -207,10 +207,10 @@ EOF
 echo "### Configuring fstab..."
 #genfstab -U /target >> /target/etc/fstab
 #echo "z/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
-echo "PARTUUID=${EFI_IDS[0]} /efi vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
-for (( i=1; i<${#EFI_DEVS[@]}; i++ ))
+echo "PARTUUID=${BOOT_IDS[0]} /boot vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
+for (( i=1; i<${#BOOT_DEVS[@]}; i++ ))
 do
-    echo "PARTUUID=${EFI_IDS[$i]} /efi.${i} vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
+    echo "PARTUUID=${BOOT_IDS[$i]} /boot.${i} vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
 done
 for i in "${!SWAP_DEVS[@]}"
 do
