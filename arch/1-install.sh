@@ -132,13 +132,12 @@ zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
 zfs create -o mountpoint=/home z/home
-zfs create -o mountpoint=/root z/home/root
+#zfs create -o mountpoint=/root z/home/root
 [[ "${HAS_DOCKER}" == "1" ]] && zfs create -o mountpoint=/var/lib/docker z/docker
 zfs create -o mountpoint=/var/volumes -o com.sun:auto-snapshot=true z/volumes
 zfs create -o com.sun:auto-snapshot=false z/volumes/scratch
 zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images
 zfs create -o com.sun:auto-snapshot=false z/images/scratch
-zfs mount -a
 
 echo "### Formatting BOOT partition(s)... (${BOOT_DEVS[@]})"
 for i in "${!BOOT_DEVS[@]}"
