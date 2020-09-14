@@ -73,6 +73,7 @@ TABLE_TYPE="gpt"
 for DEVICE in "${SYSTEM_DEVICES[@]}"
 do
     echo "### Wiping and re-partitioning ${DEVICE}..."
+    blkdiscard "${DEVICE}" || true
     wipefs -af "${DEVICE}"
     parted -s "${DEVICE}" -- mklabel "${TABLE_TYPE}"
     while [ -L "${DEVICE}-part2" ] ; do : ; done
