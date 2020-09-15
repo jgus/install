@@ -131,7 +131,7 @@ MODULES=(efivarfs)
 ((HAS_NVIDIA)) && MODULES+=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
 sed -i "s|MODULES=(\(.*\))|MODULES=(${MODULES[*]})|g" /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
-HOOKS=(base udev autodetect modconf block encrypt openswap)
+HOOKS=(base udev autodetect modconf block encrypt)
 ((ALLOW_SUSPEND)) && HOOKS+=(resume)
 HOOKS+=(zfs filesystems keyboard)
 sed -i "s|HOOKS=(\(.*\))|HOOKS=(${HOOKS[*]})|g" /etc/mkinitcpio.conf
