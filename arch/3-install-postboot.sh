@@ -13,6 +13,8 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 KERNEL=${KERNEL:-linux}
 
 PACKAGES+=(
+    # RNG
+    rng-tools
     # Pacman
     pacman-contrib reflector
     # LDAP Auth
@@ -115,6 +117,14 @@ then
     systemctl enable reflector.timer
 
     zfs snapshot rpool@post-boot-install-packages
+fi
+
+if ! zfs list rpool@post-boot-install-rng
+then
+    echo "### Configuring RNG..."
+    systemctl enable --now rngd.service
+
+    zfs snapshot rpool@post-boot-install-rng
 fi
 
 # echo "### Configuring power..."
