@@ -125,7 +125,6 @@ esac
 
 
 zpool create -f "${ZPOOL_ARGS[@]}" -m none -R /target z ${SYSTEM_Z_TYPE} "${Z_DEVS[@]}"
-zpool set cachefile=/etc/zfs/zpool.cache z
 
 zfs create z/root -o canmount=noauto -o mountpoint=/
 zpool set bootfs=z/root z
@@ -196,6 +195,8 @@ rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/common/files/ /target
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/files/ /target || true
 
 echo "### Copying ZFS files..."
+mkdir -p /etc/zfs
+zpool set cachefile=/etc/zfs/zpool.cache z
 mkdir -p /target/etc/zfs
 cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
 

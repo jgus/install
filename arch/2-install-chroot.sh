@@ -22,7 +22,7 @@ lscpu | grep GenuineIntel && HAS_INTEL_CPU=1
 lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 lspci | grep NVIDIA && HAS_NVIDIA=1
 
-BOOT_PACKAGES=(
+PACKAGES=(
     # Base
     diffutils logrotate man-db man-pages nano netctl usbutils vi which wget
     # DKMS
@@ -42,7 +42,7 @@ BOOT_PACKAGES=(
 )
 ((HAS_INTEL_CPU)) && PACKAGES+=(intel-ucode)
 ((HAS_AMD_CPU)) && PACKAGES+=(amd-ucode)
-((HAS_NVIDIA)) && BOOT_PACKAGES+=(${NVIDIA_PACAKGE})
+((HAS_NVIDIA)) && PACKAGES+=(${NVIDIA_PACAKGE})
 
 echo "### Configuring clock..."
 ln -sf "/usr/share/zoneinfo/${TIME_ZONE}" /etc/localtime
@@ -85,7 +85,7 @@ EOF
     pacman-key --lsign-key 5EE46C4C
 fi
 
-pacman -Syyu --needed --noconfirm "${BOOT_PACKAGES[@]}"
+pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
 
 echo "### Configuring ZFS..."
 systemctl enable zfs.target
@@ -149,8 +149,8 @@ echo " ${KERNEL_PARAMS[@]}" >>/boot/${KERNEL}-opts.txt
 efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1  --create --label "Arch Linux (${KERNEL})" --loader /vmlinuz-${KERNEL} --append-binary-args /boot/${KERNEL}-opts.txt
 echo "vmlinuz-${KERNEL} ${KERNEL_PARAMS[@]}" >>/boot/${KERNEL}-startup.nsh
 
-echo "### TEMP!!!"
-zsh
+# echo "### TEMP!!!"
+# zsh
 
 echo "### Preparing post-boot install..."
 #/etc/systemd/system/getty@tty1.service.d/override.conf
