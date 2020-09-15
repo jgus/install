@@ -87,8 +87,37 @@ fi
 
 pacman -Syyu --needed --noconfirm "${BOOT_PACKAGES[@]}"
 
+echo "### Configuring ZFS..."
+systemctl enable zfs.target
+systemctl enable zfs-import-cache
+systemctl enable zfs-mount
+systemctl enable zfs-import.target
+zgenhostid
+
 echo "### Configuring network..."
 systemctl enable NetworkManager.service
+
+echo "### Configuring Zsh..."
+chsh -s /bin/zsh
+
+echo "### Configuring nVidia updates..."
+mkdir -p /etc/pacman.d/hooks
+cat << EOF >>/etc/pacman.d/hooks/nvidia.hook
+[Trigger]
+Operation=Install
+Operation=Upgrade
+Operation=Remove
+Type=Package
+Target=${NVIDIA_PACAKGE}
+Target=${KERNEL}
+
+[Action]
+Description=Update Nvidia module in initcpio
+Depends=mkinitcpio
+When=PostTransaction
+NeedsTargets
+Exec=/bin/sh -c 'while read -r trg; do case $trg in linux) exit 0; esac; done; /usr/bin/mkinitcpio -P'
+EOF
 
 echo "### Configuring VFIO..."
 if [[ "${VFIO_IDS}" != "" ]]
@@ -122,28 +151,6 @@ echo "vmlinuz-${KERNEL} ${KERNEL_PARAMS[@]}" >>/boot/${KERNEL}-startup.nsh
 
 # echo "### TEMP!!!"
 # zsh
-
-echo "### Configuring nVidia updates..."
-mkdir -p /etc/pacman.d/hooks
-cat << EOF >>/etc/pacman.d/hooks/nvidia.hook
-[Trigger]
-Operation=Install
-Operation=Upgrade
-Operation=Remove
-Type=Package
-Target=${NVIDIA_PACAKGE}
-Target=${KERNEL}
-
-[Action]
-Description=Update Nvidia module in initcpio
-Depends=mkinitcpio
-When=PostTransaction
-NeedsTargets
-Exec=/bin/sh -c 'while read -r trg; do case $trg in linux) exit 0; esac; done; /usr/bin/mkinitcpio -P'
-EOF
-
-echo "### Configuring Zsh..."
-chsh -s /bin/zsh
 
 echo "### Preparing post-boot install..."
 #/etc/systemd/system/getty@tty1.service.d/override.conf

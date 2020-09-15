@@ -98,6 +98,7 @@ ZPOOL_ARGS=(
     -O xattr=sa
     -O dnodesize=legacy
     -O normalization=formD
+    -O canmount=off
     -O aclinherit=passthrough
     -O com.sun:auto-snapshot=true
 
@@ -125,20 +126,30 @@ esac
 
 zpool create -f "${ZPOOL_ARGS[@]}" -m none -R /target z ${SYSTEM_Z_TYPE} "${Z_DEVS[@]}"
 zpool set cachefile=/etc/zfs/zpool.cache z
-zfs create z/root -o mountpoint=/
+
+zfs create z/root -o canmount=noauto -o mountpoint=/
 zpool set bootfs=z/root z
+
 zfs create -o canmount=off -o com.sun:auto-snapshot=false z/root/var
 zfs create z/root/var/cache
 zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
+
 zfs create -o mountpoint=/home z/home
-#zfs create -o mountpoint=/root z/home/root
+zfs create -o mountpoint=/root z/home/root
+
 [[ "${HAS_DOCKER}" == "1" ]] && zfs create -o mountpoint=/var/lib/docker z/docker
 zfs create -o mountpoint=/var/volumes -o com.sun:auto-snapshot=true z/volumes
 zfs create -o com.sun:auto-snapshot=false z/volumes/scratch
 zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images
 zfs create -o com.sun:auto-snapshot=false z/images/scratch
+
+zfs export z
+zpool import -R /target z -N
+zfs load-key z
+zfs mount z/root
+zfs mount -a
 
 echo "### Formatting BOOT partition(s)... (${BOOT_DEVS[@]})"
 for i in "${!BOOT_DEVS[@]}"
