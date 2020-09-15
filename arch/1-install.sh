@@ -73,7 +73,7 @@ TABLE_TYPE="gpt"
 for DEVICE in "${SYSTEM_DEVICES[@]}"
 do
     echo "### Wiping and re-partitioning ${DEVICE}..."
-    blkdiscard "${DEVICE}" || true
+    blkdiscard -f "${DEVICE}" || true
     wipefs -af "${DEVICE}"
     parted -s "${DEVICE}" -- mklabel "${TABLE_TYPE}"
     while [ -L "${DEVICE}-part2" ] ; do : ; done
@@ -147,7 +147,7 @@ zfs create -o com.sun:auto-snapshot=false z/images/scratch
 
 zpool export z
 zpool import -R /target z -N
-zfs load-key z
+zfs load-key -a
 zfs mount z/root
 zfs mount -a
 
