@@ -200,23 +200,11 @@ zpool set cachefile=/etc/zfs/zpool.cache z
 mkdir -p /target/etc/zfs
 cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
 
-echo "### Configuring openswap hook..."
-echo "run_hook () {" >> /target/etc/initcpio/hooks/openswap
+echo "### Configuring swap..."
 for i in "${!SWAP_DEVS[@]}"
 do
-    echo "cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file=${SWAP_VKEY_FILE} --allow-discards open --type plain /dev/disk/by-partuuid/${SWAP_IDS[$i]} swap${i}" >> /target/etc/initcpio/hooks/openswap
+    echo "swap${i} /dev/disk/by-partuuid/${SWAP_IDS[$i]} ${SWAP_VKEY_FILE} swap,discard,cipher=aes-xts-plain64,size=256" >> /target/etc/crypttab
 done
-echo "}" >> /target/etc/initcpio/hooks/openswap
-cat << EOF >> /target/etc/initcpio/install/openswap
-build ()
-{
-    add_runscript
-}
-help ()
-{
-    echo "Opens the swap encrypted partition(s)"
-}
-EOF
 
 echo "### Configuring fstab..."
 #genfstab -U /target >> /target/etc/fstab
