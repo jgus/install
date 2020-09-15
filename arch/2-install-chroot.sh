@@ -92,6 +92,9 @@ systemctl enable zfs.target
 systemctl enable zfs-import-cache
 systemctl enable zfs-mount
 systemctl enable zfs-import.target
+#/etc/systemd/system/zfs-scrub@.timer
+#/etc/systemd/system/zfs-scrub@.service
+systemctl enable zfs-scrub@z.timer
 zgenhostid
 
 echo "### Configuring network..."

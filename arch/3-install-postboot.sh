@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-echo "### TEMP!!!"
-zsh
+# echo "### TEMP!!!"
+# zsh
 
 
 # TODO
@@ -29,11 +29,11 @@ PACKAGES+=(
     # Misc
     ccache rsync p7zip tmux
     )
-[[ "${HAS_BLUETOOTH}" == "1" ]] && PACKAGES+=(
+((HAS_BLUETOOTH)) && PACKAGES+=(
     # Bluetooth
     bluez bluez-utils bluez-plugins
     )
-[[ "${HAS_GUI}" == "1" ]] && PACKAGES+=(
+((HAS_GUI)) && PACKAGES+=(
     # Xorg
     xorg tigervnc
     # KDE
@@ -75,11 +75,11 @@ PACKAGES+=(
 [[ "${USE_DM}" == "gdm" ]] && PACKAGES+=(
     gdm
     )
-[[ "${HAS_NVIDIA}" == "1" ]] && PACKAGES+=(
+((HAS_NVIDIA)) && PACKAGES+=(
     nvidia-utils lib32-nvidia-utils nvidia-settings
     opencl-nvidia ocl-icd cuda clinfo
     )
-[[ "${HAS_DOCKER}" == "1" ]] && PACKAGES+=(
+((HAS_DOCKER)) && PACKAGES+=(
     docker
     )
 
@@ -89,7 +89,7 @@ AUR_PACKAGES+=(
     # ZFS
     zfs-auto-snapshot
     )
-[[ "${HAS_GUI}" == "1" ]] && AUR_PACKAGES+=(
+((HAS_GUI)) && AUR_PACKAGES+=(
     # Xorg
     xbanish
     # Printing
@@ -101,76 +101,48 @@ AUR_PACKAGES+=(
     # Minecraft
     minecraft-launcher
     )
-[[ "${HAS_OPTIMUS}" == "1" ]] && AUR_PACKAGES+=(
+((HAS_OPTIMUS)) && AUR_PACKAGES+=(
     optimus-manager optimus-manager-qt
     )
-[[ "${HAS_DOCKER}" == "1" ]] && [[ "${HAS_NVIDIA}" == "1" ]] && AUR_PACKAGES+=(
+((HAS_DOCKER)) && ((HAS_NVIDIA)) && AUR_PACKAGES+=(
     nvidia-container-toolkit
     )
-
-echo "### Post-boot ZFS config..."
-zfs load-key -a
-zpool set cachefile=/etc/zfs/zpool.cache z
-if [[ -d /bulk ]]
-then
-    zpool set cachefile=/etc/zfs/zpool.cache bulk
-fi
-zfs mount -a
-
-#/etc/systemd/system/zfs-load-key.service
-#/etc/systemd/system/zfs-scrub@.timer
-#/etc/systemd/system/zfs-scrub@.service
-
-systemctl enable zfs.target
-systemctl enable zfs-import-cache
-systemctl enable zfs-mount
-systemctl enable zfs-import.target
-systemctl enable zfs-load-key.service
-systemctl enable zfs-scrub@z.timer
-if [[ -d /bulk ]]
-then
-    systemctl enable zfs-scrub@bulk.timer
-fi
-
-zgenhostid $(hostid)
-
-mkinitcpio -P
 
 echo "### Installing packages..."
 pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
 systemctl enable reflector.timer
 
-echo "### Configuring power..."
-# common/files/etc/skel/.config/powermanagementprofilesrc
-[[ "${ALLOW_POWEROFF}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-shutdown.rules
-polkit.addRule(function(action, subject) {
-    if (action.id == "org.freedesktop.login1.reboot" ||
-        action.id == "org.freedesktop.login1.reboot-multiple-sessions" ||
-        action.id == "org.freedesktop.login1.power-off" ||
-        action.id == "org.freedesktop.login1.power-off-multiple-sessions")
-    {
-        if (subject.isInGroup("wheel")) {
-            return polkit.Result.YES;
-        } else {
-            return polkit.Result.NO;
-        }
-    }
-});
-EOF
-[[ "${ALLOW_SUSPEND}" == "1" ]] || cat << EOF >>/etc/polkit-1/rules.d/10-disable-suspend.rules
-polkit.addRule(function(action, subject) {
-    if (action.id == "org.freedesktop.login1.suspend" ||
-        action.id == "org.freedesktop.login1.suspend-multiple-sessions" ||
-        action.id == "org.freedesktop.login1.hibernate" ||
-        action.id == "org.freedesktop.login1.hibernate-multiple-sessions")
-    {
-        return polkit.Result.NO;
-    }
-});
-EOF
+# echo "### Configuring power..."
+# # common/files/etc/skel/.config/powermanagementprofilesrc
+# ((ALLOW_POWEROFF)) || cat << EOF >>/etc/polkit-1/rules.d/10-disable-shutdown.rules
+# polkit.addRule(function(action, subject) {
+#     if (action.id == "org.freedesktop.login1.reboot" ||
+#         action.id == "org.freedesktop.login1.reboot-multiple-sessions" ||
+#         action.id == "org.freedesktop.login1.power-off" ||
+#         action.id == "org.freedesktop.login1.power-off-multiple-sessions")
+#     {
+#         if (subject.isInGroup("wheel")) {
+#             return polkit.Result.YES;
+#         } else {
+#             return polkit.Result.NO;
+#         }
+#     }
+# });
+# EOF
+# ((ALLOW_SUSPEND)) || cat << EOF >>/etc/polkit-1/rules.d/10-disable-suspend.rules
+# polkit.addRule(function(action, subject) {
+#     if (action.id == "org.freedesktop.login1.suspend" ||
+#         action.id == "org.freedesktop.login1.suspend-multiple-sessions" ||
+#         action.id == "org.freedesktop.login1.hibernate" ||
+#         action.id == "org.freedesktop.login1.hibernate-multiple-sessions")
+#     {
+#         return polkit.Result.NO;
+#     }
+# });
+# EOF
 
 echo "### Configuring network..."
-if [[ "${HAS_WIFI}" == "1" ]]
+if ((HAS_WIFI))
 then
     for i in /etc/NetworkManager/wifi
     do
@@ -207,7 +179,7 @@ systemctl enable --now nslcd.service
 systemctl enable --now sssd.service
 
 echo "### Configuring RNG..."
-systemctl enable rngd.service
+systemctl enable --now rngd.service
 
 echo "### Configuring SSH..."
 cat << EOF >>/etc/ssh/sshd_config
@@ -218,16 +190,16 @@ EOF
 systemctl enable sshd.service
 
 echo "### Configuring Samba..."
-mkdir /beast
+mkdir /nas
 cat <<EOF >>/etc/fstab
 
-# Beast
+# NAS
 EOF
-for share in "${BEAST_SHARES[@]}"
+for share in "${NAS_SHARES[@]}"
 do
-    mkdir /beast/${share}
-    echo "//beast/${share} /beast/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/beast 0 0" >>/etc/fstab
-    mount /beast/${share}
+    mkdir /nas/${share}
+    echo "//nas/${share} /nas/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/nas 0 0" >>/etc/fstab
+    mount /nas/${share}
 done
 
 echo "### Adding system users..."
@@ -246,9 +218,6 @@ fi
 
 usermod -a -G wheel josh
 /etc/mkhome.sh josh
-
-zfs create -o mountpoint=/git z/git
-chown josh:josh /git
 
 if which virsh
 then
@@ -297,7 +266,7 @@ which apcaccess && systemctl enable apcupsd.service
 echo "### Configuring Sensors..."
 sensors-detect --auto
 
-if [[ "${HAS_GUI}" == "1" ]]
+if ((HAS_GUI))
 then
     echo "### Configuring Xorg..."
     which ratbagd && systemctl enable ratbagd.service
@@ -309,11 +278,11 @@ then
     echo "### Configuring Fonts..."
     ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
 
-    echo "### Fetching MS Fonts..."
-    scp root@beast:/mnt/d/bulk/Software/MSDN/Windows/WindowsFonts.tar.bz2 /tmp/
-    cd /usr/share/fonts
-    tar xf /tmp/WindowsFonts.tar.bz2
-    chmod 755 WindowsFonts
+    # echo "### Fetching MS Fonts..."
+    # scp root@nas:/mnt/d/bulk/Software/MSDN/Windows/WindowsFonts.tar.bz2 /tmp/
+    # cd /usr/share/fonts
+    # tar xf /tmp/WindowsFonts.tar.bz2
+    # chmod 755 WindowsFonts
 
     echo "### Configuring Display Manager..."
     case ${USE_DM} in
@@ -322,7 +291,7 @@ then
         ;;
     sddm)
         systemctl enable sddm.service
-        [[ "${HAS_OPTIMUS}" == "1" ]] && cat << EOF >> /etc/sddm.conf.d/display.conf
+        ((HAS_OPTIMUS)) && cat << EOF >> /etc/sddm.conf.d/display.conf
 xrandr --setprovideroutputsource modesetting NVIDIA-0
 xrandr --auto
 EOF
@@ -342,9 +311,12 @@ if which virsh
 then
     echo "### Configuring KVM..."
     systemctl enable --now libvirtd.service
-    virsh net-define "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"
-    virsh net-autostart internal
-    virsh net-start internal
+    if [[ -f "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"]]
+    then
+        virsh net-define "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"
+        virsh net-autostart internal
+        virsh net-start internal
+    fi
     cat << EOF >> /etc/libvirt/qemu.conf
 nvram = [
     "/usr/share/ovmf/x64/OVMF_CODE.fd:/usr/share/ovmf/x64/OVMF_VARS.fd"
@@ -368,15 +340,6 @@ alias yay='sudo -u builder yay'
 alias yayinst='sudo -u builder yay -Syu --needed'
 EOF
 
-cat <<EOF
-#####
-#
-# Please enter a root password:
-#
-#####
-EOF
-passwd
-
 echo "### Cleaning up..."
 rm /etc/systemd/system/getty@tty1.service.d/override.conf
 
@@ -390,7 +353,7 @@ echo "### Installing AUR Packages (interactive)..."
 sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 
 echo "### Configuring AUR Xorg..."
-[[ "${HAS_OPTIMUS}" == "1" ]] && systemctl enable optimus-manager.service
+((HAS_OPTIMUS)) && systemctl enable optimus-manager.service
 
 echo "### Configuring Printing..."
 systemctl enable org.cups.cupsd.service
@@ -416,7 +379,7 @@ done
 # ExcludePath ^/sys/
 # ExcludePath ^/dev/
 # ExcludePath ^/run/
-# ExcludePath ^/beast/
+# ExcludePath ^/nas/
 # ExcludePath ^/home/josh/smb/
 
 # ScanOnAccess true
@@ -426,7 +389,7 @@ done
 # OnAccessExcludePath /dev/
 # OnAccessExcludePath /run/
 # OnAccessExcludePath /var/log/
-# OnAccessExcludePath /beast/
+# OnAccessExcludePath /nas/
 # OnAccessExcludePath /home/josh/smb/
 # OnAccessExtraScanning true
 # OnAccessExcludeRootUID yes
@@ -440,7 +403,7 @@ done
 
 echo "### Configuring Docker..."
 #/etc/docker/daemon.json
-if [[ "${HAS_DOCKER}" == "1" ]]
+if ((HAS_DOCKER))
 then
     usermod -a -G docker josh
     systemctl enable docker.service
