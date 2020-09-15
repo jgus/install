@@ -15,13 +15,13 @@ KERNEL=${KERNEL:-linux}
 PACKAGES+=(
     # Pacman
     pacman-contrib reflector
+    # LDAP Auth
+    openldap nss-pam-ldapd sssd
     # Sensors
     lm_sensors nvme-cli
     # General
     git git-lfs
     diffutils inetutils less logrotate man-db man-pages nano usbutils which
-    # RNG
-    rng-tools
     # OpenSSH
     openssh
     # Samba
@@ -108,9 +108,14 @@ AUR_PACKAGES+=(
     nvidia-container-toolkit
     )
 
-echo "### Installing packages..."
-pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
-systemctl enable reflector.timer
+if ! zfs list rpool@post-boot-install-packages
+then
+    echo "### Installing packages..."
+    pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
+    systemctl enable reflector.timer
+
+    zfs snapshot rpool@post-boot-install-packages
+fi
 
 # echo "### Configuring power..."
 # # common/files/etc/skel/.config/powermanagementprofilesrc
@@ -141,142 +146,199 @@ systemctl enable reflector.timer
 # });
 # EOF
 
-echo "### Configuring network..."
-if ((HAS_WIFI))
+if ! zfs list rpool@post-boot-network
 then
-    for i in /etc/NetworkManager/wifi
-    do
-        source "${i}"
-        nmcli device wifi connect ${ssid} password ${psk}
-    done
+    echo "### Configuring network..."
+    if ((HAS_WIFI))
+    then
+        for i in /etc/NetworkManager/wifi
+        do
+            source "${i}"
+            nmcli device wifi connect ${ssid} password ${psk}
+        done
+    fi
+
+    zfs snapshot rpool@post-boot-network
 fi
 
-echo "### Configuring LDAP auth..."
-cat << EOF >> /etc/openldap/ldap.conf
+if ! zfs list rpool@post-boot-ldap
+then
+    echo "### Configuring LDAP auth..."
+    cat << EOF >> /etc/openldap/ldap.conf
 BASE        dc=gustafson,dc=me
 URI         ldap://ldap.gustafson.me
 TLS_REQCERT allow
 EOF
-sed -i "s|passwd: files|passwd: files sss|g" /etc/nsswitch.conf
-sed -i "s|group: files|group: files sss|g" /etc/nsswitch.conf
-sed -i "s|shadow: files|shadow: files sss|g" /etc/nsswitch.conf
-sed -i "s|netgroup: files|netgroup: files sss|g" /etc/nsswitch.conf
-echo "sudoers: files sss" >>/etc/nsswitch.conf
-sed -i "s|^uri.*|uri ldap://ldap.gustafson.me/|g" /etc/nslcd.conf
-sed -i "s|dc=example,dc=com|dc=gustafson,dc=me|g" /etc/nslcd.conf
-cat << EOF >>/etc/nslcd.conf
+    sed -i "s|passwd: files|passwd: files sss|g" /etc/nsswitch.conf
+    sed -i "s|group: files|group: files sss|g" /etc/nsswitch.conf
+    sed -i "s|shadow: files|shadow: files sss|g" /etc/nsswitch.conf
+    sed -i "s|netgroup: files|netgroup: files sss|g" /etc/nsswitch.conf
+    echo "sudoers: files sss" >>/etc/nsswitch.conf
+    sed -i "s|^uri.*|uri ldap://ldap.gustafson.me/|g" /etc/nslcd.conf
+    sed -i "s|dc=example,dc=com|dc=gustafson,dc=me|g" /etc/nslcd.conf
+    cat << EOF >>/etc/nslcd.conf
 binddn cn=readonly,dc=gustafson,dc=me
 bindpw readonly
 EOF
-chmod go-rw /etc/nslcd.conf
-sed -i "s|enable-cache\(\s*\)passwd\(\s*\)yes|enable-cache\1passwd\2no|g" /etc/nscd.conf
-sed -i "s|enable-cache\(\s*\)group\(\s*\)yes|enable-cache\1group\2no|g" /etc/nscd.conf
-sed -i "s|enable-cache\(\s*\)netgroup\(\s*\)yes|enable-cache\1netgroup\2no|g" /etc/nscd.conf
-source /etc/openldap.env
-echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
-chmod 600 /etc/sssd/sssd.conf
-systemctl enable --now nslcd.service
-systemctl enable --now sssd.service
+    chmod go-rw /etc/nslcd.conf
+    sed -i "s|enable-cache\(\s*\)passwd\(\s*\)yes|enable-cache\1passwd\2no|g" /etc/nscd.conf
+    sed -i "s|enable-cache\(\s*\)group\(\s*\)yes|enable-cache\1group\2no|g" /etc/nscd.conf
+    sed -i "s|enable-cache\(\s*\)netgroup\(\s*\)yes|enable-cache\1netgroup\2no|g" /etc/nscd.conf
+    source /root/.secrets/openldap.env
+    echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
+    chmod 600 /etc/sssd/sssd.conf
+    systemctl enable --now nslcd.service
+    systemctl enable --now sssd.service
 
-echo "### Configuring RNG..."
-systemctl enable --now rngd.service
+    zfs snapshot rpool@post-boot-ldap
+fi
 
-echo "### Configuring SSH..."
-cat << EOF >>/etc/ssh/sshd_config
+if ! zfs list rpool@post-boot-ssh
+then
+    echo "### Configuring SSH..."
+    cat << EOF >>/etc/ssh/sshd_config
 PasswordAuthentication no
 AllowAgentForwarding yes
 AllowTcpForwarding yes
 EOF
-systemctl enable sshd.service
+    systemctl enable sshd.service
 
-echo "### Configuring Samba..."
-mkdir /nas
-cat <<EOF >>/etc/fstab
+    zfs snapshot rpool@post-boot-ssh
+fi
+
+if ! zfs list rpool@post-boot-nas
+then
+    echo "### Configuring NAS Shares..."
+    mkdir /nas
+    cat <<EOF >>/etc/fstab
 
 # NAS
 EOF
-for share in "${NAS_SHARES[@]}"
-do
-    mkdir /nas/${share}
-    echo "//nas/${share} /nas/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/nas 0 0" >>/etc/fstab
-    mount /nas/${share}
-done
+    for share in "${NAS_SHARES[@]}"
+    do
+        mkdir /nas/${share}
+        echo "//nas/${share} /nas/${share} cifs noauto,nofail,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.device-timeout=30,credentials=/etc/samba/private/nas 0 0" >>/etc/fstab
+        mount /nas/${share}
+    done
 
-echo "### Adding system users..."
-#/etc/sudoers.d/wheel
-#/etc/sudoers.d/builder
-
-useradd -D --shell /bin/zsh
-
-if [[ -d /bulk ]]
-then
-    chown -R gustafson:gustafson /bulk
-    chmod 775 /bulk
-    chmod g+s /bulk
-    setfacl -d -m group:gustafson:rwx /bulk
+    zfs snapshot rpool@post-boot-nas
 fi
 
-usermod -a -G wheel josh
-/etc/mkhome.sh josh
-
-if which virsh
+if ! zfs list rpool@post-boot-users
 then
-    usermod -a -G libvirt josh
-    mkdir -p /home/josh/.config/libvirt
-    echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
-    chown -R josh:josh /home/josh/.config/libvirt
-fi
-mkdir -p /home/josh/.ssh
-curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
-chmod 400 /home/josh/.ssh/authorized_keys
-chown -R josh:josh /home/josh/.ssh
+    echo "### Adding system users..."
+    #/etc/sudoers.d/wheel
+    #/etc/sudoers.d/builder
 
-echo "### Configuring makepkg..."
-sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
-cat <<EOF >>/etc/makepkg.conf 
+    useradd -D --shell /bin/zsh
+
+    if [[ -d /bulk ]]
+    then
+        chown -R gustafson:gustafson /bulk
+        chmod 775 /bulk
+        chmod g+s /bulk
+        setfacl -d -m group:gustafson:rwx /bulk
+    fi
+
+    usermod -a -G wheel josh
+    /etc/mkhome.sh josh
+
+    if which virsh
+    then
+        usermod -a -G libvirt josh
+        mkdir -p /home/josh/.config/libvirt
+        echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
+        chown -R josh:josh /home/josh/.config/libvirt
+    fi
+    mkdir -p /home/josh/.ssh
+    curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
+    chmod 400 /home/josh/.ssh/authorized_keys
+    chown -R josh:josh /home/josh/.ssh
+
+    zfs snapshot rpool@post-boot-users
+fi
+
+if ! zfs list rpool@post-boot-makepkg
+then
+    echo "### Configuring makepkg..."
+    sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
+    cat <<EOF >>/etc/makepkg.conf 
 MAKEFLAGS="-j$(nproc)"
 BUILDDIR=/tmp/makepkg
 EOF
 
-echo "### Configuring Samba..."
-# /etc/samba/smb.conf
-# /etc/systemd/user/smbnetfs.service
-[[ -f /etc/samba/smb.conf ]] && systemctl enable smb.service
-if which smbnetfs
-then
-    mkdir -p /home/josh/smb
-    chown -R josh:josh /home/josh/smb
-    #sudo -u josh systemctl --user enable smbnetfs
+    zfs snapshot rpool@post-boot-makepkg
 fi
 
-if which bluetoothctl
+if ! zfs list rpool@post-boot-samba
 then
-    echo "### Configuring Bluetooth..."
-    cat << EOF >> /etc/bluetooth/main.conf
+    # /etc/samba/smb.conf
+    # /etc/systemd/user/smbnetfs.service
+    [[ -f /etc/samba/smb.conf ]] && systemctl enable smb.service
+    if which smbnetfs
+    then
+        echo "### Configuring Samba..."
+        mkdir -p /home/josh/smb
+        chown -R josh:josh /home/josh/smb
+        #sudo -u josh systemctl --user enable smbnetfs
+    fi
+
+    zfs snapshot rpool@post-boot-samba
+fi
+
+if ! zfs list rpool@post-boot-bluetooth
+then
+    if which bluetoothctl
+    then
+        echo "### Configuring Bluetooth..."
+        cat << EOF >> /etc/bluetooth/main.conf
 
 [Policy]
 AutoEnable=true
 EOF
-    systemctl enable bluetooth.service
+        systemctl enable bluetooth.service
+    fi
+
+    zfs snapshot rpool@post-boot-bluetooth
 fi
 
-echo "### Configuring UPS..."
-which apcaccess && systemctl enable apcupsd.service
+if ! zfs list rpool@post-boot-ups
+then
+    echo "### Configuring UPS..."
+    which apcaccess && systemctl enable apcupsd.service
 
-echo "### Configuring Sensors..."
-sensors-detect --auto
+    zfs snapshot rpool@post-boot-ups
+fi
+
+if ! zfs list rpool@post-boot-sensors
+then
+    echo "### Configuring Sensors..."
+    sensors-detect --auto
+
+    zfs snapshot rpool@post-boot-sensors
+fi
 
 if ((HAS_GUI))
 then
-    echo "### Configuring Xorg..."
-    which ratbagd && systemctl enable ratbagd.service
-    for d in "${SEAT1_DEVICES[@]}"
-    do
-        loginctl attach seat1 "${d}"
-    done
+    if ! zfs list rpool@post-boot-xorg
+    then
+        echo "### Configuring Xorg..."
+        which ratbagd && systemctl enable ratbagd.service
+        for d in "${SEAT1_DEVICES[@]}"
+        do
+            loginctl attach seat1 "${d}"
+        done
 
-    echo "### Configuring Fonts..."
-    ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
+        zfs snapshot rpool@post-boot-xorg
+    fi
+
+    if ! zfs list rpool@post-boot-fonts
+    then
+        echo "### Configuring Fonts..."
+        ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
+
+        zfs snapshot rpool@post-boot-fonts
+    fi
 
     # echo "### Fetching MS Fonts..."
     # scp root@nas:/mnt/d/bulk/Software/MSDN/Windows/WindowsFonts.tar.bz2 /tmp/
@@ -284,86 +346,122 @@ then
     # tar xf /tmp/WindowsFonts.tar.bz2
     # chmod 755 WindowsFonts
 
-    echo "### Configuring Display Manager..."
-    case ${USE_DM} in
-    gdm)
-        systemctl enable gdm.service
-        ;;
-    sddm)
-        systemctl enable sddm.service
-        ((HAS_OPTIMUS)) && cat << EOF >> /etc/sddm.conf.d/display.conf
+    if ! zfs list rpool@post-boot-dm
+    then
+        echo "### Configuring Display Manager..."
+        case ${USE_DM} in
+        gdm)
+            systemctl enable gdm.service
+            ;;
+        sddm)
+            systemctl enable sddm.service
+            ((HAS_OPTIMUS)) && cat << EOF >> /etc/sddm.conf.d/display.conf
 xrandr --setprovideroutputsource modesetting NVIDIA-0
 xrandr --auto
 EOF
-        ;;
-    esac
-    systemctl enable xvnc.socket
-fi
+            ;;
+        esac
+        systemctl enable xvnc.socket
 
-echo "### Configuring Steam..."
-if [[ -d /bulk ]]
-then
-    mkdir -p /bulk/steam
-    chown gustafson:gustafson /bulk/steam
-fi
-
-if which virsh
-then
-    echo "### Configuring KVM..."
-    systemctl enable --now libvirtd.service
-    if [[ -f "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"]]
-    then
-        virsh net-define "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"
-        virsh net-autostart internal
-        virsh net-start internal
+        zfs snapshot rpool@post-boot-dm
     fi
-    cat << EOF >> /etc/libvirt/qemu.conf
+fi
+
+if ! zfs list rpool@post-boot-steam
+then
+    echo "### Configuring Steam..."
+    if [[ -d /bulk ]]
+    then
+        mkdir -p /bulk/steam
+        chown gustafson:gustafson /bulk/steam
+    fi
+
+    zfs snapshot rpool@post-boot-steam
+fi
+
+if ! zfs list rpool@post-boot-virsh
+then
+    if which virsh
+    then
+        echo "### Configuring KVM..."
+        systemctl enable --now libvirtd.service
+        if [[ -f "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"]]
+        then
+            virsh net-define "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"
+            virsh net-autostart internal
+            virsh net-start internal
+        fi
+        cat << EOF >> /etc/libvirt/qemu.conf
 nvram = [
     "/usr/share/ovmf/x64/OVMF_CODE.fd:/usr/share/ovmf/x64/OVMF_VARS.fd"
 ]
 EOF
+    fi
+
+    zfs snapshot rpool@post-boot-virsh
 fi
 
-echo "### Installing Yay..."
-useradd --user-group --home-dir /var/cache/builder --create-home --system builder
-chmod ug+ws /var/cache/builder
-setfacl -m u::rwx,g::rwx /var/cache/builder
-cd /var/cache/builder
-sudo -u builder git clone https://aur.archlinux.org/yay.git
-cd yay
-sudo -u builder makepkg -si --needed --noconfirm
+if ! zfs list rpool@post-boot-yay
+then
+    echo "### Installing Yay..."
+    useradd --user-group --home-dir /var/cache/builder --create-home --system builder
+    chmod ug+ws /var/cache/builder
+    setfacl -m u::rwx,g::rwx /var/cache/builder
+    cd /var/cache/builder
+    sudo -u builder git clone https://aur.archlinux.org/yay.git
+    cd yay
+    sudo -u builder makepkg -si --needed --noconfirm
 
-echo "### Configuring Environment..."
-cat <<EOF >>/etc/profile
+    zfs snapshot rpool@post-boot-yay
+fi
+
+if ! zfs list rpool@post-boot-env
+then
+    echo "### Configuring Environment..."
+    cat <<EOF >>/etc/profile
 export EDITOR=nano
 alias yay='sudo -u builder yay'
 alias yayinst='sudo -u builder yay -Syu --needed'
 EOF
 
-echo "### Cleaning up..."
-rm /etc/systemd/system/getty@tty1.service.d/override.conf
+    zfs snapshot rpool@post-boot-env
+fi
 
-echo "### Making a snapshot..."
-for pool in z/root z/home z/images
-do
-    zfs snapshot ${pool}@post-boot-install
-done
+if ! zfs list rpool@post-boot-aur
+then
+    echo "### Installing AUR Packages (interactive)..."
+    sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 
-echo "### Installing AUR Packages (interactive)..."
-sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
+    zfs snapshot rpool@post-boot-aur
+fi
 
-echo "### Configuring AUR Xorg..."
-((HAS_OPTIMUS)) && systemctl enable optimus-manager.service
+if ! zfs list rpool@post-boot-xorg-aur
+then
+    echo "### Configuring AUR Xorg..."
+    ((HAS_OPTIMUS)) && systemctl enable optimus-manager.service
 
-echo "### Configuring Printing..."
-systemctl enable org.cups.cupsd.service
+    zfs snapshot rpool@post-boot-xorg-aur
+fi
 
-echo "### Configuring ZFS Snapshots..."
-# /etc/systemd/system/zfs-auto-snapshot-*.service.d
-for i in monthly weekly daily hourly frequent
-do
-    systemctl enable zfs-auto-snapshot-${i}.timer
-done
+if ! zfs list rpool@post-boot-printing
+then
+    echo "### Configuring Printing..."
+    systemctl enable org.cups.cupsd.service
+
+    zfs snapshot rpool@post-boot-printing
+fi
+
+if ! zfs list rpool@post-boot-znap
+then
+    echo "### Configuring ZFS Snapshots..."
+    # /etc/systemd/system/zfs-auto-snapshot-*.service.d
+    for i in monthly weekly daily hourly frequent
+    do
+        systemctl enable zfs-auto-snapshot-${i}.timer
+    done
+
+    zfs snapshot rpool@post-boot-znap
+fi
 
 # echo "### Configuring ClamAV..."
 # sed -i 's/^User/#User/g' /etc/pacman.conf
@@ -401,23 +499,28 @@ done
 # systemctl enable clamav-unofficial-sigs.timer
 # systemctl enable clamav-daemon.service
 
-echo "### Configuring Docker..."
-#/etc/docker/daemon.json
-if ((HAS_DOCKER))
+if ! zfs list rpool@post-boot-docker
 then
-    usermod -a -G docker josh
-    systemctl enable docker.service
-    systemctl enable docker-prune.timer
+    echo "### Configuring Docker..."
+    #/etc/docker/daemon.json
+    if ((HAS_DOCKER))
+    then
+        usermod -a -G docker josh
+        systemctl enable docker.service
+        systemctl enable docker-prune.timer
+    fi
+
+    zfs snapshot rpool@post-boot-docker
 fi
 
-echo "### Cleaning up..."
-rm -rf /install
+if ! zfs list rpool@post-boot-cleanup
+then
+    echo "### Cleaning up..."
+    rm /etc/systemd/system/getty@tty1.service.d/override.conf
+    rm -rf /install
 
-echo "### Making a snapshot..."
-for pool in z/root z/home z/docker z/images
-do
-    zfs snapshot ${pool}@aur-packages-installed
-done
+    zfs snapshot rpool@post-boot-cleanup
+fi
 
 echo "### Done with post-boot install! Rebooting..."
 reboot

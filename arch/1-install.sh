@@ -188,7 +188,7 @@ pacstrap /target base ${KERNEL} linux-firmware
 
 echo "### Copying install files..."
 mkdir -p /target/install
-cp -rf "$(cd "$(dirname "$0")" ; pwd)"/* /target/install
+rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/.. /target/install
 
 echo "### Copying preset files..."
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/common/files/ /target
@@ -234,7 +234,7 @@ cat <<EOF >/target/etc/hosts
 EOF
 
 echo "### Running further install in the chroot..."
-arch-chroot /target /install/2-install-chroot.sh
+arch-chroot /target /install/arch/2-install-chroot.sh
 
 cat <<EOF
 #####

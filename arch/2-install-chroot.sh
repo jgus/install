@@ -37,8 +37,8 @@ PACKAGES=(
     openresolv networkmanager dhclient
     # ZSH
     zsh grml-zsh-config
-    # LDAP Auth
-    openldap nss-pam-ldapd sssd
+    # RNG
+    rng-tools
 )
 ((HAS_INTEL_CPU)) && PACKAGES+=(intel-ucode)
 ((HAS_AMD_CPU)) && PACKAGES+=(amd-ucode)
@@ -99,6 +99,9 @@ zgenhostid
 
 echo "### Configuring network..."
 systemctl enable NetworkManager.service
+
+echo "### Configuring RNG..."
+systemctl enable --now rngd.service
 
 echo "### Configuring Zsh..."
 chsh -s /bin/zsh
