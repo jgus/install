@@ -1,3 +1,3 @@
 #!/bin/bash -e
 
-/install/3-install-postboot.sh
+/install/arch/3-install-postboot.sh
