@@ -145,7 +145,7 @@ zfs create -o com.sun:auto-snapshot=false z/volumes/scratch
 zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images
 zfs create -o com.sun:auto-snapshot=false z/images/scratch
 
-zfs export z
+zpool export z
 zpool import -R /target z -N
 zfs load-key z
 zfs mount z/root
