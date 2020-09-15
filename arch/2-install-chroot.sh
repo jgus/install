@@ -149,8 +149,8 @@ echo " ${KERNEL_PARAMS[@]}" >>/boot/${KERNEL}-opts.txt
 efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1  --create --label "Arch Linux (${KERNEL})" --loader /vmlinuz-${KERNEL} --append-binary-args /boot/${KERNEL}-opts.txt
 echo "vmlinuz-${KERNEL} ${KERNEL_PARAMS[@]}" >>/boot/${KERNEL}-startup.nsh
 
-# echo "### TEMP!!!"
-# zsh
+echo "### TEMP!!!"
+zsh
 
 echo "### Preparing post-boot install..."
 #/etc/systemd/system/getty@tty1.service.d/override.conf
