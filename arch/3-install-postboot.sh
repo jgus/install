@@ -110,21 +110,21 @@ AUR_PACKAGES+=(
     nvidia-container-toolkit
     )
 
-if ! zfs list rpool@post-boot-install-packages
+if ! zfs list z/root@post-boot-install-packages
 then
     echo "### Installing packages..."
     pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
     systemctl enable reflector.timer
 
-    zfs snapshot rpool@post-boot-install-packages
+    zfs snapshot z/root@post-boot-install-packages
 fi
 
-if ! zfs list rpool@post-boot-install-rng
+if ! zfs list z/root@post-boot-install-rng
 then
     echo "### Configuring RNG..."
     systemctl enable --now rngd.service
 
-    zfs snapshot rpool@post-boot-install-rng
+    zfs snapshot z/root@post-boot-install-rng
 fi
 
 # echo "### Configuring power..."
@@ -156,7 +156,7 @@ fi
 # });
 # EOF
 
-if ! zfs list rpool@post-boot-network
+if ! zfs list z/root@post-boot-network
 then
     echo "### Configuring network..."
     if ((HAS_WIFI))
@@ -168,10 +168,10 @@ then
         done
     fi
 
-    zfs snapshot rpool@post-boot-network
+    zfs snapshot z/root@post-boot-network
 fi
 
-if ! zfs list rpool@post-boot-ldap
+if ! zfs list z/root@post-boot-ldap
 then
     echo "### Configuring LDAP auth..."
     cat << EOF >> /etc/openldap/ldap.conf
@@ -200,10 +200,10 @@ EOF
     systemctl enable --now nslcd.service
     systemctl enable --now sssd.service
 
-    zfs snapshot rpool@post-boot-ldap
+    zfs snapshot z/root@post-boot-ldap
 fi
 
-if ! zfs list rpool@post-boot-ssh
+if ! zfs list z/root@post-boot-ssh
 then
     echo "### Configuring SSH..."
     cat << EOF >>/etc/ssh/sshd_config
@@ -213,10 +213,10 @@ AllowTcpForwarding yes
 EOF
     systemctl enable sshd.service
 
-    zfs snapshot rpool@post-boot-ssh
+    zfs snapshot z/root@post-boot-ssh
 fi
 
-if ! zfs list rpool@post-boot-nas
+if ! zfs list z/root@post-boot-nas
 then
     echo "### Configuring NAS Shares..."
     mkdir /nas
@@ -231,10 +231,10 @@ EOF
         mount /nas/${share}
     done
 
-    zfs snapshot rpool@post-boot-nas
+    zfs snapshot z/root@post-boot-nas
 fi
 
-if ! zfs list rpool@post-boot-users
+if ! zfs list z/root@post-boot-users
 then
     echo "### Adding system users..."
     #/etc/sudoers.d/wheel
@@ -265,10 +265,10 @@ then
     chmod 400 /home/josh/.ssh/authorized_keys
     chown -R josh:josh /home/josh/.ssh
 
-    zfs snapshot rpool@post-boot-users
+    zfs snapshot z/root@post-boot-users
 fi
 
-if ! zfs list rpool@post-boot-makepkg
+if ! zfs list z/root@post-boot-makepkg
 then
     echo "### Configuring makepkg..."
     sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
@@ -277,10 +277,10 @@ MAKEFLAGS="-j$(nproc)"
 BUILDDIR=/tmp/makepkg
 EOF
 
-    zfs snapshot rpool@post-boot-makepkg
+    zfs snapshot z/root@post-boot-makepkg
 fi
 
-if ! zfs list rpool@post-boot-samba
+if ! zfs list z/root@post-boot-samba
 then
     # /etc/samba/smb.conf
     # /etc/systemd/user/smbnetfs.service
@@ -293,10 +293,10 @@ then
         #sudo -u josh systemctl --user enable smbnetfs
     fi
 
-    zfs snapshot rpool@post-boot-samba
+    zfs snapshot z/root@post-boot-samba
 fi
 
-if ! zfs list rpool@post-boot-bluetooth
+if ! zfs list z/root@post-boot-bluetooth
 then
     if which bluetoothctl
     then
@@ -309,28 +309,28 @@ EOF
         systemctl enable bluetooth.service
     fi
 
-    zfs snapshot rpool@post-boot-bluetooth
+    zfs snapshot z/root@post-boot-bluetooth
 fi
 
-if ! zfs list rpool@post-boot-ups
+if ! zfs list z/root@post-boot-ups
 then
     echo "### Configuring UPS..."
     which apcaccess && systemctl enable apcupsd.service
 
-    zfs snapshot rpool@post-boot-ups
+    zfs snapshot z/root@post-boot-ups
 fi
 
-if ! zfs list rpool@post-boot-sensors
+if ! zfs list z/root@post-boot-sensors
 then
     echo "### Configuring Sensors..."
     sensors-detect --auto
 
-    zfs snapshot rpool@post-boot-sensors
+    zfs snapshot z/root@post-boot-sensors
 fi
 
 if ((HAS_GUI))
 then
-    if ! zfs list rpool@post-boot-xorg
+    if ! zfs list z/root@post-boot-xorg
     then
         echo "### Configuring Xorg..."
         which ratbagd && systemctl enable ratbagd.service
@@ -339,15 +339,15 @@ then
             loginctl attach seat1 "${d}"
         done
 
-        zfs snapshot rpool@post-boot-xorg
+        zfs snapshot z/root@post-boot-xorg
     fi
 
-    if ! zfs list rpool@post-boot-fonts
+    if ! zfs list z/root@post-boot-fonts
     then
         echo "### Configuring Fonts..."
         ln -sf ../conf.avail/75-joypixels.conf /etc/fonts/conf.d/75-joypixels.conf
 
-        zfs snapshot rpool@post-boot-fonts
+        zfs snapshot z/root@post-boot-fonts
     fi
 
     # echo "### Fetching MS Fonts..."
@@ -356,7 +356,7 @@ then
     # tar xf /tmp/WindowsFonts.tar.bz2
     # chmod 755 WindowsFonts
 
-    if ! zfs list rpool@post-boot-dm
+    if ! zfs list z/root@post-boot-dm
     then
         echo "### Configuring Display Manager..."
         case ${USE_DM} in
@@ -373,11 +373,11 @@ EOF
         esac
         systemctl enable xvnc.socket
 
-        zfs snapshot rpool@post-boot-dm
+        zfs snapshot z/root@post-boot-dm
     fi
 fi
 
-if ! zfs list rpool@post-boot-steam
+if ! zfs list z/root@post-boot-steam
 then
     echo "### Configuring Steam..."
     if [[ -d /bulk ]]
@@ -386,10 +386,10 @@ then
         chown gustafson:gustafson /bulk/steam
     fi
 
-    zfs snapshot rpool@post-boot-steam
+    zfs snapshot z/root@post-boot-steam
 fi
 
-if ! zfs list rpool@post-boot-virsh
+if ! zfs list z/root@post-boot-virsh
 then
     if which virsh
     then
@@ -408,10 +408,10 @@ nvram = [
 EOF
     fi
 
-    zfs snapshot rpool@post-boot-virsh
+    zfs snapshot z/root@post-boot-virsh
 fi
 
-if ! zfs list rpool@post-boot-yay
+if ! zfs list z/root@post-boot-yay
 then
     echo "### Installing Yay..."
     useradd --user-group --home-dir /var/cache/builder --create-home --system builder
@@ -422,10 +422,10 @@ then
     cd yay
     sudo -u builder makepkg -si --needed --noconfirm
 
-    zfs snapshot rpool@post-boot-yay
+    zfs snapshot z/root@post-boot-yay
 fi
 
-if ! zfs list rpool@post-boot-env
+if ! zfs list z/root@post-boot-env
 then
     echo "### Configuring Environment..."
     cat <<EOF >>/etc/profile
@@ -434,34 +434,34 @@ alias yay='sudo -u builder yay'
 alias yayinst='sudo -u builder yay -Syu --needed'
 EOF
 
-    zfs snapshot rpool@post-boot-env
+    zfs snapshot z/root@post-boot-env
 fi
 
-if ! zfs list rpool@post-boot-aur
+if ! zfs list z/root@post-boot-aur
 then
     echo "### Installing AUR Packages (interactive)..."
     sudo -u builder yay -S --needed "${AUR_PACKAGES[@]}"
 
-    zfs snapshot rpool@post-boot-aur
+    zfs snapshot z/root@post-boot-aur
 fi
 
-if ! zfs list rpool@post-boot-xorg-aur
+if ! zfs list z/root@post-boot-xorg-aur
 then
     echo "### Configuring AUR Xorg..."
     ((HAS_OPTIMUS)) && systemctl enable optimus-manager.service
 
-    zfs snapshot rpool@post-boot-xorg-aur
+    zfs snapshot z/root@post-boot-xorg-aur
 fi
 
-if ! zfs list rpool@post-boot-printing
+if ! zfs list z/root@post-boot-printing
 then
     echo "### Configuring Printing..."
     systemctl enable org.cups.cupsd.service
 
-    zfs snapshot rpool@post-boot-printing
+    zfs snapshot z/root@post-boot-printing
 fi
 
-if ! zfs list rpool@post-boot-znap
+if ! zfs list z/root@post-boot-znap
 then
     echo "### Configuring ZFS Snapshots..."
     # /etc/systemd/system/zfs-auto-snapshot-*.service.d
@@ -470,7 +470,7 @@ then
         systemctl enable zfs-auto-snapshot-${i}.timer
     done
 
-    zfs snapshot rpool@post-boot-znap
+    zfs snapshot z/root@post-boot-znap
 fi
 
 # echo "### Configuring ClamAV..."
@@ -509,7 +509,7 @@ fi
 # systemctl enable clamav-unofficial-sigs.timer
 # systemctl enable clamav-daemon.service
 
-if ! zfs list rpool@post-boot-docker
+if ! zfs list z/root@post-boot-docker
 then
     echo "### Configuring Docker..."
     #/etc/docker/daemon.json
@@ -520,16 +520,16 @@ then
         systemctl enable docker-prune.timer
     fi
 
-    zfs snapshot rpool@post-boot-docker
+    zfs snapshot z/root@post-boot-docker
 fi
 
-if ! zfs list rpool@post-boot-cleanup
+if ! zfs list z/root@post-boot-cleanup
 then
     echo "### Cleaning up..."
     rm /etc/systemd/system/getty@tty1.service.d/override.conf
     rm -rf /install
 
-    zfs snapshot rpool@post-boot-cleanup
+    zfs snapshot z/root@post-boot-cleanup
 fi
 
 echo "### Done with post-boot install! Rebooting..."
