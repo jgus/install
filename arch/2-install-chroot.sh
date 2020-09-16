@@ -147,7 +147,7 @@ KERNEL_PARAMS+=(initrd=/initramfs-${KERNEL}.img loglevel=3 zfs=z/root rw)
 ((HAS_NVIDIA)) && KERNEL_PARAMS+=(nvidia-drm.modeset=1)
 ((ALLOW_SUSPEND)) && KERNEL_PARAMS+=(resume=/dev/mapper/swap0)
 echo "vmlinuz-${KERNEL} ${KERNEL_PARAMS[@]}" >>/boot/${KERNEL}-startup.nsh
-echo " ${KERNEL_PARAMS[@]}" >>/boot/${KERNEL}-opts.txt
+echo -n " ${KERNEL_PARAMS[@]}" >>/boot/${KERNEL}-opts.txt
 efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${KERNEL})" --loader /vmlinuz-${KERNEL} --append-binary-args /boot/${KERNEL}-opts.txt
 
 # echo "### TEMP!!!"
