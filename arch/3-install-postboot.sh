@@ -64,6 +64,7 @@ PACKAGES+=(
     ttf-roboto
     ttf-ubuntu-font-family
     # Applications
+    firefox
     code
     freerdp
     libreoffice-still hunspell hunspell-en_US libmythes mythes-en
@@ -96,8 +97,6 @@ AUR_PACKAGES+=(
     xbanish
     # Printing
     cups cups-pdf ghostscript gsfonts cnrdrvcups-lb
-    # Chrome
-    google-chrome
     # Steam
     steam steam-native-runtime ttf-liberation steam-fonts
     # Minecraft
