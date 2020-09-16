@@ -180,6 +180,9 @@ echo "### Done partitioning!"
 df -h
 mount | grep target
 
+echo "### TEMP!!!"
+zsh
+
 # echo "### Updating Pacman mirrors..."
 # curl -s "https://www.archlinux.org/mirrorlist/?country=US&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
 
@@ -224,6 +227,9 @@ echo "### Copying root files..."
 rsync -ar ~/.ssh/ /target/root/.ssh
 rsync -ar ~/.secrets/ /target/root/.secrets
 cp /root/vkey /target/root/vkey
+
+echo "### TEMP!!!"
+zsh
 
 echo "### Configuring hostname..."
 echo "${HOSTNAME}" >/target/etc/hostname
