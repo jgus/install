@@ -371,10 +371,11 @@ xrandr --auto
 EOF
             ;;
         esac
-        systemctl enable xvnc.socket
 
         zfs snapshot z/root@post-boot-dm
     fi
+
+    #systemctl enable xvnc.socket
 fi
 
 if ! zfs list z/root@post-boot-steam
