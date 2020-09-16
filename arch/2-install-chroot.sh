@@ -148,8 +148,7 @@ KERNEL_PARAMS+=(initrd=/initramfs-${KERNEL}.img loglevel=3 zfs=z/root rw)
 ((ALLOW_SUSPEND)) && KERNEL_PARAMS+=(resume=/dev/mapper/swap0)
 echo "vmlinuz-${KERNEL} ${KERNEL_PARAMS[@]}" >>/boot/${KERNEL}-startup.nsh
 echo " ${KERNEL_PARAMS[@]}" >>/boot/${KERNEL}-opts.txt
-# efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${KERNEL})" --loader /vmlinuz-${KERNEL} --append-binary-args /boot/${KERNEL}-opts.txt
-efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${KERNEL})" --loader /${KERNEL}-startup.nsh
+efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${KERNEL})" --loader /vmlinuz-${KERNEL} --append-binary-args /boot/${KERNEL}-opts.txt
 
 # echo "### TEMP!!!"
 # zsh
