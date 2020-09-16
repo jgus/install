@@ -396,7 +396,7 @@ then
     then
         echo "### Configuring KVM..."
         systemctl enable --now libvirtd.service
-        if [[ -f "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"]]
+        if [[ -f "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml" ]]
         then
             virsh net-define "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"
             virsh net-autostart internal
