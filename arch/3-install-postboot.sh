@@ -176,7 +176,7 @@ then
     cat << EOF >> /etc/openldap/ldap.conf
 BASE        dc=gustafson,dc=me
 URI         ldap://ldap.gustafson.me
-TLS_REQCERT allow
+TLS_REQCERT /etc/ssl/certs/ldap.crt
 EOF
     sed -i "s|passwd: files|passwd: files sss|g" /etc/nsswitch.conf
     sed -i "s|group: files|group: files sss|g" /etc/nsswitch.conf
