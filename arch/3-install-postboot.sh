@@ -204,7 +204,7 @@ then
     echo "### Adding users..."
     #/etc/sudoers.d/wheel
     #/etc/sudoers.d/builder
-    patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
+    patch -i /etc/pam.d/system-login.patch /etc/pam.d/system-login
 
     useradd -D --shell /bin/zsh
 

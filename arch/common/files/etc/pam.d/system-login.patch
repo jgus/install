@@ -1,0 +1,8 @@
+*** system-login.orig   2020-09-19 20:17:12.289999898 -0600
+--- system-login        2020-09-19 20:19:29.199999906 -0600
+***************
+*** 15,16 ****
+--- 15,17 ----
+  session    include    system-auth
++ session    required   pam_exec.so          debug stdout /etc/mkhome.sh
+  session    optional   pam_motd.so          motd=/etc/motd
