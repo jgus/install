@@ -17,8 +17,6 @@ PACKAGES+=(
     rng-tools
     # Pacman
     pacman-contrib reflector
-    # LDAP Auth
-    openldap nss-pam-ldapd sssd
     # Sensors
     lm_sensors nvme-cli
     # General
@@ -170,38 +168,6 @@ then
     zfs snapshot z/root@post-boot-network
 fi
 
-if ! zfs list z/root@post-boot-ldap
-then
-    echo "### Configuring LDAP auth..."
-    cat << EOF >> /etc/openldap/ldap.conf
-BASE        dc=gustafson,dc=me
-URI         ldap://ldap.gustafson.me
-TLS_REQCERT /etc/ssl/certs/ldap.crt
-EOF
-    sed -i "s|passwd: files|passwd: files sss|g" /etc/nsswitch.conf
-    sed -i "s|group: files|group: files sss|g" /etc/nsswitch.conf
-    sed -i "s|shadow: files|shadow: files sss|g" /etc/nsswitch.conf
-    sed -i "s|netgroup: files|netgroup: files sss|g" /etc/nsswitch.conf
-    echo "sudoers: files sss" >>/etc/nsswitch.conf
-    sed -i "s|^uri.*|uri ldap://ldap.gustafson.me/|g" /etc/nslcd.conf
-    sed -i "s|dc=example,dc=com|dc=gustafson,dc=me|g" /etc/nslcd.conf
-    cat << EOF >>/etc/nslcd.conf
-binddn cn=readonly,dc=gustafson,dc=me
-bindpw readonly
-EOF
-    chmod go-rw /etc/nslcd.conf
-    sed -i "s|enable-cache\(\s*\)passwd\(\s*\)yes|enable-cache\1passwd\2no|g" /etc/nscd.conf
-    sed -i "s|enable-cache\(\s*\)group\(\s*\)yes|enable-cache\1group\2no|g" /etc/nscd.conf
-    sed -i "s|enable-cache\(\s*\)netgroup\(\s*\)yes|enable-cache\1netgroup\2no|g" /etc/nscd.conf
-    source /root/.secrets/openldap.env
-    echo "ldap_default_authtok = ${LDAP_ADMIN_PASSWORD}" >> /etc/sssd/sssd.conf
-    chmod 600 /etc/sssd/sssd.conf
-    systemctl enable --now nslcd.service
-    systemctl enable --now sssd.service
-
-    zfs snapshot z/root@post-boot-ldap
-fi
-
 if ! zfs list z/root@post-boot-ssh
 then
     echo "### Configuring SSH..."
@@ -235,22 +201,37 @@ fi
 
 if ! zfs list z/root@post-boot-users
 then
-    echo "### Adding system users..."
+    echo "### Adding users..."
     #/etc/sudoers.d/wheel
     #/etc/sudoers.d/builder
+    patch -i /etc/pam.d/common-session.patch /etc/pam.d/common-session
 
     useradd -D --shell /bin/zsh
 
-    if [[ -d /bulk ]]
-    then
-        chown -R gustafson:gustafson /bulk
-        chmod 775 /bulk
-        chmod g+s /bulk
-        setfacl -d -m group:gustafson:rwx /bulk
-    fi
+    while IFS=, read -r user uid
+    do
+        groupadd --gid ${uid} ${user}
+        useradd --gid ${uid} --no-create-home --no-user-group --uid ${uid} ${user}
+        passwd -l ${user}
+    done << EOF
+josh,2000
+melissa,2001
+kayleigh,2002
+john,2003
+william,2004
+lyra,2005
+eden,2006
+hope,2007
+peter,2008
+gustafson,3000
+EOF
 
-    usermod -a -G wheel josh
     /etc/mkhome.sh josh
+    usermod -a -G wheel josh
+    mkdir -p /home/josh/.ssh
+    curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
+    chmod 400 /home/josh/.ssh/authorized_keys
+    chown -R josh:josh /home/josh/.ssh
 
     if which virsh
     then
@@ -259,10 +240,6 @@ then
         echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
         chown -R josh:josh /home/josh/.config/libvirt
     fi
-    mkdir -p /home/josh/.ssh
-    curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
-    chmod 400 /home/josh/.ssh/authorized_keys
-    chown -R josh:josh /home/josh/.ssh
 
     zfs snapshot z/root@post-boot-users
 fi
