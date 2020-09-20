@@ -265,4 +265,4 @@ echo "### Exporting..."
 zpool export z
 
 echo "### Done installing! Rebooting..."
-#reboot
+reboot

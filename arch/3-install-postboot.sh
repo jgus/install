@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-echo "### TEMP!!!"
-zsh
+# echo "### TEMP!!!"
+# zsh
 
 
 # TODO
@@ -231,14 +231,14 @@ EOF
     mkdir -p /home/josh/.ssh
     curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
     chmod 400 /home/josh/.ssh/authorized_keys
-    chown -R josh:josh /home/josh/.ssh
+    chown -R josh:josh /home/josh
 
     if which virsh
     then
         usermod -a -G libvirt josh
         mkdir -p /home/josh/.config/libvirt
         echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
-        chown -R josh:josh /home/josh/.config/libvirt
+        chown -R josh:josh /home/josh
     fi
 
     zfs snapshot z/root@post-boot-users
@@ -265,7 +265,7 @@ then
     then
         echo "### Configuring Samba..."
         mkdir -p /home/josh/smb
-        chown -R josh:josh /home/josh/smb
+        chown -R josh:josh /home/josh
         #sudo -u josh systemctl --user enable smbnetfs
     fi
 
