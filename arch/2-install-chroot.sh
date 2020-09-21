@@ -151,7 +151,7 @@ KERNEL_PARAMS_POST+=(loglevel=3 zfs=z/root rw)
 ((HAS_INTEL_CPU)) && [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS_POST+=(intel_iommu=on iommu=pt)
 ((HAS_NVIDIA)) && KERNEL_PARAMS_POST+=(nvidia-drm.modeset=1)
 ((ALLOW_SUSPEND)) && KERNEL_PARAMS_POST+=(resume=/dev/mapper/swap0)
-for k in "${KERNELS[@}]}"
+for k in "${KERNELS[@]}"
 do
     ALL_KERNEL_PARAMS="${KERNEL_PARAMS_PRE[@]} initrd=/initramfs-${k}-fallback.img ${KERNEL_PARAMS_PRE[@]}"
     echo "vmlinuz-${k} ${ALL_KERNEL_PARAMS}" >>/boot/${k}-fallback-startup.nsh
