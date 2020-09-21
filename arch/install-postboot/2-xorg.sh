@@ -3,7 +3,7 @@
 if ((HAS_GUI))
 then
     echo "### Configuring Xorg..."
-    which ratbagd && systemctl enable ratbagd.service
+    which ratbagd && systemctl enable ratbagd.service || true
     for d in "${SEAT1_DEVICES[@]}"
     do
         loginctl attach seat1 "${d}"
