@@ -153,12 +153,12 @@ KERNEL_PARAMS_POST+=(loglevel=3 zfs=z/root rw)
 ((ALLOW_SUSPEND)) && KERNEL_PARAMS_POST+=(resume=/dev/mapper/swap0)
 for k in "${KERNELS[@]}"
 do
-    ALL_KERNEL_PARAMS="${KERNEL_PARAMS_PRE[@]} initrd=/initramfs-${k}-fallback.img ${KERNEL_PARAMS_PRE[@]}"
+    ALL_KERNEL_PARAMS="${KERNEL_PARAMS_PRE[@]} initrd=/initramfs-${k}-fallback.img ${KERNEL_PARAMS_POST[@]}"
     echo "vmlinuz-${k} ${ALL_KERNEL_PARAMS}" >>/boot/${k}-fallback-startup.nsh
     echo -n " ${ALL_KERNEL_PARAMS}" >>/boot/${k}-fallback-opts.txt
     efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${k} fallback)" --loader /vmlinuz-${k} --unicode "${ALL_KERNEL_PARAMS}"
 
-    ALL_KERNEL_PARAMS="${KERNEL_PARAMS_PRE[@]} initrd=/initramfs-${k}.img ${KERNEL_PARAMS_PRE[@]}"
+    ALL_KERNEL_PARAMS="${KERNEL_PARAMS_PRE[@]} initrd=/initramfs-${k}.img ${KERNEL_PARAMS_POST[@]}"
     echo "vmlinuz-${k} ${ALL_KERNEL_PARAMS}" >>/boot/${k}-startup.nsh
     echo -n " ${ALL_KERNEL_PARAMS}" >>/boot/${k}-opts.txt
     efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${k})" --loader /vmlinuz-${k} --unicode "${ALL_KERNEL_PARAMS}"
