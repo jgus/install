@@ -5,7 +5,11 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 BOOT_SIZE=${BOOT_SIZE:-1GiB}
 SWAP_SIZE=${SWAP_SIZE:-$(free --giga | grep \^Mem | awk '{print $2}')GiB}
-KERNEL=${KERNEL:-linux}
+
+if [[ "${KERNELS[@]}" == "" ]]
+then
+    KERNELS=(linux-lts linux)
+fi
 
 VKEY_TYPE=${VKEY_TYPE:-efi} # efi|root|prompt
 VKEY_TYPE=root
@@ -187,7 +191,7 @@ mount | grep target
 # curl -s "https://www.archlinux.org/mirrorlist/?country=US&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
 
 echo "### Pacstrapping..."
-pacstrap /target base ${KERNEL} linux-firmware
+pacstrap /target base "${KERNELS[@]}" linux-firmware
 
 echo "### Copying install files..."
 mkdir -p /target/install

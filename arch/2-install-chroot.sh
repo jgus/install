@@ -3,20 +3,20 @@
 HOSTNAME=$(cat /etc/hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
-KERNEL=${KERNEL:-linux}
+if [[ "${KERNELS[@]}" == "" ]]
+then
+    KERNELS=(linux-lts linux)
+fi
+
+KERNEL_HEADERS=()
 HAS_CK_KERNEL=0
-case ${KERNEL} in
-    linux-ck-*) HAS_CK_KERNEL=1 ;;
-esac
-ZFS_PACAKGE=zfs-dkms
-# case ${KERNEL} in
-#     linux|linux-lts|linux-hardened|linux-zen) ZFS_PACAKGE=zfs-${KERNEL} ;;
-# esac
-NVIDIA_PACAKGE=nvidia-dkms
-case ${KERNEL} in
-    linux) NVIDIA_PACAKGE=nvidia ;;
-    linux-lts) NVIDIA_PACAKGE=nvidia-lts ;;
-esac
+for k in "${KERNELS[@]}"
+do
+    KERNEL_HEADERS+=(${k}-headers)
+    case ${k} in
+        linux-ck-*) HAS_CK_KERNEL=1 ;;
+    esac
+done
 
 lscpu | grep GenuineIntel && HAS_INTEL_CPU=1
 lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
@@ -26,13 +26,13 @@ PACKAGES=(
     # Base
     diffutils logrotate man-db man-pages nano netctl usbutils vi which wget
     # DKMS
-    base-devel dkms ${KERNEL}-headers
+    base-devel dkms "${KERNEL_HEADERS[@]}"
     # Bootloader
     efibootmgr
     # Firmware
     fwupd
     # ZFS
-    ${ZFS_PACAKGE}
+    zfs-dkms
     # Network
     openresolv networkmanager dhclient
     # ZSH
@@ -40,7 +40,7 @@ PACKAGES=(
 )
 ((HAS_INTEL_CPU)) && PACKAGES+=(intel-ucode)
 ((HAS_AMD_CPU)) && PACKAGES+=(amd-ucode)
-((HAS_NVIDIA)) && PACKAGES+=(${NVIDIA_PACAKGE})
+((HAS_NVIDIA)) && PACKAGES+=(nvidia-dkms)
 
 echo "### Configuring clock..."
 ln -sf "/usr/share/zoneinfo/${TIME_ZONE}" /etc/localtime
@@ -110,7 +110,12 @@ Operation=Upgrade
 Operation=Remove
 Type=Package
 Target=${NVIDIA_PACAKGE}
-Target=${KERNEL}
+EOF
+for k in "${KERNELS[@]}"
+do
+    echo "Target=${k}" >>/etc/pacman.d/hooks/nvidia.hook
+done
+cat << EOF >>/etc/pacman.d/hooks/nvidia.hook
 
 [Action]
 Description=Update Nvidia module in initcpio
@@ -140,16 +145,24 @@ sed -i "s|HOOKS=(\(.*\))|HOOKS=(${HOOKS[*]})|g" /etc/mkinitcpio.conf
 mkinitcpio -P
 
 echo "### Installing bootloader..."
-KERNEL_PARAMS=()
-((HAS_INTEL_CPU)) && KERNEL_PARAMS+=(initrd=/intel-ucode.img)
-KERNEL_PARAMS+=(initrd=/initramfs-${KERNEL}.img loglevel=3 zfs=z/root rw)
-((HAS_INTEL_CPU)) && [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS+=(intel_iommu=on iommu=pt)
-((HAS_NVIDIA)) && KERNEL_PARAMS+=(nvidia-drm.modeset=1)
-((ALLOW_SUSPEND)) && KERNEL_PARAMS+=(resume=/dev/mapper/swap0)
-echo "vmlinuz-${KERNEL} ${KERNEL_PARAMS[@]}" >>/boot/${KERNEL}-startup.nsh
-echo -n " ${KERNEL_PARAMS[@]}" >>/boot/${KERNEL}-opts.txt
-ALL_KERNEL_PARAMS="${KERNEL_PARAMS[@]}"
-efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${KERNEL})" --loader /vmlinuz-${KERNEL} --unicode "${ALL_KERNEL_PARAMS}"
+KERNEL_PARAMS_PRE=()
+((HAS_INTEL_CPU)) && KERNEL_PARAMS_PRE+=(initrd=/intel-ucode.img)
+KERNEL_PARAMS_POST+=(loglevel=3 zfs=z/root rw)
+((HAS_INTEL_CPU)) && [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS_POST+=(intel_iommu=on iommu=pt)
+((HAS_NVIDIA)) && KERNEL_PARAMS_POST+=(nvidia-drm.modeset=1)
+((ALLOW_SUSPEND)) && KERNEL_PARAMS_POST+=(resume=/dev/mapper/swap0)
+for k in "${KERNELS[@}]}"
+do
+    ALL_KERNEL_PARAMS="${KERNEL_PARAMS_PRE[@]} initrd=/initramfs-${k}-fallback.img ${KERNEL_PARAMS_PRE[@]}"
+    echo "vmlinuz-${k} ${ALL_KERNEL_PARAMS}" >>/boot/${k}-fallback-startup.nsh
+    echo -n " ${ALL_KERNEL_PARAMS}" >>/boot/${k}-fallback-opts.txt
+    efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${k} fallback)" --loader /vmlinuz-${k} --unicode "${ALL_KERNEL_PARAMS}"
+
+    ALL_KERNEL_PARAMS="${KERNEL_PARAMS_PRE[@]} initrd=/initramfs-${k}.img ${KERNEL_PARAMS_PRE[@]}"
+    echo "vmlinuz-${k} ${ALL_KERNEL_PARAMS}" >>/boot/${k}-startup.nsh
+    echo -n " ${ALL_KERNEL_PARAMS}" >>/boot/${k}-opts.txt
+    efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${k})" --loader /vmlinuz-${k} --unicode "${ALL_KERNEL_PARAMS}"
+done
 
 # echo "### TEMP!!!"
 # zsh

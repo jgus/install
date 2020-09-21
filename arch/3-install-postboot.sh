@@ -10,7 +10,6 @@
 
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
-KERNEL=${KERNEL:-linux}
 
 PACKAGES+=(
     # RNG
