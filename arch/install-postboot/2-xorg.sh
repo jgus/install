@@ -25,7 +25,7 @@ then
         ;;
     sddm)
         systemctl enable sddm.service
-        ((HAS_OPTIMUS)) && cat << EOF >> /etc/sddm.conf.d/display.conf
+        ((HAS_OPTIMUS)) && cat << EOF >> /etc/sddm.conf.d/display.conf || true
 xrandr --setprovideroutputsource modesetting NVIDIA-0
 xrandr --auto
 EOF
