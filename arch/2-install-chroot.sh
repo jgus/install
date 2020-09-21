@@ -164,8 +164,8 @@ do
     efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${k})" --loader /vmlinuz-${k} --unicode "${ALL_KERNEL_PARAMS}"
 done
 
-# echo "### TEMP!!!"
-# zsh
+echo "### TEMP!!!"
+zsh
 
 echo "### Preparing post-boot install..."
 #/etc/systemd/system/getty@tty1.service.d/override.conf
