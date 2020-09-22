@@ -1,13 +1,12 @@
 #!/bin/bash -e
 
 mirror_boot() {
-    for bak in /boot/bak*
+    for bak in /boot.*
     do
         [ -d "${bak}" ] || continue
-        rsync -arPx --delete /boot/ "${bak}"
-        rsync -arPx --delete /boot/efi/ "${bak}"/efi
+        rsync -arP --delete /boot/ "${bak}"
     done
-    rsync -arP --exclude=bak\* --delete /boot/ /boot-mirror
+    rsync -arP --delete /boot/ /boot-mirror
 }
 
 zfs_cmd () {
