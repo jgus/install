@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash -e
 
 mirror_boot() {
     for bak in /boot/bak*

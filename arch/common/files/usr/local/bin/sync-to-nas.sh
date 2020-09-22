@@ -1,6 +1,4 @@
-#!/usr/bin/env bash
-
-set -e
+#!/bin/bash -e
 
 source "$( dirname "${BASH_SOURCE[0]}" )/functions.sh"
 
