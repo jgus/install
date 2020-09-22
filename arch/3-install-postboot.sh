@@ -92,7 +92,7 @@ AUR_PACKAGES+=(
     # ZFS
     zfs-auto-snapshot
     # Malware
-    clamav-unofficial-sigs
+    # clamav-unofficial-sigs
     )
 ((HAS_GUI)) && AUR_PACKAGES+=(
     # Xorg
