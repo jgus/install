@@ -1,0 +1,11 @@
+[Unit]
+Description=Full-System Incremental Virus Scan
+Requires=clamav-daemon.service
+After=clamav-daemon.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/clamscan-system.sh
+
+[Install]
+RequiredBy=multi-user.target

@@ -38,7 +38,7 @@ do
 done
 mkdir -p /target/tmp
 mount -t tmpfs tmpfs /target/tmp
-echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime,size=${TMP_SIZE} 0 0" >> /target/etc/fstab
+echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime 0 0" >> /target/etc/fstab
 if [[ "${BULK_DEVICE}" != "" ]]
 then
     zpool import -R /target -l bulk

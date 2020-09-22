@@ -25,6 +25,8 @@ PACKAGES+=(
     openssh
     # Samba
     samba
+    # Malware
+    clamav
     # Misc
     ccache rsync p7zip tmux
     )
@@ -36,7 +38,7 @@ PACKAGES+=(
     # Xorg
     xorg tigervnc
     # KDE
-    plasma-meta kde-applications-meta xdg-user-dirs
+    plasma-meta kde-applications-meta xdg-user-dirs packagekit-qt5
     qt5-imageformats
     # Fonts
     adobe-source-code-pro-fonts
@@ -68,6 +70,7 @@ PACKAGES+=(
     scribus
     gimp
     vlc
+    clamtk
     )
 [[ "${USE_DM}" == "sddm" ]] && PACKAGES+=(
     sddm sddm-kcm
@@ -88,6 +91,8 @@ AUR_PACKAGES+=(
     systemd-boot-pacman-hook
     # ZFS
     zfs-auto-snapshot
+    # Malware
+    clamav-unofficial-sigs
     )
 ((HAS_GUI)) && AUR_PACKAGES+=(
     # Xorg
@@ -117,42 +122,6 @@ do
         zfs snapshot z/root@post-boot-install-${tag}
     fi
 done
-
-# echo "### Configuring ClamAV..."
-# sed -i 's/^User/#User/g' /etc/pacman.conf
-# cat << EOF >> /etc/clamav/clamd.conf
-
-# ### Local Settings
-# User root
-# MaxThreads 16
-# MaxDirectoryRecursion 30
-# VirusEvent /etc/clamav/detected.sh
-
-# ExcludePath ^/proc/
-# ExcludePath ^/sys/
-# ExcludePath ^/dev/
-# ExcludePath ^/run/
-# ExcludePath ^/nas/
-# ExcludePath ^/home/josh/smb/
-
-# ScanOnAccess true
-# OnAccessMountPath /
-# OnAccessExcludePath /proc/
-# OnAccessExcludePath /sys/
-# OnAccessExcludePath /dev/
-# OnAccessExcludePath /run/
-# OnAccessExcludePath /var/log/
-# OnAccessExcludePath /nas/
-# OnAccessExcludePath /home/josh/smb/
-# OnAccessExtraScanning true
-# OnAccessExcludeRootUID yes
-
-# EOF
-# freshclam
-# clamav-unofficial-sigs.sh
-# systemctl enable clamav-freshclam.service
-# systemctl enable clamav-unofficial-sigs.timer
-# systemctl enable clamav-daemon.service
 
 if ! zfs list z/root@post-boot-cleanup
 then
