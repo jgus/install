@@ -18,6 +18,8 @@ PACKAGES+=(
     pacman-contrib reflector
     # Sensors
     lm_sensors nvme-cli
+    # Python
+    python-pip
     # General
     git git-lfs
     diffutils inetutils less logrotate man-db man-pages nano usbutils which
