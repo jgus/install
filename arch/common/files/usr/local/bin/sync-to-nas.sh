@@ -4,7 +4,7 @@ source "$( dirname "${BASH_SOURCE[0]}" )/functions.sh"
 
 mirror_boot
 
-DATASETS=($(zfs list -o name | grep -v rpool/docker))
+DATASETS=($(zfs list -H -o name | grep -v z/docker))
 
 for x in "${DATASETS[@]}"
 do
