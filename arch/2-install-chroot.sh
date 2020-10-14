@@ -142,7 +142,6 @@ KERNEL_PARAMS_PRE=()
 ((HAS_INTEL_CPU)) && KERNEL_PARAMS_PRE+=(initrd=/intel-ucode.img)
 KERNEL_PARAMS_POST+=(loglevel=3 zfs=z/root rw)
 ((HAS_INTEL_CPU)) && [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS_POST+=(intel_iommu=on iommu=pt)
-((ALLOW_SUSPEND)) && KERNEL_PARAMS_POST+=(resume=/dev/mapper/swap0)
 for k in "${KERNELS[@]}"
 do
     for f in "-fallback" ""
@@ -151,13 +150,14 @@ do
         do
             case ${g} in
                 integrated)
+                    ((HAS_NVIDIA)) && !((HAS_OPTIMUS)) && continue
                     GRAPHICS_OPTS=(
                         module_blacklist=i2c_nvidia_gpu,nouveau,nvidia,nvidia-drm,nvidia-modeset
                         # systemd.mask=nvidia-fallback.service
                     )
                     ;;
                 discrete)
-                    ((HAS_NVIDIA)) || continue;
+                    ((HAS_NVIDIA)) || continue
                     GRAPHICS_OPTS=(
                         nvidia-drm.modeset=1
                         # systemd.wants=nvidia-fallback.service
