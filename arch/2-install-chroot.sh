@@ -142,19 +142,35 @@ KERNEL_PARAMS_PRE=()
 ((HAS_INTEL_CPU)) && KERNEL_PARAMS_PRE+=(initrd=/intel-ucode.img)
 KERNEL_PARAMS_POST+=(loglevel=3 zfs=z/root rw)
 ((HAS_INTEL_CPU)) && [[ "${VFIO_IDS}" != "" ]] && KERNEL_PARAMS_POST+=(intel_iommu=on iommu=pt)
-((HAS_NVIDIA)) && KERNEL_PARAMS_POST+=(nvidia-drm.modeset=1)
 ((ALLOW_SUSPEND)) && KERNEL_PARAMS_POST+=(resume=/dev/mapper/swap0)
 for k in "${KERNELS[@]}"
 do
-    ALL_KERNEL_PARAMS="${KERNEL_PARAMS_PRE[@]} initrd=/initramfs-${k}-fallback.img ${KERNEL_PARAMS_POST[@]}"
-    echo "vmlinuz-${k} ${ALL_KERNEL_PARAMS}" >>/boot/${k}-fallback-startup.nsh
-    echo -n " ${ALL_KERNEL_PARAMS}" >>/boot/${k}-fallback-opts.txt
-    efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${k} fallback)" --loader /vmlinuz-${k} --unicode "${ALL_KERNEL_PARAMS}"
+    for f in "-fallback" ""
+    do
+        for g in "integrated" "discrete"
+        do
+            case ${g} in
+                integrated)
+                    GRAPHICS_OPTS=(
+                        module_blacklist=i2c_nvidia_gpu,nouveau,nvidia,nvidia-drm,nvidia-modeset
+                        # systemd.mask=nvidia-fallback.service
+                    )
+                    ;;
+                discrete)
+                    ((HAS_NVIDIA)) || continue;
+                    GRAPHICS_OPTS=(
+                        nvidia-drm.modeset=1
+                        # systemd.wants=nvidia-fallback.service
+                    )
+                    ;;
+            esac
 
-    ALL_KERNEL_PARAMS="${KERNEL_PARAMS_PRE[@]} initrd=/initramfs-${k}.img ${KERNEL_PARAMS_POST[@]}"
-    echo "vmlinuz-${k} ${ALL_KERNEL_PARAMS}" >>/boot/${k}-startup.nsh
-    echo -n " ${ALL_KERNEL_PARAMS}" >>/boot/${k}-opts.txt
-    efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${k})" --loader /vmlinuz-${k} --unicode "${ALL_KERNEL_PARAMS}"
+            ALL_KERNEL_PARAMS="${KERNEL_PARAMS_PRE[@]} initrd=/initramfs-${k}${f}.img ${KERNEL_PARAMS_POST[@]} ${GRAPHICS_OPTS[@]}"
+            echo "vmlinuz-${k} ${ALL_KERNEL_PARAMS}" >>/boot/${k}${f}-${g}-startup.nsh
+            echo -n " ${ALL_KERNEL_PARAMS}" >>/boot/${k}${f}-${g}-opts.txt
+            efibootmgr --verbose --disk ${SYSTEM_DEVICES[0]} --part 1 --create --label "Arch Linux (${k}${f} w/ ${g} graphics)" --loader /vmlinuz-${k} --unicode "${ALL_KERNEL_PARAMS}"
+        done
+    done
 done
 
 # echo "### TEMP!!!"
