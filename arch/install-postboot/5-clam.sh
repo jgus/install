@@ -1,5 +1,8 @@
 #!/bin/bash
 
+install clamav
+#install clamav-unofficial-sigs
+
 freshclam
 # clamav-unofficial-sigs.sh
 systemctl enable --now clamav-freshclam.service

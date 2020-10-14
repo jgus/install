@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if which bluetoothctl
+if ((HAS_BLUETOOTH))
 then
-    echo "### Configuring Bluetooth..."
+    install bluez bluez-utils bluez-plugins
     cat << EOF >> /etc/bluetooth/main.conf
 
 [Policy]

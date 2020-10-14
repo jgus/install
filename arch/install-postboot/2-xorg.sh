@@ -1,7 +1,69 @@
 #!/bin/bash
 
+XORG_PACKAGES+=(
+    # Xorg
+    xorg tigervnc
+    # KDE
+    plasma-meta kde-applications-meta xdg-user-dirs packagekit-qt5
+    qt5-imageformats
+    # Color
+    displaycal colord colord-kde
+    # Wine
+    wine wine_gecko wine-mono winetricks
+    # Applications
+    firefox
+    code
+    remmina freerdp
+    libreoffice-still hunspell hunspell-en_US libmythes mythes-en
+    scribus
+    clamtk
+    speedtest-cli
+    gparted
+    # Media
+    vlc
+    strawberry gstreamer gst-libav gst-plugins-base gst-plugins-good gst-plugins-ugly
+    rhythmbox
+    mkvtoolnix-cli mkvtoolnix-gui
+    youtube-dl
+    gimp
+    rawtherapee hugin perl-image-exiftool digikam
+    audacity
+    # Modeling
+    openscad
+    blender
+    prusa-slicer
+    cura
+    # Fonts
+    adobe-source-code-pro-fonts
+    adobe-source-sans-pro-fonts
+    font-bh-ttf
+    gnu-free-fonts
+    noto-fonts
+    ttf-anonymous-pro
+    ttf-bitstream-vera
+    ttf-croscore
+    ttf-dejavu
+    ttf-droid
+    ttf-fantasque-sans-mono
+    ttf-fira-code
+    ttf-fira-mono
+    gentium-plus-font
+    ttf-hack
+    ttf-inconsolata
+    ttf-joypixels
+    ttf-liberation
+    ttf-linux-libertine
+    ttf-roboto
+    ttf-ubuntu-font-family
+)
+
 if ((HAS_GUI))
 then
+    install "${XORG_PACKAGES[@]}"
+    [[ "${USE_DM}" == "sddm" ]] && install sddm sddm-kcm
+    [[ "${USE_DM}" == "gdm" ]] && install gdm
+    ((HAS_NVIDIA)) && install nvidia-utils lib32-nvidia-utils nvidia-settings opencl-nvidia ocl-icd cuda clinfo
+
     echo "### Configuring Xorg..."
     which ratbagd && systemctl enable ratbagd.service || true
     for d in "${SEAT1_DEVICES[@]}"
