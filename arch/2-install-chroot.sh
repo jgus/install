@@ -131,7 +131,7 @@ MODULES=(efivarfs)
 sed -i "s|MODULES=(\(.*\))|MODULES=(${MODULES[*]})|g" /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
 HOOKS=(base udev autodetect modconf block encrypt)
-((ALLOW_SUSPEND)) && HOOKS+=(resume)
+((ALLOW_SUSPEND_TO_DISK)) && HOOKS+=(resume)
 HOOKS+=(zfs filesystems keyboard)
 sed -i "s|HOOKS=(\(.*\))|HOOKS=(${HOOKS[*]})|g" /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf

@@ -40,6 +40,7 @@ case ${VKEY_TYPE} in
         SWAP_VKEY_FILE=/dev/urandom
         ;;
 esac
+((ALLOW_SUSPEND_TO_DISK)) || SWAP_VKEY_FILE=/dev/urandom
 
 echo "### Creating root keyfile..."
 dd bs=1 count=32 if=/dev/urandom of=/root/vkey
