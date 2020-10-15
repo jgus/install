@@ -3,6 +3,7 @@
 XORG_PACKAGES+=(
     # Xorg
     xorg tigervnc
+    mesa-demos
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs packagekit-qt5
     qt5-imageformats
