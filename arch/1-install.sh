@@ -119,14 +119,14 @@ ZPOOL_ARGS=(
 )
 case ${VKEY_TYPE} in
     efi)
-        ZPOOL_OPTS+=(
+        ZPOOL_ARGS+=(
             -O encryption=aes-256-gcm
             -O keyformat=raw
             -O keylocation=file://${VKEY_FILE}
         )
         ;;
     prompt)
-        ZPOOL_OPTS+=(
+        ZPOOL_ARGS+=(
             -O encryption=aes-256-gcm
             -O keyformat=passphrase
             -O keylocation=prompt
@@ -135,7 +135,6 @@ case ${VKEY_TYPE} in
     root)
         ;;
 esac
-
 
 zpool create -f "${ZPOOL_ARGS[@]}" -m none -R /target z ${SYSTEM_Z_TYPE} "${Z_DEVS[@]}"
 
@@ -151,7 +150,7 @@ zfs create z/root/var/tmp
 zfs create -o mountpoint=/home z/home
 zfs create -o mountpoint=/root z/home/root
 
-[[ "${HAS_DOCKER}" == "1" ]] && zfs create -o mountpoint=/var/lib/docker z/docker
+((HAS_DOCKER)) && zfs create -o mountpoint=/var/lib/docker z/docker
 zfs create -o mountpoint=/var/volumes -o com.sun:auto-snapshot=true z/volumes
 zfs create -o com.sun:auto-snapshot=false z/volumes/scratch
 zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images
