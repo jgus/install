@@ -81,10 +81,15 @@ do_partition() {
         wipefs -af "${DEVICE}"
         parted -s "${DEVICE}" -- mklabel gpt
         while [ -L "${DEVICE}-part2" ] ; do : ; done
-        parted -s -a optimal "${DEVICE}" -- mkpart primary '0%' "${BOOT_SIZE}GiB"
+
+        TOTAL_SIZE=$(($(blockdev --getsize64 ${DEVICE}) / (1024 * 1024 * 1024)))
+        END1=${BOOT_SIZE}
+        END2=$((TOTAL_SIZE-SWAP_SIZE))
+
+        parted -s -a optimal "${DEVICE}" -- mkpart primary '0%' "${END1}GiB"
         parted -s "${DEVICE}" -- set 1 esp on
-        parted -s -a optimal "${DEVICE}" -- mkpart primary "${BOOT_SIZE}GiB" "-${SWAP_SIZE}GiB"
-        parted -s -a optimal "${DEVICE}" -- mkpart primary "-${SWAP_SIZE}GiB" '100%'
+        parted -s -a optimal "${DEVICE}" -- mkpart primary "${END1}GiB" "${END2}GiB"
+        parted -s -a optimal "${DEVICE}" -- mkpart primary "${END2}GiB" '100%'
         sleep 1
         BOOT_DEVS+=("${DEVICE}-part1")
         BOOT_IDS+=($(blkid ${DEVICE}-part1 -o value -s PARTUUID))
