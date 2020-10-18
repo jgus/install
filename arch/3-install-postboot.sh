@@ -14,9 +14,9 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 install() {
     if [[ -f /usr/bin/yay ]]
     then
-        sudo -u builder /usr/bin/yay -S --needed "$@"
+        sudo -u builder /usr/bin/yay -Syu --needed "$@"
     else
-        pacman -Syyu --needed --noconfirm "$@"
+        pacman -Syu --needed --noconfirm "$@"
     fi
 }
 
