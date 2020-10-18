@@ -66,24 +66,6 @@ then
     ((HAS_NVIDIA)) && install nvidia-utils lib32-nvidia-utils nvidia-settings opencl-nvidia ocl-icd cuda clinfo
 
     echo "### Configuring Xorg..."
-    ((HAS_OPTIMUS)) && cat << EOF >> /etc/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf || true
-Section "OutputClass"
-    Identifier "intel"
-    MatchDriver "i915"
-    Driver "modesetting"
-EndSection
-
-Section "OutputClass"
-    Identifier "nvidia"
-    MatchDriver "nvidia-drm"
-    Driver "nvidia"
-    Option "AllowEmptyInitialConfiguration"
-    Option "PrimaryGPU" "yes"
-    ModulePath "/usr/lib/nvidia/xorg"
-    ModulePath "/usr/lib/xorg/modules"
-EndSection
-EOF
-
     which ratbagd && systemctl enable ratbagd.service || true
     for d in "${SEAT1_DEVICES[@]}"
     do
@@ -106,11 +88,6 @@ EOF
         ;;
     sddm)
         systemctl enable sddm.service
-        ((HAS_OPTIMUS)) && cat << EOF >> /usr/share/sddm/scripts/Xsetup || true
-xrandr --setprovideroutputsource modesetting NVIDIA-0
-xrandr --auto
-xrandr --dpi 96
-EOF
         ;;
     esac
 
