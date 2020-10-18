@@ -1,4 +1,5 @@
 #!/bin/bash
+install samba
 mkdir /nas
 cat <<EOF >>/etc/fstab
 

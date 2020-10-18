@@ -1,5 +1,5 @@
 do_partition() {
-    WINDOWS_SIZE=196GiB    
+    WINDOWS_SIZE=194GiB    
     for DEVICE in "${SYSTEM_DEVICES[@]}"
     do
         echo "### Wiping and re-partitioning ${DEVICE}..."
