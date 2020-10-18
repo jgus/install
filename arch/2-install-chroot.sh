@@ -95,6 +95,9 @@ systemctl enable zfs-import.target
 systemctl enable zfs-scrub@z.timer
 zgenhostid
 
+echo "### Configuring swap..."
+systemctl enable swap-ntfs.service
+
 echo "### Configuring network..."
 systemctl enable NetworkManager.service
 

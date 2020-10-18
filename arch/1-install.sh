@@ -233,6 +233,8 @@ do
     echo "blkdiscard -f ${SWAP_DEVS[$i]} || true" >>/target/usr/local/bin/swapoff.sh
     echo "mkfs.ntfs -f -L SWAP${i} ${SWAP_DEVS[$i]}" >>/target/usr/local/bin/swapoff.sh
 done
+chmod a+x /target/usr/local/bin/swapon.sh
+chmod a+x /target/usr/local/bin/swapoff.sh
 
 echo "### Copying root files..."
 rsync -ar ~/.ssh/ /target/root/.ssh
