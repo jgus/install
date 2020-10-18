@@ -1,0 +1,12 @@
+[Unit]
+Description=Swap shared with Windows
+
+[Service]
+Type=notify
+ExecStart=/usr/local/bin/swapon.sh
+ExecStop=/usr/local/bin/swapoff.sh
+RemainAfterExit=true
+TimeoutStopSec=600
+
+[Install]
+WantedBy=multi-user.target

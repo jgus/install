@@ -3,8 +3,8 @@
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
-BOOT_SIZE=${BOOT_SIZE:-1GiB}
-SWAP_SIZE=${SWAP_SIZE:-$(free --giga | grep \^Mem | awk '{print $2}')GiB}
+BOOT_SIZE=${BOOT_SIZE:-2}
+SWAP_SIZE=${SWAP_SIZE:-$(free --giga | grep \^Mem | awk '{print $2}')}
 
 if [[ "${KERNELS[@]}" == "" ]]
 then
@@ -81,10 +81,10 @@ do_partition() {
         wipefs -af "${DEVICE}"
         parted -s "${DEVICE}" -- mklabel gpt
         while [ -L "${DEVICE}-part2" ] ; do : ; done
-        parted -s --align=opt "${DEVICE}" -- mkpart primary 0% "${BOOT_SIZE}"
+        parted -s --align=opt "${DEVICE}" -- mkpart primary 0% "${BOOT_SIZE}GiB"
         parted -s "${DEVICE}" -- set 1 esp on
-        parted -s --align=opt "${DEVICE}" -- mkpart primary "${BOOT_SIZE}" -"${SWAP_SIZE}"
-        parted -s --align=opt "${DEVICE}" -- mkpart primary -"${SWAP_SIZE}" 100%
+        parted -s --align=opt "${DEVICE}" -- mkpart primary "${BOOT_SIZE}GiB" "-${SWAP_SIZE}GiB"
+        parted -s --align=opt "${DEVICE}" -- mkpart primary "-${SWAP_SIZE}GiB" 100%
         sleep 1
         BOOT_DEVS+=("${DEVICE}-part1")
         BOOT_IDS+=($(blkid ${DEVICE}-part1 -o value -s PARTUUID))
@@ -177,14 +177,6 @@ do
     mount "${BOOT_DEVS[$i]}" "/target/boot.${i}"
 done
 
-echo "### Setting up swap... (${SWAP_DEVS[@]})"
-for i in "${!SWAP_DEVS[@]}"
-do
-    cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file=${SWAP_VKEY_FILE} --allow-discards open --type plain "/dev/disk/by-partuuid/${SWAP_IDS[$i]}" swap${i}
-    mkswap -L SWAP${i} /dev/mapper/swap${i}
-    cryptsetup close /dev/mapper/swap${i}
-done
-
 echo "### Mounting tmp..."
 mkdir -p /target/tmp
 mount -t tmpfs tmpfs /target/tmp
@@ -216,12 +208,6 @@ zpool set cachefile=/etc/zfs/zpool.cache z
 mkdir -p /target/etc/zfs
 cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
 
-echo "### Configuring swap..."
-for i in "${!SWAP_DEVS[@]}"
-do
-    echo "swap${i} /dev/disk/by-partuuid/${SWAP_IDS[$i]} ${SWAP_VKEY_FILE} swap,discard,cipher=aes-xts-plain64,size=256" >> /target/etc/crypttab
-done
-
 echo "### Configuring fstab..."
 #genfstab -U /target >> /target/etc/fstab
 #echo "z/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
@@ -230,11 +216,23 @@ for (( i=1; i<${#BOOT_DEVS[@]}; i++ ))
 do
     echo "PARTUUID=${BOOT_IDS[$i]} /boot.${i} vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
 done
+echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime 0 0" >> /target/etc/fstab
+
+echo "### Configuring swap... (${SWAP_DEVS[@]})"
+mkdir -p /target/usr/local/bin
+echo "#!/bin/bash -e" >/target/usr/local/bin/swapon.sh
+echo "#!/bin/bash -e" >/target/usr/local/bin/swapoff.sh
 for i in "${!SWAP_DEVS[@]}"
 do
-    echo "/dev/mapper/swap${i} none swap defaults,discard,pri=100 0 0" >> /target/etc/fstab
+    echo "blkdiscard -f ${SWAP_DEVS[$i]} || true" >>/target/usr/local/bin/swapon.sh
+    echo "cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file=${SWAP_VKEY_FILE} --allow-discards open --type plain ${SWAP_DEVS[$i]} swap${i}" >>/target/usr/local/bin/swapon.sh
+    echo "mkswap -L SWAP${i} /dev/mapper/swap${i}" >>/target/usr/local/bin/swapon.sh
+    echo "swapon -p 100 /dev/mapper/swap${i}" >>/target/usr/local/bin/swapon.sh
+    echo "swapoff /dev/mapper/swap${i}" >>/target/usr/local/bin/swapoff.sh
+    echo "cryptsetup close /dev/mapper/swap${i}" >>/target/usr/local/bin/swapoff.sh
+    echo "blkdiscard -f ${SWAP_DEVS[$i]} || true" >>/target/usr/local/bin/swapoff.sh
+    echo "mkfs.ntfs -f -L SWAP${i} ${SWAP_DEVS[$i]}" >>/target/usr/local/bin/swapoff.sh
 done
-echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime 0 0" >> /target/etc/fstab
 
 echo "### Copying root files..."
 rsync -ar ~/.ssh/ /target/root/.ssh
