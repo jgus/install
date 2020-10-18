@@ -3,8 +3,7 @@
 if ((HAS_OPTIMUS))
 then
     install optimus-manager optimus-manager-qt
-    systemctl enable --now optimus-manager.service
-    optimus-manager --switch nvidia --no-confirm
+    systemctl enable optimus-manager.service
 
 #     cat << EOF >> /etc/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf || true
 # Section "OutputClass"
@@ -31,7 +30,7 @@ then
 # EOF
 
     mkdir -p /lib/udev/rules.d
-    cat << EOF >> /lib/udev/rules.d/80-nvidia-pm.rules
+    cat << EOF > /lib/udev/rules.d/80-nvidia-pm.rules
 # Remove NVIDIA USB xHCI Host Controller devices, if present
 #ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{remove}="1"
 
@@ -50,12 +49,12 @@ ACTION=="unbind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0300
 ACTION=="unbind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030200", TEST=="power/control", ATTR{power/control}="on"
 EOF
 
-    cat << EOF >> /etc/modprobe.d/nvidia.conf
+    cat << EOF > /etc/modprobe.d/nvidia.conf
 options nvidia "NVreg_DynamicPowerManagement=0x02"
 EOF
 
     mkdir -p /etc/optimus-manager
-    cat << EOF >> /etc/optimus-manager/optimus-manager.conf
+    cat << EOF > /etc/optimus-manager/optimus-manager.conf
 [optimus]
 startup_mode=auto
 startup_auto_battery_mode=hybrid
