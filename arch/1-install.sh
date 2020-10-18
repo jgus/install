@@ -3,6 +3,8 @@
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
+ntpd -q -n -u ntp:ntp
+
 BOOT_SIZE=${BOOT_SIZE:-2}
 SWAP_SIZE=${SWAP_SIZE:-$(free --giga | grep \^Mem | awk '{print $2}')}
 
