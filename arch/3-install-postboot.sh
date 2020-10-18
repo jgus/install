@@ -11,6 +11,21 @@
 HOSTNAME=$(hostname)
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
+install() {
+    if [[ -f /usr/bin/yay ]]
+    then
+        sudo -u builder /usr/bin/yay -S --needed "$@"
+    else
+        pacman -Syyu --needed --noconfirm "$@"
+    fi
+}
+
+while ! pacman -Syy
+do
+    echo "Failed to update packages; will retry..."
+    sleep 1
+done
+
 cd "$(dirname "$0")"/install-postboot
 for f in *
 do
