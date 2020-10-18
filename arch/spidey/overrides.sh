@@ -14,9 +14,9 @@ do_partition() {
         echo "### Creating ZFS partition on ${DEVICE}..."
         parted -s -a optimal "${DEVICE}" -- mkpart primary "${BOOT_SIZE}GiB" "-$((SWAP_SIZE+WINDOWS_SIZE))GiB"
         echo "### Creating swap partition on ${DEVICE}..."
-        parted -s -a optimal "${DEVICE}" -- mkpart primary ntfs "-$((SWAP_SIZE+WINDOWS_SIZE))GiB" "-${WINDOWS_SIZE}GiB"
+        parted -s -a optimal "${DEVICE}" -- mkpart primary ntfs "-$((SWAP_SIZE+WINDOWS_SIZE))GiB" "-$((WINDOWS_SIZE))GiB"
         echo "### Creating Windows partition on ${DEVICE}..."
-        parted -s -a optimal "${DEVICE}" -- mkpart primary ntfs "-${WINDOWS_SIZE}GiB" '100%'
+        parted -s -a optimal "${DEVICE}" -- mkpart primary ntfs "-$((WINDOWS_SIZE))GiB" '100%'
         sleep 1
         BOOT_DEVS+=("${DEVICE}-part1")
         BOOT_IDS+=($(blkid ${DEVICE}-part1 -o value -s PARTUUID))
