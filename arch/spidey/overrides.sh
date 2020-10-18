@@ -8,15 +8,21 @@ do_partition() {
         wipefs -af "${DEVICE}"
         parted -s "${DEVICE}" -- mklabel gpt
         while [ -L "${DEVICE}-part2" ] ; do : ; done
+
+        TOTAL_SIZE=$(($(blockdev --getsize64 ${DEVICE}) / (1024 * 1024 * 1024)))
+        END1=${BOOT_SIZE}
+        END2=$((TOTAL_SIZE-WINDOWS_SIZE-SWAP_SIZE))
+        END3=$((TOTAL_SIZE-WINDOWS_SIZE))
+
         echo "### Creating boot partition on ${DEVICE}..."
-        parted -s -a optimal "${DEVICE}" -- mkpart primary fat32 '0%' "${BOOT_SIZE}GiB"
+        parted -s -a optimal "${DEVICE}" -- mkpart primary fat32 '0%' "${END1}GiB"
         parted -s "${DEVICE}" -- set 1 esp on
         echo "### Creating ZFS partition on ${DEVICE}..."
-        parted -s -a optimal "${DEVICE}" -- mkpart primary "${BOOT_SIZE}GiB" "-$((SWAP_SIZE+WINDOWS_SIZE))GiB"
+        parted -s -a optimal "${DEVICE}" -- mkpart primary "${END1}GiB" "${END2}GiB"
         echo "### Creating swap partition on ${DEVICE}..."
-        parted -s -a optimal "${DEVICE}" -- mkpart primary ntfs "-$((SWAP_SIZE+WINDOWS_SIZE))GiB" "-$((WINDOWS_SIZE))GiB"
+        parted -s -a optimal "${DEVICE}" -- mkpart primary ntfs "${END2}GiB" "${END3}GiB"
         echo "### Creating Windows partition on ${DEVICE}..."
-        parted -s -a optimal "${DEVICE}" -- mkpart primary ntfs "-$((WINDOWS_SIZE))GiB" '100%'
+        parted -s -a optimal "${DEVICE}" -- mkpart primary ntfs "${END3}GiB" '100%'
         sleep 1
         BOOT_DEVS+=("${DEVICE}-part1")
         BOOT_IDS+=($(blkid ${DEVICE}-part1 -o value -s PARTUUID))
