@@ -226,7 +226,7 @@ echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime 0 0" >> /target/etc/fstab
 echo "### Configuring swap... (${SWAP_DEVS[@]})"
 mkdir -p /target/usr/local/bin
 echo "#!/bin/bash -e" >/target/usr/local/bin/swapon.sh
-echo "#!/bin/bash -e" >/target/usr/local/bin/swapoff.sh
+echo "#!/bin/bash" >/target/usr/local/bin/swapoff.sh
 for i in "${!SWAP_DEVS[@]}"
 do
     echo "blkdiscard -f ${SWAP_DEVS[$i]} || true" >>/target/usr/local/bin/swapon.sh

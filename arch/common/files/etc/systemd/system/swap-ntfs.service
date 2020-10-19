@@ -2,7 +2,8 @@
 Description=Swap shared with Windows
 
 [Service]
-Type=notify
+Type=oneshot
+ExecStartPre=-/usr/local/bin/swapoff.sh
 ExecStart=/usr/local/bin/swapon.sh
 ExecStop=/usr/local/bin/swapoff.sh
 RemainAfterExit=true
