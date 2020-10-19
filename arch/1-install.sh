@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+source "$(cd "$(dirname "$0")" ; pwd)"/common/files/usr/local/bin/functions.sh
+
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
@@ -153,14 +155,31 @@ zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
 
-zfs create -o mountpoint=/home z/home
-zfs create -o mountpoint=/root z/home/root
+for v in $(ssh root@jarvis zfs list -r -o name -H e/${HOSTNAME}/z/home | sed s.e/${HOSTNAME}/..)
+do
+    zfs_send_new_snapshots root@jarvis e/${HOSTNAME}/${v} "" ${v}
+done
+
+zfs create -o mountpoint=/home z/home || zfs set mountpoint=/home z/home
+zfs create -o mountpoint=/root z/home/root || zfs set mountpoint=/root z/home/root
 
 ((HAS_DOCKER)) && zfs create -o mountpoint=/var/lib/docker z/docker
-zfs create -o mountpoint=/var/volumes -o com.sun:auto-snapshot=true z/volumes
-zfs create -o com.sun:auto-snapshot=false z/volumes/scratch
-zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images
-zfs create -o com.sun:auto-snapshot=false z/images/scratch
+
+for v in $(ssh root@jarvis zfs list -r -o name -H e/${HOSTNAME}/z/volumes | sed s.e/${HOSTNAME}/..)
+do
+    zfs_send_new_snapshots root@jarvis e/${HOSTNAME}/${v} "" ${v}
+done
+
+zfs create -o mountpoint=/var/volumes -o com.sun:auto-snapshot=true z/volumes || zfs set mountpoint=/var/volumes com.sun:auto-snapshot=true z/volumes
+zfs create -o com.sun:auto-snapshot=false z/volumes/scratch || zfs set com.sun:auto-snapshot=false z/volumes/scratch
+
+for v in $(ssh root@jarvis zfs list -r -o name -H e/${HOSTNAME}/z/images | sed s.e/${HOSTNAME}/..)
+do
+    zfs_send_new_snapshots root@jarvis e/${HOSTNAME}/${v} "" ${v}
+done
+
+zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images || zfs set mountpoint=/var/lib/libvirt/images com.sun:auto-snapshot=true z/images
+zfs create -o com.sun:auto-snapshot=false z/images/scratch || zfs set com.sun:auto-snapshot=false z/images/scratch
 
 zpool export z
 rm -rf /target
