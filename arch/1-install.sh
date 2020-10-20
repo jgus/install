@@ -249,6 +249,7 @@ chmod a+x /target/usr/local/bin/swapoff.sh
 
 echo "### Copying root files..."
 rsync -ar ~/.ssh/ /target/root/.ssh
+rsync -ar ~/opt/ /target/root/opt
 rsync -ar ~/.secrets/ /target/root/.secrets
 cp /root/vkey /target/root/vkey
 

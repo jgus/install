@@ -7,6 +7,7 @@ if ((HAS_DOCKER))
 then
     zfs create -o mountpoint=/var/lib/docker z/docker || true
 
+    source /usr/local/bin/functions.sh
     for v in $(ssh root@jarvis.gustafson.me zfs list -r -o name -H e/$(hostname)/z/volumes | sed "s.e/$(hostname)/..")
     do
         zfs_send_new_snapshots root@jarvis.gustafson.me e/$(hostname)/${v} "" ${v}

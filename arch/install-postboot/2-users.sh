@@ -2,6 +2,7 @@
 
 ssh root@jarvis.gustafson.me true
 
+source /usr/local/bin/functions.sh
 for v in $(ssh root@jarvis.gustafson.me zfs list -r -o name -H e/$(hostname)/z/home | sed "s.e/$(hostname)/.." | grep -v "^z/home$" | grep -v "^z/home/root$")
 do
     zfs_send_new_snapshots root@jarvis.gustafson.me e/$(hostname)/${v} "" ${v}

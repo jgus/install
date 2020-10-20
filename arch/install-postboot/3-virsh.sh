@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source /usr/local/bin/functions.sh
 for v in $(ssh root@jarvis.gustafson.me zfs list -r -o name -H e/$(hostname)/z/images | sed "s.e/$(hostname)/..")
 do
     zfs_send_new_snapshots root@jarvis.gustafson.me e/$(hostname)/${v} "" ${v}
