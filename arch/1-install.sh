@@ -165,13 +165,8 @@ zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
 
-for v in $(ssh root@jarvis.gustafson.me zfs list -r -o name -H e/${HOSTNAME}/z/home | sed s.e/${HOSTNAME}/..)
-do
-    zfs_send_new_snapshots root@jarvis.gustafson.me e/${HOSTNAME}/${v} "" ${v}
-done
-
-zfs create -o mountpoint=/home z/home || zfs set mountpoint=/home z/home
-zfs create -o mountpoint=/root z/home/root || zfs set mountpoint=/root z/home/root
+zfs create -o mountpoint=/home z/home
+zfs create -o mountpoint=/root z/home/root
 
 zpool export z
 rm -rf /target
