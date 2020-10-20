@@ -8,8 +8,10 @@
 # vnc?
 # https://wiki.archlinux.org/index.php/Fan_speed_control#Fancontrol_(lm-sensors)
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" ; pwd)"
+
 HOSTNAME=$(hostname)
-source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+source "${SCRIPT_DIR}/${HOSTNAME}/config.env"
 
 install() {
     if [[ -f /usr/bin/yay ]]
@@ -26,10 +28,10 @@ do
     sleep 1
 done
 
-cd "$(dirname "$0")"/install-postboot
+cd "${SCRIPT_DIR}"/install-postboot
 for f in *
 do
-    cd "$(dirname "$0")"/install-postboot
+    cd "${SCRIPT_DIR}"/install-postboot
     tag="${f%.*}"
     if ! zfs list z/root@post-boot-install-${tag}
     then
@@ -39,12 +41,12 @@ do
     fi
 done
 
-if [[ -d "$(dirname "$0")"/${HOSTNAME}/install-postboot ]]
+if [[ -d "${SCRIPT_DIR}"/${HOSTNAME}/install-postboot ]]
 then
-    cd "$(dirname "$0")"/${HOSTNAME}/install-postboot
+    cd "${SCRIPT_DIR}"/${HOSTNAME}/install-postboot
     for f in *
     do
-        cd "$(dirname "$0")"/${HOSTNAME}/install-postboot
+        cd "${SCRIPT_DIR}"/${HOSTNAME}/install-postboot
         tag="${f%.*}"
         if ! zfs list z/root@post-boot-install-${tag}
         then
