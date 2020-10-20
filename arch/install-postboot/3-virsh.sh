@@ -1,4 +1,13 @@
 #!/bin/bash
+
+for v in $(ssh root@jarvis.gustafson.me zfs list -r -o name -H e/${HOSTNAME}/z/images | sed s.e/${HOSTNAME}/..)
+do
+    zfs_send_new_snapshots root@jarvis.gustafson.me e/${HOSTNAME}/${v} "" ${v}
+done
+
+zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images || zfs set mountpoint=/var/lib/libvirt/images com.sun:auto-snapshot=true z/images
+zfs create -o com.sun:auto-snapshot=false z/images/scratch || zfs set com.sun:auto-snapshot=false z/images/scratch
+
 install qemu qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager ovmf
 systemctl enable --now libvirtd.service
 if [[ -f "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml" ]]
