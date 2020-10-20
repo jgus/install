@@ -61,4 +61,5 @@ startup_auto_battery_mode=hybrid
 startup_auto_extpower_mode=nvidia
 EOF
 
+    /usr/local/bin/update-efiboot.sh
 fi
