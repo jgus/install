@@ -1,8 +1,8 @@
 #!/bin/bash
 
-for v in $(ssh root@jarvis.gustafson.me zfs list -r -o name -H e/${HOSTNAME}/z/images | sed s.e/${HOSTNAME}/..)
+for v in $(ssh root@jarvis.gustafson.me zfs list -r -o name -H e/$(hostname)/z/images | sed "s.e/$(hostname)/..")
 do
-    zfs_send_new_snapshots root@jarvis.gustafson.me e/${HOSTNAME}/${v} "" ${v}
+    zfs_send_new_snapshots root@jarvis.gustafson.me e/$(hostname)/${v} "" ${v}
 done
 
 zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images || zfs set mountpoint=/var/lib/libvirt/images com.sun:auto-snapshot=true z/images
