@@ -173,16 +173,6 @@ done
 zfs create -o mountpoint=/home z/home || zfs set mountpoint=/home z/home
 zfs create -o mountpoint=/root z/home/root || zfs set mountpoint=/root z/home/root
 
-((HAS_DOCKER)) && zfs create -o mountpoint=/var/lib/docker z/docker
-
-for v in $(ssh root@jarvis.gustafson.me zfs list -r -o name -H e/${HOSTNAME}/z/volumes | sed s.e/${HOSTNAME}/..)
-do
-    zfs_send_new_snapshots root@jarvis.gustafson.me e/${HOSTNAME}/${v} "" ${v}
-done
-
-zfs create -o mountpoint=/var/volumes -o com.sun:auto-snapshot=true z/volumes || zfs set mountpoint=/var/volumes com.sun:auto-snapshot=true z/volumes
-zfs create -o com.sun:auto-snapshot=false z/volumes/scratch || zfs set com.sun:auto-snapshot=false z/volumes/scratch
-
 for v in $(ssh root@jarvis.gustafson.me zfs list -r -o name -H e/${HOSTNAME}/z/images | sed s.e/${HOSTNAME}/..)
 do
     zfs_send_new_snapshots root@jarvis.gustafson.me e/${HOSTNAME}/${v} "" ${v}
