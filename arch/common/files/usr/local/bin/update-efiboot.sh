@@ -30,7 +30,7 @@ do
                 case ${g} in
                     integrated)
                         GRAPHICS_OPTS=(
-                            module_blacklist=i2c_nvidia_gpu,nouveau,nvidia,nvidia-drm,nvidia-modeset
+                            #module_blacklist=i2c_nvidia_gpu,nouveau,nvidia,nvidia-drm,nvidia-modeset
                             # systemd.mask=nvidia-fallback.service
                         )
                         ;;
