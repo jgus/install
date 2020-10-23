@@ -7,6 +7,10 @@ for v in $(ssh root@jarvis.gustafson.me zfs list -r -o name -H e/$(hostname)/z/h
 do
     zfs_send_new_snapshots root@jarvis.gustafson.me e/$(hostname)/${v} "" ${v}
 done
+for u in $(zfs list -r -o name -H z/home | grep steam | sed "s.z/home/.." | sed "s./steam$..")
+do
+    zfs set mountpoint=/home/${u}/.local/share/Steam z/home/${u}/steam
+done
 
 #/etc/sudoers.d/wheel
 #/etc/sudoers.d/builder
