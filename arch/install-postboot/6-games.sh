@@ -16,4 +16,3 @@ if ((HAS_GUI))
 then
     install "${GAMES_PACKAGES[@]}"
 fi
-

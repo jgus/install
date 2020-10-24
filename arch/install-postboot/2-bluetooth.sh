@@ -8,5 +8,8 @@ then
 [Policy]
 AutoEnable=true
 EOF
+
+    echo "options bluetooth disable_ertm=1" >/etc/modprobe.d/xbox_bt.conf
+
     systemctl enable bluetooth.service
 fi
