@@ -48,3 +48,8 @@ do
 
     parted -s -a optimal "${DEVICE}" -- mkpart "ZFS${i}" "${SWAP_END}GiB" '100%'
 done
+
+echo "### Ready to install Pop_OS"
+echo "Install boot on BOOT0 and root on WIN0."
+echo "After install, use disk util to re-set partition names (install will have cleared them.)"
+echo "Then run ./1-zfs.sh ${HOSTNAME}"

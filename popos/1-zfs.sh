@@ -106,7 +106,7 @@ mount --rbind /dev  /target/dev
 mount --rbind /proc /target/proc
 mount --rbind /sys  /target/sys
 chroot /target bash -c "DEBIAN_FRONTEND=noninteractive apt install --yes zfsutils-linux zfs-initramfs zfs-dkms"
-chroot kernelstub -l -o "root=ZFS=z/root"
+chroot /target kernelstub -l -o "root=ZFS=z/root"
 
 echo "### Nuking old system..."
 umount /source
