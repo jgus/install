@@ -35,7 +35,7 @@ esac
 echo "### Creating root keyfile..."
 dd bs=1 count=32 if=/dev/urandom of=/root/vkey
 
-Z_DEVS=(for d in /dev/disk/by-partlabel/ZFS*; do blkid ${d} -o value -s PARTUUID; done)
+Z_DEVS=$(for d in /dev/disk/by-partlabel/ZFS*; do blkid ${d} -o value -s PARTUUID; done)
 
 echo "### Creating zpool z... (${Z_DEVS[@]})"
 ZPOOL_ARGS=(
