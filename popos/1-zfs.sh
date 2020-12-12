@@ -1,15 +1,17 @@
+#!/bin/bash -e
+
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 VKEY_TYPE=${VKEY_TYPE:-efi} # efi|root|prompt
 case ${VKEY_TYPE} in
     efi)
-        VKEY_FILE=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b
+        VKEY_FILE=/sys/firmware/efi/vars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b/data
         if [[ ! -f "${VKEY_FILE}" ]]
         then
             echo "### Creating EFI keyfile..."
             TMPFILE=$(mktemp)
-            dd bs=1 count=28 if=/dev/urandom of="${TMPFILE}"
+            dd bs=1 count=32 if=/dev/urandom of="${TMPFILE}"
             efivar -n 77fa9abd-0359-4d32-bd60-28f4e78f784b-keyfile -t 7 -w -f "${TMPFILE}"
             rm "${TMPFILE}"
         fi
@@ -94,3 +96,28 @@ zpool import -R /target z -N
 zfs load-key -a
 zfs mount z/root
 zfs mount -a
+
+echo "### Copying system..."
+mkdir -p /source
+mount /dev/disk/by-partlabel/WIN0 /source
+rsync -arP --exclude "lost+found" /source/ /target
+mount /dev/disk/by-partlabel/BOOT0 /target/boot/efi
+mount --rbind /dev  /target/dev
+mount --rbind /proc /target/proc
+mount --rbind /sys  /target/sys
+chroot /target bash -c "DEBIAN_FRONTEND=noninteractive apt install --yes zfsutils-linux zfs-initramfs zfs-dkms"
+chroot kernelstub -l -o "root=ZFS=z/root"
+
+echo "### Nuking old system..."
+umount /source
+blkdiscard -f /dev/disk/by-partlabel/WIN0
+
+echo "### Unmounting..."
+mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf {}
+zfs unmount -a
+
+echo "### Snapshotting..."
+zfs snapshot z@pre-boot-install
+
+echo "### Exporting..."
+zpool export -a

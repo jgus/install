@@ -1,3 +1,5 @@
+#!/bin/bash -e
+
 HOSTNAME=$1
 source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
