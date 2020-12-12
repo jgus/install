@@ -16,7 +16,7 @@ rm -rf /target || true
 echo "### Partitioning..."
 for i in "${!SYSTEM_DEVICES[@]}"
 do
-    DEVICE=${SWAP_DEVS[$i]}
+    DEVICE=${SYSTEM_DEVICES[$i]}
     echo "### Wiping and re-partitioning ${DEVICE}..."
     blkdiscard -f "${DEVICE}" || true
     wipefs -af "${DEVICE}"
