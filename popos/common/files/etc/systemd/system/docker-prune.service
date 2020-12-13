@@ -1,0 +1,12 @@
+[Unit]
+Description=Prune Docker
+Requires=docker.target
+After=docker.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker image prune -af
+ExecStart=/usr/bin/docker volume prune -f
+
+[Install]
+RequiredBy=multi-user.target

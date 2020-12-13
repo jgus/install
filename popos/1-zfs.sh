@@ -1,7 +1,9 @@
 #!/bin/bash -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" ; pwd)"
+
 HOSTNAME=$1
-source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
+source "${SCRIPT_DIR}"/${HOSTNAME}/config.env
 
 VKEY_TYPE=${VKEY_TYPE:-efi} # efi|root|prompt
 case ${VKEY_TYPE} in
@@ -90,6 +92,8 @@ zfs create z/root/var/tmp
 zfs create -o mountpoint=/home z/home
 zfs create -o mountpoint=/root z/home/root
 
+zfs create z/root/install
+
 zpool export z
 rm -rf /target
 zpool import -R /target z -N
@@ -101,12 +105,28 @@ echo "### Copying system..."
 mkdir -p /source
 mount /dev/disk/by-partlabel/WIN0 /source
 rsync -arP --exclude "lost+found" /source/ /target
+
+echo "### Copying install files..."
+rsync -arP "$(cd ${SCRIPT_DIR}; git rev-parse --show-toplevel)"/ /target/install
+[[ -d "${SCRIPT_DIR}"/"${HOSTNAME}"/files ]] && rsync -arP "${SCRIPT_DIR}"/"${HOSTNAME}"/files/ /target
+rsync -arP /root/ /target/root
+
+echo "### Fixing system for ZFS root..."
 mount /dev/disk/by-partlabel/BOOT0 /target/boot/efi
 mount --rbind /dev  /target/dev
 mount --rbind /proc /target/proc
 mount --rbind /sys  /target/sys
 chroot /target bash -c "DEBIAN_FRONTEND=noninteractive apt install --yes zfsutils-linux zfs-initramfs zfs-dkms"
 chroot /target kernelstub -l -o "root=ZFS=z/root"
+
+echo "### Enabling SSH..."
+chroot /target bash -c "DEBIAN_FRONTEND=noninteractive apt install --yes openssh-server"
+cat << EOF >>/target/etc/ssh/sshd_config
+PasswordAuthentication no
+AllowAgentForwarding yes
+AllowTcpForwarding yes
+EOF
+chroot /target systemctl enable --now sshd.service
 
 echo "### Nuking old system..."
 umount /source
