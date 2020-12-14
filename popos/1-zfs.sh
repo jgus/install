@@ -127,7 +127,6 @@ PasswordAuthentication no
 AllowAgentForwarding yes
 AllowTcpForwarding yes
 EOF
-chroot /target systemctl enable --now sshd.service
 
 echo "### Nuking old system..."
 umount /source
