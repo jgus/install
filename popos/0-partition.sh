@@ -27,13 +27,13 @@ do
     TOTAL_SIZE=$(($(blockdev --getsize64 ${DEVICE}) / (1024 * 1024 * 1024)))
 
     BOOT_END=${BOOT_SIZE}
-    parted -s -a optimal "${DEVICE}" -- mkpart "BOOT${i}" '0%' "${BOOT_END}GiB"
+    parted -s -a optimal "${DEVICE}" -- mkpart "BOOT${i}" fat32 '0%' "${BOOT_END}GiB"
     parted -s "${DEVICE}" -- set 1 esp on
 
     if ((WIN_SIZE))
     then
         WIN_END=$((BOOT_END+WIN_SIZE))
-        parted -s -a optimal "${DEVICE}" -- mkpart "WIN${i}" "${BOOT_END}GiB" "${WIN_END}GiB"
+        parted -s -a optimal "${DEVICE}" -- mkpart "WIN${i}" NTFS "${BOOT_END}GiB" "${WIN_END}GiB"
     else
         WIN_END=${BOOT_END}
     fi
@@ -41,7 +41,7 @@ do
     if ((SWAP_SIZE))
     then
         SWAP_END=$((WIN_END+SWAP_SIZE))
-        parted -s -a optimal "${DEVICE}" -- mkpart "SWAP${i}" "${WIN_END}GiB" "${SWAP_END}GiB"
+        parted -s -a optimal "${DEVICE}" -- mkpart "SWAP${i}" NTFS "${WIN_END}GiB" "${SWAP_END}GiB"
     else
         SWAP_END=${WIN_END}
     fi

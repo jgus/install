@@ -118,6 +118,7 @@ mount --rbind /proc /target/proc
 mount --rbind /sys  /target/sys
 chroot /target bash -c "DEBIAN_FRONTEND=noninteractive apt install --yes zfsutils-linux zfs-initramfs zfs-dkms"
 chroot /target kernelstub -l -o "root=ZFS=z/root"
+echo "PARTUUID=$(blkid /dev/disk/by-partlabel/BOOT0 -o value -s PARTUUID)  /boot/efi  vfat  umask=0077  0  0" >/target/etc/fstab
 
 echo "### Enabling SSH..."
 chroot /target bash -c "DEBIAN_FRONTEND=noninteractive apt install --yes openssh-server"
