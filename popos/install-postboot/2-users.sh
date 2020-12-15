@@ -49,7 +49,10 @@ gustafson,3000
 EOF
 
 /usr/local/bin/mkhome.sh josh
-usermod -a -G wheel josh
+for g in adm sudo
+do
+    usermod -a -G ${g} josh
+done
 mkdir -p /home/josh/.ssh
 curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
