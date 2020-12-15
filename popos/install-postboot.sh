@@ -39,13 +39,4 @@ then
     done
 fi
 
-if ! zfs list z/root@post-boot-cleanup
-then
-    echo "### Cleaning up..."
-    zfs destroy -r z/root/install
-
-    zfs snapshot z/root@post-boot-cleanup
-fi
-
-echo "### Done with post-boot install! Rebooting..."
-reboot
+echo "### Done with post-boot install!"
