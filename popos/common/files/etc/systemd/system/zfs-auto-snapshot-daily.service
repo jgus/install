@@ -1,0 +1,5 @@
+[Unit]
+Description=ZFS daily snapshot service
+
+[Service]
+ExecStart=/usr/sbin/zfs-auto-snapshot --skip-scrub --prefix=znap --label=daily --keep=28 //
