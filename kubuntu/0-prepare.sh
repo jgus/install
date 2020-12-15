@@ -13,7 +13,7 @@ PACKAGES=(
     curl
     zstd
 )
-apt-add-repository universe
+apt-add-repository -y universe
 apt update
 apt install --yes "${PACKAGES[@]}"
 

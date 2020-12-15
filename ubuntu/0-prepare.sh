@@ -12,7 +12,7 @@ PACKAGES=(
     openssh-server
     curl
 )
-apt-add-repository universe
+apt-add-repository -y universe
 apt update
 apt install --yes "${PACKAGES[@]}"
 

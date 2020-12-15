@@ -12,6 +12,6 @@ echo "deb http://jetbrains-ppa.s3-website.eu-central-1.amazonaws.com bionic main
 apt update
 install clion
 
-add-apt-repository ppa:maarten-fonville/android-studio
+add-apt-repository -y ppa:maarten-fonville/android-studio
 apt update
 install android-studio
