@@ -8,5 +8,5 @@ DATASETS=($(zfs list -H -o name | grep -v z/docker))
 
 for x in "${DATASETS[@]}"
 do
-    zfs_send_new_snapshots "" ${x} root@nas e/$(hostname)/${x}
+    zfs_send_new_snapshots "" ${x} root@nas.gustafson.me e/$(hostname)/${x}
 done

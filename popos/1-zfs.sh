@@ -122,6 +122,11 @@ echo "PARTUUID=$(blkid /dev/disk/by-partlabel/BOOT0 -o value -s PARTUUID)  /boot
 
 echo "### Hostname..."
 echo "${HOSTNAME}" >/target/etc/hostname
+cat >/target/etc/hosts <<EOF
+127.0.0.1       localhost
+::1             localhost
+127.0.1.1       ${HOSTNAME}.gustafson.me      ${HOSTNAME}
+EOF
 
 echo "### Enabling SSH..."
 chroot /target bash -c "DEBIAN_FRONTEND=noninteractive apt install --yes openssh-server"
