@@ -42,8 +42,8 @@ fi
 if ! zfs list z/root@post-boot-cleanup
 then
     echo "### Cleaning up..."
-    rm /etc/systemd/system/getty@tty1.service.d/override.conf
     rm -rf /install
+    zfs destroy z/root/install
 
     zfs snapshot z/root@post-boot-cleanup
 fi
