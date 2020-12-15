@@ -42,7 +42,6 @@ fi
 if ! zfs list z/root@post-boot-cleanup
 then
     echo "### Cleaning up..."
-    rm -rf /install
     zfs destroy z/root/install
 
     zfs snapshot z/root@post-boot-cleanup
