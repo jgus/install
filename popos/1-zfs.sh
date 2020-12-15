@@ -120,6 +120,9 @@ chroot /target bash -c "DEBIAN_FRONTEND=noninteractive apt install --yes zfsutil
 chroot /target kernelstub -l -o "root=ZFS=z/root"
 echo "PARTUUID=$(blkid /dev/disk/by-partlabel/BOOT0 -o value -s PARTUUID)  /boot/efi  vfat  umask=0077  0  0" >/target/etc/fstab
 
+echo "### Hostname..."
+echo "${HOSTNAME}" >/target/etc/hostname
+
 echo "### Enabling SSH..."
 chroot /target bash -c "DEBIAN_FRONTEND=noninteractive apt install --yes openssh-server"
 cat << EOF >>/target/etc/ssh/sshd_config
@@ -137,7 +140,7 @@ mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf 
 zfs unmount -a
 
 echo "### Snapshotting..."
-zfs snapshot z@pre-boot-install
+zfs snapshot z/root@pre-boot-install
 
 echo "### Exporting..."
 zpool export -a
