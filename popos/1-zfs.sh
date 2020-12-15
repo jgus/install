@@ -92,7 +92,7 @@ zfs create z/root/var/tmp
 zfs create -o mountpoint=/home z/home
 zfs create -o mountpoint=/root z/home/root
 
-zfs create z/root/install
+zfs create -o com.sun:auto-snapshot=false z/root/install
 
 zpool export z
 rm -rf /target
