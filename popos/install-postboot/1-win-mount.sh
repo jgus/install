@@ -18,4 +18,7 @@ PARTUUID=$(blkid /dev/disk/by-partlabel/WIN0 -o value -s PARTUUID) /win/.dislock
 PARTUUID=$(blkid /dev/disk/by-partlabel/WIN1 -o value -s PARTUUID) /win/.dislocker/system fuse.dislocker recovery-password=$(cat "${SCRIPT_DIR}/${HOSTNAME}/WIN1.key"),nofail 0 0
 /win/.dislocker/system/dislocker-file /win/system auto nofail 0 0
 EOF
-mount -a
+mount /win/.dislocker/data
+mount /win/data
+mount /win/.dislocker/system
+mount /win/system
