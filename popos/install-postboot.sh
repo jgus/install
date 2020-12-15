@@ -10,6 +10,17 @@ install() {
     apt install --yes "$@"
 }
 
+install_deb() {
+    export DEBIAN_FRONTEND=noninteractive
+    for url in "$@"
+    do
+        FILE=$(mktemp)
+        curl -L -o "${FILE}.deb" "${url}"
+        apt install --yes "${FILE}.deb"
+        rm "${FILE}" "${FILE}.deb"
+    done
+}
+
 cd "${SCRIPT_DIR}"/install-postboot
 for f in *
 do
