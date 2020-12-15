@@ -8,6 +8,7 @@ PACKAGES+=(
     ntp
     samba
     speedtest-cli
+    zsh
 
     smbnetfs sshfs fuseiso ntfs-3g dislocker
 

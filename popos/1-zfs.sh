@@ -108,6 +108,7 @@ rsync -arP --exclude "lost+found" /source/ /target
 
 echo "### Copying install files..."
 rsync -arP "$(cd ${SCRIPT_DIR}; git rev-parse --show-toplevel)"/ /target/install
+rsync -arP "${SCRIPT_DIR}"/common/files/ /target
 [[ -d "${SCRIPT_DIR}"/"${HOSTNAME}"/files ]] && rsync -arP "${SCRIPT_DIR}"/"${HOSTNAME}"/files/ /target
 rsync -arP /root/ /target/root
 

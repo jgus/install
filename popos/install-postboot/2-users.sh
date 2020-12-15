@@ -1,5 +1,7 @@
 #!/bin/bash
 
+install zsh
+
 ssh root@jarvis.gustafson.me true
 
 source /usr/local/bin/functions.sh
@@ -46,7 +48,7 @@ peter,2008
 gustafson,3000
 EOF
 
-/etc/mkhome.sh josh
+/usr/local/bin/mkhome.sh josh
 usermod -a -G wheel josh
 mkdir -p /home/josh/.ssh
 curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
