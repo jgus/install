@@ -50,3 +50,4 @@ apt upgrade --yes
 
 install "${PACKAGES[@]}"
 apt-file update
+apt autoremove --yes

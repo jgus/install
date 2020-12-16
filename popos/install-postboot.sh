@@ -22,7 +22,7 @@ install_deb() {
 }
 
 cd "${SCRIPT_DIR}"/install-postboot
-for f in *
+for f in *.sh
 do
     cd "${SCRIPT_DIR}"/install-postboot
     tag="${f%.*}"
@@ -37,7 +37,7 @@ done
 if [[ -d "${SCRIPT_DIR}"/${HOSTNAME}/install-postboot ]]
 then
     cd "${SCRIPT_DIR}"/${HOSTNAME}/install-postboot
-    for f in *
+    for f in *.sh
     do
         cd "${SCRIPT_DIR}"/${HOSTNAME}/install-postboot
         tag="${f%.*}"
