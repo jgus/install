@@ -12,7 +12,7 @@ sed -i "s|MaxDirectoryRecursion.*|MaxDirectoryRecursion 100|g" /etc/clamav/clamd
 echo "VirusEvent /usr/local/bin/virus_event.sh" >>/etc/clamav/clamd.conf
 systemctl start clamav-daemon.service
 
-sleep 5
+sleep 15
 
 /usr/local/bin/clamscan-system.sh
 systemctl enable clamscan-system.timer
