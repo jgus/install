@@ -1,6 +1,6 @@
 #!/bin/bash
 
-install clamav clamav-daemon clamav-freshclam
+install clamav clamav-daemon clamav-freshclam ssmtp
 
 systemctl stop clamav-freshclam
 freshclam
