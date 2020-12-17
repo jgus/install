@@ -12,8 +12,9 @@ PACKAGES+=(
 
     smbnetfs sshfs fuseiso ntfs-3g dislocker
 
-    # KDE
-    kde-full
+    ## KDE
+    #kde-full
+
     # Wine
     wine winetricks
     # Applications
