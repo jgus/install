@@ -29,6 +29,7 @@ patch /etc/pam.d/login << EOF
 EOF
 
 useradd -D --shell /bin/zsh
+chsh -s /bin/zsh
 
 while IFS=, read -r user uid
 do
