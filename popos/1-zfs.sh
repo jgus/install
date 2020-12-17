@@ -55,8 +55,7 @@ ZPOOL_ARGS=(
     -O normalization=formD
     -O canmount=off
     -O aclinherit=passthrough
-    -O com.sun:auto-snapshot=true
-
+    -O com.sun:auto-snapshot=false
     -O compression=lz4
 )
 case ${VKEY_TYPE} in
@@ -80,7 +79,7 @@ esac
 
 zpool create -f "${ZPOOL_ARGS[@]}" -m none -R /target z ${SYSTEM_Z_TYPE} "${Z_DEVS[@]}"
 
-zfs create z/root -o canmount=noauto -o mountpoint=/
+zfs create z/root -o canmount=noauto -o mountpoint=/ -o com.sun:auto-snapshot=true
 zpool set bootfs=z/root z
 
 zfs create -o canmount=off -o com.sun:auto-snapshot=false z/root/var
@@ -89,8 +88,8 @@ zfs create z/root/var/log
 zfs create z/root/var/spool
 zfs create z/root/var/tmp
 
-zfs create -o mountpoint=/home z/home
-zfs create -o mountpoint=/root z/home/root
+zfs create -o canmount=off -o mountpoint=/home z/home
+zfs create -o mountpoint=/root z/home/root -o com.sun:auto-snapshot=true
 
 zfs create -o com.sun:auto-snapshot=false z/root/install
 
