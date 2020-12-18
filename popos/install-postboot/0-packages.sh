@@ -47,7 +47,7 @@ PACKAGES+=(
 
 export DEBIAN_FRONTEND=noninteractive
 apt update
-apt upgrade --yes
+apt upgrade --yes --allow-downgrades
 apt autoremove --yes
 
 install "${PACKAGES[@]}"
