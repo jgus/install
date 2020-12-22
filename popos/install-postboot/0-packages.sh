@@ -12,6 +12,8 @@ PACKAGES+=(
 
     smbnetfs sshfs fuseiso ntfs-3g dislocker
 
+    gnome-tweak-tool
+
     ## KDE
     #kde-full
 
