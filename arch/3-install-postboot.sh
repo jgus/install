@@ -13,6 +13,9 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" ; pwd)"
 HOSTNAME=$(hostname)
 source "${SCRIPT_DIR}/${HOSTNAME}/config.env"
 
+lspci | grep NVIDIA && HAS_NVIDIA=1
+lspci | grep AMD | grep VGA && HAS_AMD=1
+
 install() {
     if [[ -f /usr/bin/yay ]]
     then

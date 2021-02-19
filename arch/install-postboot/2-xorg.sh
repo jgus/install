@@ -1,9 +1,10 @@
 #!/bin/bash
 
 XORG_PACKAGES+=(
+    # Mesa
+    mesa lib32-mesa mesa-demos
     # Xorg
     xorg tigervnc
-    mesa-demos
     # KDE
     plasma-meta kde-applications-meta xdg-user-dirs packagekit-qt5
     qt5-imageformats
@@ -64,6 +65,7 @@ then
     [[ "${USE_DM}" == "sddm" ]] && install sddm sddm-kcm
     [[ "${USE_DM}" == "gdm" ]] && install gdm
     ((HAS_NVIDIA)) && install nvidia-utils lib32-nvidia-utils nvidia-settings opencl-nvidia ocl-icd cuda clinfo
+    ((HAS_AMD)) && install xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon
 
     echo "### Configuring Xorg..."
     which ratbagd && systemctl enable ratbagd.service || true
