@@ -1,0 +1,10 @@
+# See systemd.timers and systemd.time manpages for details
+[Unit]
+Description=Auto-Update timer
+
+[Timer]
+OnCalendar=*-*-* 5:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
