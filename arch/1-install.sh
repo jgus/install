@@ -73,10 +73,10 @@ for i in $(efibootmgr | grep Arch | sed "s/^Boot//" | sed "s/\*.*//")
 do
     efibootmgr -B -b ${i}
 done
-for i in $(efibootmgr | grep Windows | sed "s/^Boot//" | sed "s/\*.*//")
-do
-    efibootmgr -B -b ${i}
-done
+# for i in $(efibootmgr | grep Windows | sed "s/^Boot//" | sed "s/\*.*//")
+# do
+#     efibootmgr -B -b ${i}
+# done
 
 BOOT_DEVS=()
 BOOT_IDS=()
