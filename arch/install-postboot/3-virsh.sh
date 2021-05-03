@@ -9,8 +9,20 @@ done
 zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images || zfs set mountpoint=/var/lib/libvirt/images com.sun:auto-snapshot=true z/images
 zfs create -o com.sun:auto-snapshot=false z/images/scratch || zfs set com.sun:auto-snapshot=false z/images/scratch
 
-install qemu qemu-arch-extra libvirt ebtables dnsmasq bridge-utils openbsd-netcat virt-manager ovmf
+VIRSH_PACKAGES=(
+    qemu qemu-arch-extra
+    libvirt virt-manager
+    ovmf
+    #ebtables
+    dnsmasq
+    bridge-utils
+    openbsd-netcat
+)
+
+install "${VIRSH_PACKAGES[@]}"
+
 systemctl enable --now libvirtd.service
+
 if [[ -f "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml" ]]
 then
     virsh net-define "$(cd "$(dirname "$0")" ; pwd)/${HOSTNAME}/libvirt/internal-network.xml"
