@@ -45,7 +45,7 @@ PACKAGES=(
 echo "### Configuring clock..."
 ln -sf "/usr/share/zoneinfo/${TIME_ZONE}" /etc/localtime
 hwclock --systohc
-systemctl enable --now systemd-timesyncd.service
+systemctl enable systemd-timesyncd.service
 
 echo "### Configuring locale..."
 echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
