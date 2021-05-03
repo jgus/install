@@ -9,7 +9,8 @@ GAMES_PACKAGES+=(
     minecraft-launcher
 
     # Gamepad
-    xboxdrv evtest
+    #xboxdrv
+    evtest
 )
 
 if ((HAS_GUI))
