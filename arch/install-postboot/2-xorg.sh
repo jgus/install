@@ -11,7 +11,8 @@ XORG_PACKAGES+=(
     # Color
     displaycal colord colord-kde
     # Wine
-    wine wine_gecko wine-mono winetricks
+    #wine wine_gecko wine-mono winetricks
+    wine winetricks
     # Applications
     firefox
     code
