@@ -123,4 +123,5 @@ fi
 if [[ "${SUBJECT}" != "" ]]
 then
     (echo "subject: ${SUBJECT}" && uuencode ${LOG_FILE} clamscan.txt) | ssmtp "${EMAIL_TO}"
+    exit 1
 fi

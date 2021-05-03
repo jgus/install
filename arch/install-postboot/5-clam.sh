@@ -1,6 +1,6 @@
 #!/bin/bash
 
-install clamav
+install clamav sharutils ssmtp
 #install clamav-unofficial-sigs
 
 freshclam

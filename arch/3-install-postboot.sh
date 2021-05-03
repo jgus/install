@@ -19,7 +19,7 @@ lspci | grep AMD | grep VGA && HAS_AMD=1
 install() {
     if [[ -f /usr/bin/yay ]]
     then
-        sudo -u builder /usr/bin/yay -Syu --needed "$@"
+        yes | sudo -u builder /usr/bin/yay -Syu --needed "$@"
     else
         pacman -Syu --needed --noconfirm "$@"
     fi
