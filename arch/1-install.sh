@@ -96,7 +96,7 @@ do_partition() {
 
         TOTAL_SIZE=$(($(blockdev --getsize64 ${DEVICE}) / (1024 * 1024 * 1024)))
         END1=${BOOT_SIZE}
-        END2=$((TOTAL_SIZE-SWAP_SIZE))
+        END2=$((BOOT_SIZE+SWAP_SIZE))
 
         parted -s -a optimal "${DEVICE}" -- mkpart primary '0%' "${END1}GiB"
         parted -s "${DEVICE}" -- set 1 esp on
@@ -105,10 +105,10 @@ do_partition() {
         sleep 1
         BOOT_DEVS+=("${DEVICE}-part1")
         BOOT_IDS+=($(blkid ${DEVICE}-part1 -o value -s PARTUUID))
-        Z_DEVS+=("${DEVICE}-part2")
-        Z_IDS+=($(blkid ${DEVICE}-part2 -o value -s PARTUUID))
-        SWAP_DEVS+=("${DEVICE}-part3")
-        SWAP_IDS+=($(blkid ${DEVICE}-part3 -o value -s PARTUUID))
+        SWAP_DEVS+=("${DEVICE}-part2")
+        SWAP_IDS+=($(blkid ${DEVICE}-part2 -o value -s PARTUUID))
+        Z_DEVS+=("${DEVICE}-part3")
+        Z_IDS+=($(blkid ${DEVICE}-part3 -o value -s PARTUUID))
     done
 }
 
