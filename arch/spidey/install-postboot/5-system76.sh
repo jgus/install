@@ -11,3 +11,6 @@ SYSTEM76_PACKAGES+=(
 
 
 install "${SYSTEM76_PACKAGES[@]}"
+systemctl enable --now system76
+systemctl enable --now system76-power
+systemctl enable --now system76-firmware-daemon
