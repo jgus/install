@@ -22,7 +22,10 @@ then
         git
     )
     pacman -Sy --needed --noconfirm "${PACKAGES[@]}"
-    curl -s https://eoli3n.github.io/archzfs/init | bash
+    if uname -m | grep x86
+    then
+        curl -s https://eoli3n.github.io/archzfs/init | bash
+    fi
 fi
 
 echo "### Setting up SSH..."
