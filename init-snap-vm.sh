@@ -11,6 +11,8 @@ PACKAGES=(
     fonts-powerline
     cloud-guest-utils
     ssh
+    python-pip
+    python3-pip
 )
 # apt-add-repository -y universe
 sudo apt update
@@ -35,6 +37,10 @@ plugins=(
 )
 source \$ZSH/oh-my-zsh.sh
 EOF
+
+echo "### Setting up Git..."
+git config --global user.name "Josh Gustafson"
+git config --global user.email jgustafson@snap.com
 
 echo "### Setting up SSH..."
 mkdir -p ~/.ssh || true
