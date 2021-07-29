@@ -42,6 +42,59 @@ echo "### Setting up Git..."
 git config --global user.name "Josh Gustafson"
 git config --global user.email jgustafson@snap.com
 
+echo "### Installing GCC 10..."
+sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+sudo apt-get update
+sudo apt install gcc-10 g++-10
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 20 --slave /usr/bin/g++ g++ /usr/bin/g++-10
+
+echo "### Installing CMake..."
+CMAKE_VER=3.21.1
+wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz
+sudo tar -xvf cmake-${CMAKE_VER}-linux-x86_64.tar.gz -C /usr/local --strip 1
+rm cmake-${CMAKE_VER}-linux-x86_64.tar.gz
+
+echo "### Installing Flex..."
+FLEX_VER=2.6.1
+wget https://github.com/westes/flex/releases/download/v${FLEX_VER}/flex-${FLEX_VER}.tar.xz
+tar -xvf flex-${FLEX_VER}.tar.xz
+(
+    cd flex-${FLEX_VER}
+    ./configure
+    make
+    sudo make install
+)
+rm -rf flex-${FLEX_VER}*
+
+echo "### Installing Bison..."
+BISON_VER=3.7
+wget http://ftp.gnu.org/gnu/bison/bison-${BISON_VER}.tar.xz
+tar -xvf bison-${BISON_VER}.tar.xz
+(
+    cd bison-${BISON_VER}
+    ./configure
+    make
+    sudo make install
+)
+rm -rf flex-${BISON_VER}*
+
+echo "### Installing GTest..."
+git clone https://github.com/google/googletest.git
+(
+    cd googletest
+    mkdir build
+    cd build
+    cmake ..
+    make -j
+    sudo make install
+)
+rm -rf googletest
+
+echo "### Installing VS Code..."
+wget https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64 -O vscode.deb
+sudo dpkg -i vscode.deb
+rm -f vscode.deb
+
 echo "### Setting up SSH..."
 mkdir -p ~/.ssh || true
 touch ~/.ssh/authorized_keys
