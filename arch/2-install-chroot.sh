@@ -36,7 +36,7 @@ PACKAGES=(
     # Network
     openresolv networkmanager dhclient
     # ZSH
-    zsh grml-zsh-config
+    zsh #grml-zsh-config
 )
 ((HAS_INTEL_CPU)) && PACKAGES+=(intel-ucode)
 ((HAS_AMD_CPU)) && PACKAGES+=(amd-ucode)
