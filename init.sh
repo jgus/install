@@ -9,7 +9,7 @@ then
         debootstrap
         gdisk
         efivar
-        zfsutils-linux
+        # zfsutils-linux
         openssh-server
         curl
     )
@@ -22,10 +22,10 @@ then
         git
     )
     pacman -Sy --needed --noconfirm "${PACKAGES[@]}"
-    if uname -m | grep x86
-    then
-        curl -s https://eoli3n.github.io/archzfs/init | bash
-    fi
+    # if uname -m | grep x86
+    # then
+    #     curl -s https://eoli3n.github.io/archzfs/init | bash
+    # fi
 fi
 
 echo "### Setting up SSH..."
