@@ -17,7 +17,12 @@ rm /boot/*-opts.txt || true
 
 KERNEL_PARAMS_PRE=()
 ((HAS_INTEL_CPU)) && KERNEL_PARAMS_PRE+=(initrd=/intel-ucode.img)
-KERNEL_PARAMS_POST+=(loglevel=3 zfs=z/root rw)
+KERNEL_PARAMS_POST+=(loglevel=3)
+for dev in $(cd /dev/mapper; ls crypt*)
+do
+    KERNEL_PARAMS_POST+=(cryptdevice=UUID=device-UUID:${dev})
+done
+KERNEL_PARAMS_POST+=(root=/dev/vg/root rw)
 ((HAS_INTEL_CPU)) && KERNEL_PARAMS_POST+=(intel_iommu=on iommu=pt)
 for k in $(cd /boot; ls -1 vmlinuz-* | sed "s.^vmlinuz-..")
 do

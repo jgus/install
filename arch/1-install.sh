@@ -34,15 +34,6 @@ case ${VKEY_TYPE} in
         exit 1
         ;;
 esac
-case ${VKEY_TYPE} in
-    efi|prompt)
-        SWAP_VKEY_FILE=${VKEY_FILE}
-        ;;
-    root)
-        SWAP_VKEY_FILE=/dev/urandom
-        ;;
-esac
-((ALLOW_SUSPEND_TO_DISK)) || SWAP_VKEY_FILE=/dev/urandom
 
 echo "### Creating root keyfile..."
 dd bs=1 count=32 if=/dev/urandom of=/root/vkey
@@ -51,21 +42,11 @@ echo "### Adding packages..."
 PACKAGES=(
     pacman-contrib
 )
-# pacman-key --recv-keys F75D9D76
-# pacman-key --lsign-key F75D9D76
-# cat << EOF >>/etc/pacman.conf
-
-# [archzfs]
-# Server = https://archzfs.com/\$repo/\$arch
-# EOF
 pacman -Sy --needed --noconfirm "${PACKAGES[@]}"
 
 echo "### Cleaning up prior partitions..."
-for d in $(ls /dev/mapper/swap*); do cryptsetup close ${i} || true; done
-mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf {}
-zfs unmount -a || true
-zpool export z || true
-zpool destroy z || true
+umount -R /target || true
+for d in $(ls /dev/mapper/crypt*); do cryptsetup close ${i} || true; done
 rm -rf /target || true
 
 echo "### Cleaning up prior boot entries..."
@@ -80,10 +61,8 @@ done
 
 BOOT_DEVS=()
 BOOT_IDS=()
-Z_DEVS=()
-Z_IDS=()
-SWAP_DEVS=()
-SWAP_IDS=()
+LVM_DEVS=()
+LVM_IDS=()
 
 do_partition() {
     for DEVICE in "${SYSTEM_DEVICES[@]}"
@@ -96,19 +75,15 @@ do_partition() {
 
         TOTAL_SIZE=$(($(blockdev --getsize64 ${DEVICE}) / (1024 * 1024 * 1024)))
         END1=${BOOT_SIZE}
-        END2=$((BOOT_SIZE+SWAP_SIZE))
 
-        parted -s -a optimal "${DEVICE}" -- mkpart primary '0%' "${END1}GiB"
+        parted -s -a optimal "${DEVICE}" -- mkpart boot '0%' "${END1}GiB"
         parted -s "${DEVICE}" -- set 1 esp on
-        parted -s -a optimal "${DEVICE}" -- mkpart primary "${END1}GiB" "${END2}GiB"
-        parted -s -a optimal "${DEVICE}" -- mkpart primary "${END2}GiB" '100%'
+        parted -s -a optimal "${DEVICE}" -- mkpart primary "${END1}GiB" '100%'
         sleep 1
         BOOT_DEVS+=("${DEVICE}-part1")
         BOOT_IDS+=($(blkid ${DEVICE}-part1 -o value -s PARTUUID))
-        SWAP_DEVS+=("${DEVICE}-part2")
-        SWAP_IDS+=($(blkid ${DEVICE}-part2 -o value -s PARTUUID))
-        Z_DEVS+=("${DEVICE}-part3")
-        Z_IDS+=($(blkid ${DEVICE}-part3 -o value -s PARTUUID))
+        LVM_DEVS+=("${DEVICE}-part2")
+        LVM_IDS+=($(blkid ${DEVICE}-part2 -o value -s PARTUUID))
     done
 }
 
@@ -121,59 +96,44 @@ fi
 echo "### Partitioning..."
 do_partition
 
-echo "### Creating zpool z... (${Z_DEVS[@]})"
-ZPOOL_ARGS=(
-    -o ashift=12
-    -O acltype=posixacl
-    -O relatime=on
-    -O xattr=sa
-    -O dnodesize=legacy
-    -O normalization=formD
-    -O canmount=off
-    -O aclinherit=passthrough
-    -O com.sun:auto-snapshot=true
+echo "### Creating LUKS+LVM... (${LVM_DEVS[@]})"
+for i in "${!LVM_DEVS[@]}"
+do
+    cryptsetup --batch-mode luksFormat --sector-size 4096 "${LVM_DEVS[$i]}" "${VKEY_FILE}"
+    cryptsetup open -d "${VKEY_FILE}" "${LVM_DEVS[$i]}" crypt${i}
+    pvcreate /dev/mapper/crypt${i}
+done
+vgcreate vg /dev/mapper/crypt*
+lvcreate --type thin-pool -n tp -l 95%FREE vg
 
-    -O compression=lz4
-)
-case ${VKEY_TYPE} in
-    efi)
-        ZPOOL_ARGS+=(
-            -O encryption=aes-256-gcm
-            -O keyformat=raw
-            -O keylocation=file://${VKEY_FILE}
-        )
-        ;;
-    prompt)
-        ZPOOL_ARGS+=(
-            -O encryption=aes-256-gcm
-            -O keyformat=passphrase
-            -O keylocation=prompt
-        )
-        ;;
-    root)
-        ;;
-esac
+lvcreate -n root        -V 64G --thinpool tp vg
+lvcreate -n var-cache   -V 8G --thinpool tp vg
+lvcreate -n var-log     -V 8G --thinpool tp vg
+lvcreate -n var-spool   -V 8G --thinpool tp vg
+lvcreate -n var-tmp     -V 8G --thinpool tp vg
+lvcreate -n home        -V 1T --thinpool tp vg
+lvcreate -n home-root   -V 8G --thinpool tp vg
+lvcreate -n swap        -V ${SWAP_SIZE}G --thinpool tp vg
 
-zpool create -f "${ZPOOL_ARGS[@]}" -m none -R /target z ${SYSTEM_Z_TYPE} "${Z_DEVS[@]}"
+for vol in root var-cache var-log var-spool var-tmp home home-root
+do
+    mkfs.ext4 /dev/vg/${vol}
+done
+mkswap /dev/vg/swap
 
-zfs create z/root -o canmount=noauto -o mountpoint=/
-zpool set bootfs=z/root z
-
-zfs create -o canmount=off -o com.sun:auto-snapshot=false z/root/var
-zfs create z/root/var/cache
-zfs create z/root/var/log
-zfs create z/root/var/spool
-zfs create z/root/var/tmp
-
-zfs create -o mountpoint=/home z/home
-zfs create -o mountpoint=/root z/home/root
-
-zpool export z
 rm -rf /target
-zpool import -R /target z -N
-zfs load-key -a
-zfs mount z/root
-zfs mount -a
+mkdir /target
+mount -o discard /dev/vg/root /target
+for d in cache log spool tmp
+do
+    mkdir -p /target/var/${d}
+    mount -o discard /dev/vg/var-${d} /target/var/${d}
+done
+mkdir -p /target/home
+mount -o discard /dev/vg/home /target/home
+mkdir -p /target/root
+mount -o discard /dev/vg/home-root /target/root
+swapon /dev/vg/swap
 
 echo "### Formatting BOOT partition(s)... (${BOOT_DEVS[@]})"
 for i in "${!BOOT_DEVS[@]}"
@@ -213,39 +173,11 @@ echo "### Copying preset files..."
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/common/files/ /target
 rsync -ar "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/files/ /target || true
 
-echo "### Copying ZFS files..."
-mkdir -p /etc/zfs
-zpool set cachefile=/etc/zfs/zpool.cache z
-mkdir -p /target/etc/zfs
-cp /etc/zfs/zpool.cache /target/etc/zfs/zpool.cache
-
 echo "### Configuring fstab..."
-#genfstab -U /target >> /target/etc/fstab
-#echo "z/root / zfs rw,noatime,xattr,noacl 0 0" >> /target/etc/fstab
-echo "PARTUUID=${BOOT_IDS[0]} /boot vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
-for (( i=1; i<${#BOOT_DEVS[@]}; i++ ))
-do
-    echo "PARTUUID=${BOOT_IDS[$i]} /boot.${i} vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 2" >> /target/etc/fstab
-done
+genfstab /target >> /target/etc/fstab
+echo "" >> /target/etc/fstab
+echo "# TMP" >> /target/etc/fstab
 echo "tmpfs /tmp tmpfs rw,nodev,nosuid,relatime 0 0" >> /target/etc/fstab
-
-echo "### Configuring swap... (${SWAP_DEVS[@]})"
-mkdir -p /target/usr/local/bin
-echo "#!/bin/bash -e" >/target/usr/local/bin/swapon.sh
-echo "#!/bin/bash" >/target/usr/local/bin/swapoff.sh
-for i in "${!SWAP_DEVS[@]}"
-do
-    echo "blkdiscard -f ${SWAP_DEVS[$i]} || true" >>/target/usr/local/bin/swapon.sh
-    echo "cryptsetup --cipher=aes-xts-plain64 --key-size=256 --key-file=${SWAP_VKEY_FILE} --allow-discards open --type plain ${SWAP_DEVS[$i]} swap${i}" >>/target/usr/local/bin/swapon.sh
-    echo "mkswap -L SWAP${i} /dev/mapper/swap${i}" >>/target/usr/local/bin/swapon.sh
-    echo "swapon -p 100 /dev/mapper/swap${i}" >>/target/usr/local/bin/swapon.sh
-    echo "swapoff /dev/mapper/swap${i}" >>/target/usr/local/bin/swapoff.sh
-    echo "cryptsetup close /dev/mapper/swap${i}" >>/target/usr/local/bin/swapoff.sh
-    echo "blkdiscard -f ${SWAP_DEVS[$i]} || true" >>/target/usr/local/bin/swapoff.sh
-    echo "mkfs.ntfs -f -L SWAP${i} ${SWAP_DEVS[$i]}" >>/target/usr/local/bin/swapoff.sh
-done
-chmod a+x /target/usr/local/bin/swapon.sh
-chmod a+x /target/usr/local/bin/swapoff.sh
 
 echo "### Copying root files..."
 rsync -ar ~/.ssh/ /target/root/.ssh
@@ -277,17 +209,13 @@ EOF
 passwd --root /target
 
 echo "### Unmounting..."
-mount | grep -v zfs | tac | awk '/\/target/ {print $3}' | xargs -i{} umount -lf {}
-zfs unmount -a
+umount -R /target
 
 echo "### Snapshotting..."
-for pool in z/root
+for vol in root
 do
-    zfs snapshot ${pool}@pre-boot-install
+    lvcreate -pr -s vg/${vol} -n ${vol}.pre-boot-install 
 done
-
-echo "### Exporting..."
-zpool export z
 
 echo "### Done installing! Rebooting..."
 reboot

@@ -36,11 +36,11 @@ for f in *
 do
     cd "${SCRIPT_DIR}"/install-postboot
     tag="${f%.*}"
-    if ! zfs list z/root@post-boot-install-${tag}
+    if ! lvdisplay vg/root.post-boot-install-${tag}
     then
         echo "### Post-boot Install: ${tag}..."
         source ${f}
-        zfs snapshot z/root@post-boot-install-${tag}
+        lvcreate -pr -s vg/root -n root.post-boot-install-${tag}
     fi
 done
 
@@ -51,22 +51,22 @@ then
     do
         cd "${SCRIPT_DIR}"/${HOSTNAME}/install-postboot
         tag="${f%.*}"
-        if ! zfs list z/root@post-boot-install-${tag}
+        if ! lvdisplay vg/root.post-boot-install-${tag}
         then
             echo "### Machine Post-boot Install: ${tag}..."
             source ${f}
-            zfs snapshot z/root@post-boot-install-${tag}
+            lvcreate -pr -s vg/root -n root.post-boot-install-${tag}
         fi
     done
 fi
 
-if ! zfs list z/root@post-boot-cleanup
+if ! lvdisplay vg/root.post-boot-cleanup
 then
     echo "### Cleaning up..."
     rm /etc/systemd/system/getty@tty1.service.d/override.conf
     rm -rf /install
 
-    zfs snapshot z/root@post-boot-cleanup
+    lvcreate -pr -s vg/root -n root.post-boot-cleanup
 fi
 
 echo "### Done with post-boot install! Rebooting..."

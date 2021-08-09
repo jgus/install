@@ -31,8 +31,6 @@ PACKAGES=(
     efibootmgr
     # Firmware
     fwupd
-    # ZFS
-    zfs-dkms
     # Network
     openresolv networkmanager dhclient
     # ZSH
@@ -59,19 +57,7 @@ cat <<EOF >>/etc/pacman.conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 
-[archzfs]
-# Origin Server - France
-Server = http://archzfs.com/\$repo/\$arch
-# Mirror - Germany
-Server = http://mirror.sum7.eu/archlinux/archzfs/\$repo/\$arch
-# Mirror - Germany
-Server = https://mirror.biocrafting.net/archlinux/archzfs/\$repo/\$arch
-# Mirror - India
-Server = https://mirror.in.themindsmaze.com/archzfs/\$repo/\$arch
-
 EOF
-pacman-key --recv-keys F75D9D76 --keyserver hkp://pool.sks-keyservers.net:80
-pacman-key --lsign-key F75D9D76
 
 if ((HAS_CK_KERNEL))
 then
@@ -85,19 +71,6 @@ EOF
 fi
 
 pacman -Syyu --needed --noconfirm "${PACKAGES[@]}"
-
-echo "### Configuring ZFS..."
-systemctl enable zfs.target
-systemctl enable zfs-import-cache
-systemctl enable zfs-mount
-systemctl enable zfs-import.target
-#/etc/systemd/system/zfs-scrub@.timer
-#/etc/systemd/system/zfs-scrub@.service
-systemctl enable zfs-scrub@z.timer
-zgenhostid
-
-echo "### Configuring swap..."
-systemctl enable swap-ntfs.service
 
 echo "### Configuring network..."
 systemctl enable NetworkManager.service
@@ -134,9 +107,9 @@ MODULES=(efivarfs)
 ((HAS_NVIDIA)) && MODULES+=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
 sed -i "s|MODULES=(\(.*\))|MODULES=(${MODULES[*]})|g" /etc/mkinitcpio.conf
 #original: HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
-HOOKS=(base udev autodetect modconf block encrypt)
+HOOKS=(base udev autodetect keyboard keymap consolefont modconf block encrypt lvm2)
 ((ALLOW_SUSPEND_TO_DISK)) && HOOKS+=(resume)
-HOOKS+=(zfs filesystems keyboard)
+HOOKS+=(filesystems fsck)
 sed -i "s|HOOKS=(\(.*\))|HOOKS=(${HOOKS[*]})|g" /etc/mkinitcpio.conf
 #echo 'COMPRESSION="cat"' >>/etc/mkinitcpio.conf
 mkinitcpio -P
