@@ -39,7 +39,7 @@ XORG_PACKAGES+=(
     # Fonts
     adobe-source-code-pro-fonts
     adobe-source-sans-pro-fonts
-    font-bh-ttf
+    #font-bh-ttf
     gnu-free-fonts
     noto-fonts
     ttf-anonymous-pro
