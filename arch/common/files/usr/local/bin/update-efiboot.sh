@@ -21,7 +21,7 @@ KERNEL_PARAMS_POST+=(loglevel=3)
 for dev in $(cd /dev/mapper; ls crypt*)
 do
     id=$(blkid -s UUID -o value $(cryptsetup status ${dev} | grep 'device:' | awk '{print $2}'))
-    KERNEL_PARAMS_POST+=(cryptdevice=UUID=${id}:${dev})
+    KERNEL_PARAMS_POST+=(cryptdevice=UUID=${id}:${dev} cryptkey=/sys/firmware/efi/efivars/keyfile-77fa9abd-0359-4d32-bd60-28f4e78f784b)
 done
 KERNEL_PARAMS_POST+=(root=/dev/vg/root rw)
 ((HAS_INTEL_CPU)) && KERNEL_PARAMS_POST+=(intel_iommu=on iommu=pt)
