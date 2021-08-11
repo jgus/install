@@ -14,32 +14,33 @@ XORG_PACKAGES+=(
     #wine winetricks
     #wine_gecko wine-mono
     # Applications
-    firefox
-    code
-    remmina freerdp
-    libreoffice-still hunspell hunspell-en_US libmythes mythes-en
-    scribus
     clamtk
-    speedtest-cli
+    code
+    firefox
     gparted
+    libreoffice-still hunspell hunspell-en_US libmythes mythes-en
+    remmina freerdp
+    scribus
+    speedtest-cli
     # Media
-    vlc
-    strawberry gstreamer gst-libav gst-plugins-base gst-plugins-good gst-plugins-ugly
-    rhythmbox
-    mkvtoolnix-cli mkvtoolnix-gui
-    youtube-dl
-    gimp
-    rawtherapee hugin perl-image-exiftool digikam
     audacity
+    gimp
+    mkvtoolnix-cli mkvtoolnix-gui
+    rawtherapee hugin perl-image-exiftool digikam
+    rhythmbox
+    strawberry gstreamer gst-libav gst-plugins-base gst-plugins-good gst-plugins-ugly
+    vlc
+    youtube-dl
     # Modeling
-    openscad
     blender
-    prusa-slicer
     cura
+    freecad
+    openscad
+    prusa-slicer
     # Fonts
     adobe-source-code-pro-fonts
     adobe-source-sans-pro-fonts
-    #font-bh-ttf
+    gentium-plus-font
     gnu-free-fonts
     noto-fonts
     ttf-anonymous-pro
@@ -50,7 +51,6 @@ XORG_PACKAGES+=(
     ttf-fantasque-sans-mono
     ttf-fira-code
     ttf-fira-mono
-    gentium-plus-font
     ttf-hack
     ttf-inconsolata
     ttf-joypixels
