@@ -24,7 +24,17 @@ lspci | grep NVIDIA && HAS_NVIDIA=1
 
 PACKAGES=(
     # Base
-    diffutils logrotate man-db man-pages nano netctl usbutils vi which wget
+    diffutils
+    inetutils
+    logrotate
+    man-db
+    man-pages
+    nano
+    netctl
+    usbutils
+    vi
+    which
+    wget
     # LVM
     lvm2
     # DKMS
