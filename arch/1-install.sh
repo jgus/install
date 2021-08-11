@@ -100,6 +100,14 @@ echo "### Creating LUKS+LVM... (${LVM_DEVS[@]})"
 for i in "${!LVM_DEVS[@]}"
 do
     cryptsetup --batch-mode luksFormat --sector-size 4096 "${LVM_DEVS[$i]}" "${VKEY_FILE}"
+cat <<EOF
+#####
+#
+# Add backup password for LUKS device ${LVM_DEVS[$i]}:
+#
+#####
+EOF
+    cryptsetup luksAddKey -d "${VKEY_FILE}" "${LVM_DEVS[$i]}"
     cryptsetup open -d "${VKEY_FILE}" "${LVM_DEVS[$i]}" crypt${i}
     pvcreate /dev/mapper/crypt${i}
 done
