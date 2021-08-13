@@ -7,6 +7,10 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 BOOT_SIZE=${BOOT_SIZE:-2}
 SWAP_SIZE=${SWAP_SIZE:-$(free --giga | grep \^Mem | awk '{print $2}')}
+ROOT_SIZE=${ROOT_SIZE:-128}
+ROOT_HOME_SIZE=${ROOT_HOME_SIZE:-8}
+HOME_SIZE=${HOME_SIZE:-2048}
+MISC_SIZE=${MISC_SIZE:-8}
 
 if [[ "${KERNELS[@]}" == "" ]]
 then
@@ -114,13 +118,13 @@ done
 vgcreate vg /dev/mapper/crypt*
 lvcreate --type thin-pool -n tp -l 95%FREE vg
 
-lvcreate -n root        -V 64G --thinpool tp vg
-lvcreate -n var-cache   -V 8G --thinpool tp vg
-lvcreate -n var-log     -V 8G --thinpool tp vg
-lvcreate -n var-spool   -V 8G --thinpool tp vg
-lvcreate -n var-tmp     -V 8G --thinpool tp vg
-lvcreate -n home        -V 1T --thinpool tp vg
-lvcreate -n home-root   -V 8G --thinpool tp vg
+lvcreate -n root        -V ${ROOT_SIZE}G --thinpool tp vg
+lvcreate -n var-cache   -V ${MISC_SIZE}G --thinpool tp vg
+lvcreate -n var-log     -V ${MISC_SIZE}G --thinpool tp vg
+lvcreate -n var-spool   -V ${MISC_SIZE}G --thinpool tp vg
+lvcreate -n var-tmp     -V ${MISC_SIZE}G --thinpool tp vg
+lvcreate -n home        -V ${HOME_SIZE}G --thinpool tp vg
+lvcreate -n home-root   -V ${ROOT_HOME_SIZE}G --thinpool tp vg
 lvcreate -n swap        -V ${SWAP_SIZE}G --thinpool tp vg
 
 for vol in root var-cache var-log var-spool var-tmp home home-root
