@@ -13,13 +13,18 @@ useradd -D --shell /bin/zsh
 
 systemctl enable --now systemd-homed
 
-for user in josh melissa kayleigh john william lyra eden hope peter
+# for user in josh melissa kayleigh john william lyra eden hope peter
+# do
+#     yes ${user} | homectl create ${user} --storage=luks --luks-discard=on --luks-offline-discard=on --disk-size=${USER_SIZE}G
+# done
+
+for user in josh
 do
-    yes ${user} | homectl create ${user} --storage=luks --luks-discard=on --luks-offline-discard=on --disk-size=${USER_SIZE}G
+    homectl create ${user} --storage=luks --luks-discard=on --luks-offline-discard=on --disk-size=${USER_SIZE}G
 done
 
 usermod -a -G wheel josh
-yes josh | homectl activate josh
+homectl activate josh
 mkdir -p /home/josh/.ssh
 curl https://github.com/jgus.keys >> /home/josh/.ssh/authorized_keys
 chmod 400 /home/josh/.ssh/authorized_keys
