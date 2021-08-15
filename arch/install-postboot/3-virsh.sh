@@ -1,5 +1,6 @@
 #!/bin/bash
 
+mkdir -p /var/lib/libvirt
 btrfs subvolume create /var/lib/libvirt/images
 btrfs subvolume create /var/lib/libvirt/images/scratch
 

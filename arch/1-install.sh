@@ -100,7 +100,7 @@ fi
 echo "### Partitioning..."
 do_partition
 
-echo "### Creating LUKS+LVM... (${LVM_DEVS[@]})"
+echo "### Creating LUKS... (${LVM_DEVS[@]})"
 for i in "${!LVM_DEVS[@]}"
 do
     cryptsetup --batch-mode luksFormat --sector-size 4096 "${LVM_DEVS[$i]}" "${VKEY_FILE}"
@@ -113,13 +113,15 @@ cat <<EOF
 EOF
     cryptsetup luksAddKey -d "${VKEY_FILE}" "${LVM_DEVS[$i]}"
     cryptsetup open -d "${VKEY_FILE}" "${LVM_DEVS[$i]}" crypt${i}
-    mkfs.btrfs /dev/mapper/crypt${i}
 done
 
+echo "### Creating BTRFS... (/dev/mapper/crypt0)"
+mkfs.btrfs /dev/mapper/crypt0
 rm -rf /target
 mkdir /target
 mount -o discard -o compress-force=zstd /dev/mapper/crypt0 /target
 
+mkdir -p /target/var
 btrfs subvolume create /target/var/cache
 btrfs subvolume create /target/var/log
 btrfs subvolume create /target/var/spool
