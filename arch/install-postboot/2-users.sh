@@ -10,6 +10,7 @@ ssh root@jarvis.gustafson.me true
 useradd -D --shell /bin/zsh
 
 rsync -arPz --sparse root@jarvis.gustafson.me:/home/.images/ /home/
+mkdir -p /var/lib/systemd/home
 mv /home/local.* /var/lib/systemd/home/
 
 systemctl enable --now systemd-homed
