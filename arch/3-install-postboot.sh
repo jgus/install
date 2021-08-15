@@ -36,7 +36,7 @@ for f in *
 do
     cd "${SCRIPT_DIR}"/install-postboot
     tag="${f%.*}"
-    if ! lvdisplay vg/root.post-boot-install-${tag}
+    if ! btrfs subvolume list -s / | grep .snap/post-boot-install-${tag}
     then
         echo "### Post-boot Install: ${tag}..."
         source ${f}
@@ -51,7 +51,7 @@ then
     do
         cd "${SCRIPT_DIR}"/${HOSTNAME}/install-postboot
         tag="${f%.*}"
-        if ! lvdisplay vg/root.post-boot-install-${tag}
+        if ! btrfs subvolume list -s / | grep .snap/post-boot-install-${tag}
         then
             echo "### Machine Post-boot Install: ${tag}..."
             source ${f}
@@ -60,7 +60,7 @@ then
     done
 fi
 
-if ! lvdisplay vg/root.post-boot-cleanup
+if ! btrfs subvolume list -s / | grep .snap/post-boot-cleanup
 then
     echo "### Cleaning up..."
     rm /etc/systemd/system/getty@tty1.service.d/override.conf
