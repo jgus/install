@@ -5,16 +5,27 @@ HAS_DOCKER=${HAS_DOCKER:-1}
 #/etc/docker/daemon.json
 if ((HAS_DOCKER))
 then
-    zfs create -o mountpoint=/var/lib/docker z/docker || true
+    lvcreate -n docker           -V 1T --thinpool tp vg
+    lvcreate -n volumes          -V 1T --thinpool tp vg
+    lvcreate -n volumes-scratch  -V 1T --thinpool tp vg
+    mkfs.ext4 /dev/vg/docker
+    mkfs.ext4 /dev/vg/volumes
+    mkfs.ext4 /dev/vg/volumes-scratch
+    mkdir -p /var/lib/docker
+    mount -o discard /dev/vg/docker /var/lib/docker
+    mkdir -p /var/volumes
+    mount -o discard /dev/vg/volumes /var/volumes
+    mkdir -p /var/volumes/scratch
+    mount -o discard /dev/vg/volumes-scratch /var/volumes/scratch
+cat <<EOF >>/etc/fstab
 
-    source /usr/local/bin/functions.sh
-    for v in $(ssh root@jarvis.gustafson.me zfs list -r -o name -H e/$(hostname)/z/volumes | sed "s.e/$(hostname)/..")
-    do
-        zfs_send_new_snapshots root@jarvis.gustafson.me e/$(hostname)/${v} "" ${v}
-    done
+# Docker
+/dev/vg/docker           /var/lib/docker         ext4    rw,relatime,discard,stripe=16   0   2
+/dev/vg/volumes          /var/volumes            ext4    rw,relatime,discard,stripe=16   0   2
+/dev/vg/volumes-scratch  /var/volumes/scratch    ext4    rw,relatime,discard,stripe=16   0   2
+EOF
 
-    zfs create -o mountpoint=/var/volumes -o com.sun:auto-snapshot=true z/volumes || zfs set mountpoint=/var/volumes com.sun:auto-snapshot=true z/volumes
-    zfs create -o com.sun:auto-snapshot=false z/volumes/scratch || zfs set com.sun:auto-snapshot=false z/volumes/scratch
+    # TODO: Restore
 
     install docker
     ((HAS_NVIDIA)) && install nvidia-container-toolkit

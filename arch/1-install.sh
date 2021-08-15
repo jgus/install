@@ -118,14 +118,14 @@ done
 vgcreate vg /dev/mapper/crypt*
 lvcreate --type thin-pool -n tp -l 95%FREE vg
 
-lvcreate -n root        -V ${ROOT_SIZE}G --thinpool tp vg
-lvcreate -n var-cache   -V ${MISC_SIZE}G --thinpool tp vg
-lvcreate -n var-log     -V ${MISC_SIZE}G --thinpool tp vg
-lvcreate -n var-spool   -V ${MISC_SIZE}G --thinpool tp vg
-lvcreate -n var-tmp     -V ${MISC_SIZE}G --thinpool tp vg
-lvcreate -n home        -V ${HOME_SIZE}G --thinpool tp vg
-lvcreate -n home-root   -V ${ROOT_HOME_SIZE}G --thinpool tp vg
-lvcreate -n swap        -V ${SWAP_SIZE}G --thinpool tp vg
+lvcreate -n root        -V ${ROOT_SIZE}G        --thinpool tp vg
+lvcreate -n var-cache   -V ${MISC_SIZE}G        --thinpool tp vg
+lvcreate -n var-log     -V ${MISC_SIZE}G        --thinpool tp vg
+lvcreate -n var-spool   -V ${MISC_SIZE}G        --thinpool tp vg
+lvcreate -n var-tmp     -V ${MISC_SIZE}G        --thinpool tp vg
+lvcreate -n home        -V ${HOME_SIZE}G        --thinpool tp vg
+lvcreate -n home-root   -V ${ROOT_HOME_SIZE}G   --thinpool tp vg
+lvcreate -n swap        -V ${SWAP_SIZE}G        --thinpool tp vg
 
 for vol in root var-cache var-log var-spool var-tmp home home-root
 do

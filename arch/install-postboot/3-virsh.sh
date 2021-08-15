@@ -1,13 +1,21 @@
 #!/bin/bash
 
-source /usr/local/bin/functions.sh
-for v in $(ssh root@jarvis.gustafson.me zfs list -r -o name -H e/$(hostname)/z/images | sed "s.e/$(hostname)/..")
-do
-    zfs_send_new_snapshots root@jarvis.gustafson.me e/$(hostname)/${v} "" ${v}
-done
+lvcreate -n images          -V 1T --thinpool tp vg
+lvcreate -n images-scratch  -V 1T --thinpool tp vg
+mkfs.ext4 /dev/vg/images
+mkfs.ext4 /dev/vg/images-scratch
+mkdir -p /var/lib/libvirt/images
+mount -o discard /dev/vg/images /var/lib/libvirt/images
+mkdir -p /var/lib/libvirt/images/scratch
+mount -o discard /dev/vg/images-scratch /var/lib/libvirt/images/scratch
+cat <<EOF >>/etc/fstab
 
-zfs create -o mountpoint=/var/lib/libvirt/images -o com.sun:auto-snapshot=true z/images || zfs set mountpoint=/var/lib/libvirt/images com.sun:auto-snapshot=true z/images
-zfs create -o com.sun:auto-snapshot=false z/images/scratch || zfs set com.sun:auto-snapshot=false z/images/scratch
+# libvirt
+/dev/vg/images          /var/lib/libvirt/images            ext4    rw,relatime,discard,stripe=16   0   2
+/dev/vg/images-scratch  /var/lib/libvirt/images/scratch    ext4    rw,relatime,discard,stripe=16   0   2
+EOF
+
+# TODO: Restore
 
 VIRSH_PACKAGES=(
     qemu qemu-arch-extra
@@ -36,6 +44,3 @@ nvram = [
 EOF
 
 usermod -a -G libvirt josh
-mkdir -p /home/josh/.config/libvirt
-echo 'uri_default = "qemu:///system"' >> /home/josh/.config/libvirt/libvirt.conf
-chown -R josh:josh /home/josh
