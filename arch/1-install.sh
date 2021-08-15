@@ -126,8 +126,10 @@ btrfs subvolume create /target/var/cache
 btrfs subvolume create /target/var/log
 btrfs subvolume create /target/var/spool
 btrfs subvolume create /target/var/tmp
+chmod 1777 /target/var/tmp
 btrfs subvolume create /target/home
 btrfs subvolume create /target/root
+chmod 750 /target/root
 btrfs subvolume create /target/.swap
 
 truncate -s 0 /target/.swap/file
@@ -211,14 +213,9 @@ cat <<EOF
 EOF
 passwd --root /target
 
-echo "### Unmounting..."
-umount -R /target
-
 echo "### Snapshotting..."
-for vol in root
-do
-    btrfs subvolume snapshot -r / /.snap/pre-boot-install
-done
+mkdir /target/.snap
+btrfs subvolume snapshot -r /target /target/.snap/pre-boot-install
 
 echo "### Done installing! Rebooting..."
 reboot
