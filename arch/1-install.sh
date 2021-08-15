@@ -133,7 +133,7 @@ btrfs subvolume create /target/.swap
 truncate -s 0 /target/.swap/file
 chattr +C /target/.swap/file
 btrfs property set /target/.swap/file compression none
-dd if=/dev/zero of=/target/.swap/file bs=1G count=${SWAP_SIZE}G status=progress
+dd if=/dev/zero of=/target/.swap/file bs=1G count=${SWAP_SIZE} status=progress
 chmod 600 /target/.swap/file
 mkswap /target/.swap/file
 swapon /target/.swap/file
