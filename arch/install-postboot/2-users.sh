@@ -4,16 +4,17 @@ USER_SIZE=${USER_SIZE:-1024}
 
 ssh root@jarvis.gustafson.me true
 
-# TODO - restore backup?
-
 #/etc/sudoers.d/wheel
 #/etc/sudoers.d/builder
 
 useradd -D --shell /bin/zsh
 
+rsync -arPz --sparse root@jarvis.gustafson.me:/home/.images /home/
+
 systemctl enable --now systemd-homed
 
-mkdir -p /home/.images
+### TEMP
+false
 
 # for user in josh melissa kayleigh john william lyra eden hope peter
 # do
