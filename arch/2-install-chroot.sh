@@ -35,8 +35,8 @@ PACKAGES=(
     vi
     which
     wget
-    # LVM
-    lvm2
+    # btrfs
+    btrfs-progs
     # DKMS
     base-devel dkms "${KERNEL_HEADERS[@]}"
     # Bootloader

@@ -40,7 +40,7 @@ do
     then
         echo "### Post-boot Install: ${tag}..."
         source ${f}
-        lvcreate -pr -s vg/root -n root.post-boot-install-${tag}
+        btrfs subvolume snapshot -r / /.snap/post-boot-install-${tag}
     fi
 done
 
@@ -55,7 +55,7 @@ then
         then
             echo "### Machine Post-boot Install: ${tag}..."
             source ${f}
-            lvcreate -pr -s vg/root -n root.post-boot-install-${tag}
+            btrfs subvolume snapshot -r / /.snap/post-boot-install-${tag}
         fi
     done
 fi
@@ -66,7 +66,7 @@ then
     rm /etc/systemd/system/getty@tty1.service.d/override.conf
     rm -rf /install
 
-    lvcreate -pr -s vg/root -n root.post-boot-cleanup
+    btrfs subvolume snapshot -r / /.snap/post-boot-cleanup
 fi
 
 echo "### Done with post-boot install! Rebooting..."

@@ -1,19 +1,7 @@
 #!/bin/bash
 
-lvcreate -n images          -V 1T --thinpool tp vg
-lvcreate -n images-scratch  -V 1T --thinpool tp vg
-mkfs.ext4 /dev/vg/images
-mkfs.ext4 /dev/vg/images-scratch
-mkdir -p /var/lib/libvirt/images
-mount -o discard /dev/vg/images /var/lib/libvirt/images
-mkdir -p /var/lib/libvirt/images/scratch
-mount -o discard /dev/vg/images-scratch /var/lib/libvirt/images/scratch
-cat <<EOF >>/etc/fstab
-
-# libvirt
-/dev/vg/images          /var/lib/libvirt/images            ext4    rw,relatime,discard,stripe=16   0   2
-/dev/vg/images-scratch  /var/lib/libvirt/images/scratch    ext4    rw,relatime,discard,stripe=16   0   2
-EOF
+btrfs subvolume create /var/lib/libvirt/images
+btrfs subvolume create /var/lib/libvirt/images/scratch
 
 # TODO: Restore
 

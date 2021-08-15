@@ -113,39 +113,28 @@ cat <<EOF
 EOF
     cryptsetup luksAddKey -d "${VKEY_FILE}" "${LVM_DEVS[$i]}"
     cryptsetup open -d "${VKEY_FILE}" "${LVM_DEVS[$i]}" crypt${i}
-    pvcreate /dev/mapper/crypt${i}
+    mkfs.btrfs /dev/mapper/crypt${i}
 done
-vgcreate vg /dev/mapper/crypt*
-lvcreate --type thin-pool -n tp -l 95%FREE vg
-
-lvcreate -n root        -V ${ROOT_SIZE}G        --thinpool tp vg
-lvcreate -n var-cache   -V ${MISC_SIZE}G        --thinpool tp vg
-lvcreate -n var-log     -V ${MISC_SIZE}G        --thinpool tp vg
-lvcreate -n var-spool   -V ${MISC_SIZE}G        --thinpool tp vg
-lvcreate -n var-tmp     -V ${MISC_SIZE}G        --thinpool tp vg
-lvcreate -n home        -V ${HOME_SIZE}G        --thinpool tp vg
-lvcreate -n home-root   -V ${ROOT_HOME_SIZE}G   --thinpool tp vg
-lvcreate -n swap        -V ${SWAP_SIZE}G        --thinpool tp vg
-
-for vol in root var-cache var-log var-spool var-tmp home home-root
-do
-    mkfs.ext4 /dev/vg/${vol}
-done
-mkswap /dev/vg/swap
 
 rm -rf /target
 mkdir /target
-mount -o discard /dev/vg/root /target
-for d in cache log spool tmp
-do
-    mkdir -p /target/var/${d}
-    mount -o discard /dev/vg/var-${d} /target/var/${d}
-done
-mkdir -p /target/home
-mount -o discard /dev/vg/home /target/home
-mkdir -p /target/root
-mount -o discard /dev/vg/home-root /target/root
-swapon /dev/vg/swap
+mount -o discard -o compress-force=zstd /dev/mapper/crypt0 /target
+
+btrfs subvolume create /target/var/cache
+btrfs subvolume create /target/var/log
+btrfs subvolume create /target/var/spool
+btrfs subvolume create /target/var/tmp
+btrfs subvolume create /target/home
+btrfs subvolume create /target/root
+btrfs subvolume create /target/.swap
+
+truncate -s 0 /target/.swap/file
+chattr +C /target/.swap/file
+btrfs property set /target/.swap/file compression none
+dd if=/dev/zero of=/target/.swap/file bs=1G count=${SWAP_SIZE}G status=progress
+chmod 600 /target/.swap/file
+mkswap /target/.swap/file
+swapon /target/.swap/file
 
 echo "### Formatting BOOT partition(s)... (${BOOT_DEVS[@]})"
 for i in "${!BOOT_DEVS[@]}"
@@ -226,7 +215,7 @@ umount -R /target
 echo "### Snapshotting..."
 for vol in root
 do
-    lvcreate -pr -s vg/${vol} -n ${vol}.pre-boot-install 
+    btrfs subvolume snapshot -r / /.snap/pre-boot-install
 done
 
 echo "### Done installing! Rebooting..."
