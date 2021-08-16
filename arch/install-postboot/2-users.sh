@@ -22,7 +22,7 @@ systemctl enable --now systemd-homed
 
 # for user in josh
 # do
-#     homectl create ${user} --storage=luks --luks-discard=on --luks-offline-discard=on --disk-size=${USER_SIZE}G --image-path=/home/.images/${user}.home
+#     homectl create ${user} --storage=luks --luks-discard=on --luks-offline-discard=on --disk-size=${USER_SIZE}G --fs-type=btrfs
 # done
 
 usermod -a -G wheel josh
