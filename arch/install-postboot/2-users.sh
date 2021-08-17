@@ -22,7 +22,7 @@ systemctl enable --now systemd-homed
 # done
 
 if false
-do
+then
     homectl create josh --storage=luks --luks-discard=on --luks-offline-discard=on --disk-size=16G --fs-type=btrfs
     homectl activate josh
     cp -rv ~/.ssh /home/josh
@@ -31,6 +31,6 @@ do
     homectl deactivate josh
     zstd -10 -T0 --rsyncable josh.home -o josh.home.zst
     rsync -arP /home/*.home.zst root@jarvis.gustafson.me:/home/.images/
-done
+fi
 
 usermod -a -G wheel josh
