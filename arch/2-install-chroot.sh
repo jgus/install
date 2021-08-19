@@ -37,6 +37,7 @@ PACKAGES=(
     wget
     # btrfs
     btrfs-progs
+    snapper
     # DKMS
     base-devel dkms "${KERNEL_HEADERS[@]}"
     # Bootloader
@@ -113,6 +114,15 @@ then
     echo "options vfio_pci ids=${VFIO_IDS}" >> /etc/modprobe.d/vfio.conf
 fi
 
+echo "### Configuring (buit not starting) Snapper..."
+snapper -c root create-config /
+snapper -c home create-config /home
+snapper -c home-root create-config /root
+for c in root home home-root
+do
+    snapper -c ${c} set-config "TIMELINE_LIMIT_HOURLY=50 TIMELINE_LIMIT_DAILY=15 TIMELINE_LIMIT_WEEKLY=10 TIMELINE_LIMIT_MONTHLY=15 TIMELINE_LIMIT_YEARLY=0"
+done
+
 echo "### Configuring boot image..."
 MODULES=(efivarfs)
 [[ "${VFIO_IDS}" != "" ]] && MODULES+=(vfio_pci vfio vfio_iommu_type1 vfio_virqfd)
@@ -129,11 +139,14 @@ mkinitcpio -P
 echo "### Installing bootloader..."
 /usr/local/bin/update-efiboot.sh
 
-# echo "### TEMP!!!"
-# zsh
-
 echo "### Preparing post-boot install..."
 #/etc/systemd/system/getty@tty1.service.d/override.conf
 #/root/.zlogin
 #/root/.runonce.sh
 chmod a+x ~/.runonce.sh
+
+# echo "### TEMP!!!"
+# zsh
+
+echo "### Snapshotting..."
+snapper -c root create --description pre-boot-install

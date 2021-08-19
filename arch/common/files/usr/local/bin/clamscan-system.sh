@@ -8,13 +8,13 @@ source "$( dirname "${BASH_SOURCE[0]}" )/functions.sh"
 
 mirror_boot
 
-DATASETS=(/ $(btrfs subvolume list / | awk '{print $9}' | grep -v "^.snap" | grep -v "^.swap" | sort))
+DATASETS=(/ $(btrfs subvolume list / | awk '{print $9}' | grep -v "^." | sort))
 
 for d in "${DATASETS[@]}"
 do
-    mkdir -p "/${d}/.snap/"
-    btrfs subvolume delete "/${d}/.snap/clam-scanning" >/dev/null 2>&1 || true
-    btrfs subvolume snapshot -r "/${d}" "/${d}/.snap/clam-scanning"
+    mkdir -p "/${d}/.clam/"
+    btrfs subvolume delete "/${d}/.clam/scanning" >/dev/null 2>&1 || true
+    btrfs subvolume snapshot -r "/${d}" "/${d}/.clam/scanning"
 done
 
 ANY_INFECTION=0
@@ -29,21 +29,21 @@ do
     echo "" | tee -a ${LOG_FILE}
     echo "" | tee -a ${LOG_FILE}
     echo "# Scanning ${d}..." | tee -a ${LOG_FILE}
-    SCANNING_DATE=$(btrfs subvolume show "/${d}/.snap/clam-scanning" | grep "Creation time:" | awk '{print $3 " " $4}')
-    if [ -d "/${d}/.snap/clam-lkg" ]
+    SCANNING_DATE=$(btrfs subvolume show "/${d}/.clam/scanning" | grep "Creation time:" | awk '{print $3 " " $4}')
+    if [ -d "/${d}/.clam/lkg" ]
     then
-        LKG_DATE=$(btrfs subvolume show "/${d}/.snap/clam-lkg" | grep "Creation time:" | awk '{print $3 " " $4}')
+        LKG_DATE=$(btrfs subvolume show "/${d}/.clam/lkg" | grep "Creation time:" | awk '{print $3 " " $4}')
         echo "# Scanning ${d} incrementally from ${LKG_DATE} to ${SCANNING_DATE}..." | tee -a ${LOG_FILE}
         set +e
-        OLD_TRANSID=$(btrfs subvolume find-new "/${d}/.snap/clam-lkg" 9999999)
+        OLD_TRANSID=$(btrfs subvolume find-new "/${d}/.clam/lkg" 9999999)
         OLD_TRANSID=${OLD_TRANSID#transid marker was }
-        DIFF_FILES_RAW=$(btrfs subvolume find-new "/${d}/.snap/clam-scanning" ${OLD_TRANSID} | awk '{print $17}' | sort -u)
+        DIFF_FILES_RAW=$(btrfs subvolume find-new "/${d}/.clam/scanning" ${OLD_TRANSID} | awk '{print $17}' | sort -u)
         DIFF_FILES=()
         for f in "${DIFF_FILES_RAW[@]}"
         do
             f=$(echo -en "${f}")
-            [[ -s "/${d}/.snap/clam-scanning/${f}" ]] || continue
-            DIFF_FILES+=("/${d}/.snap/clam-scanning/${f}")
+            [[ -s "/${d}/.clam/scanning/${f}" ]] || continue
+            DIFF_FILES+=("/${d}/.clam/scanning/${f}")
         done
         if (( ${#DIFF_FILES[@]} ))
         then
@@ -58,7 +58,7 @@ do
     else
         echo "# Scanning ${d} completely as of ${SCANNING_DATE}..." | tee -a ${LOG_FILE}
         set +e
-        clamdscan -m --fdpass -i "/${d}/.snap/clam-scanning/" 2>&1 | tee -a ${LOG_FILE} ${CURRENT_LOG_FILE}
+        clamdscan -m --fdpass -i "/${d}/.clam/scanning/" 2>&1 | tee -a ${LOG_FILE} ${CURRENT_LOG_FILE}
         RESULT=$?
         set -e
     fi
@@ -69,21 +69,21 @@ do
     case ${RESULT} in
         0)
         echo "### ${d} looks clean" | tee -a ${LOG_FILE}
-        btrfs subvolume delete "/${d}/.snap/clam-infected" >/dev/null 2>&1 || true
-        btrfs subvolume delete "/${d}/.snap/clam-lkg" >/dev/null 2>&1 || true
-        btrfs subvolume snapshot -r "/${d}/.snap/clam-scanning" "/${d}/.snap/clam-lkg"
-        btrfs subvolume delete "/${d}/.snap/clam-scanning" >/dev/null 2>&1 || true
+        btrfs subvolume delete "/${d}/.clam/infected" >/dev/null 2>&1 || true
+        btrfs subvolume delete "/${d}/.clam/lkg" >/dev/null 2>&1 || true
+        btrfs subvolume snapshot -r "/${d}/.clam/scanning" "/${d}/.clam/lkg"
+        btrfs subvolume delete "/${d}/.clam/scanning" >/dev/null 2>&1 || true
         ;;
         1)
         echo "!!! ${d} looks infected!" | tee -a ${LOG_FILE}
-        btrfs subvolume delete "/${d}/.snap/clam-infected" >/dev/null 2>&1 || true
-        btrfs subvolume snapshot -r "/${d}/.snap/clam-scanning" "/${d}/.snap/clam-infected"
-        btrfs subvolume delete "/${d}/.snap/clam-scanning" >/dev/null 2>&1 || true
+        btrfs subvolume delete "/${d}/.clam/infected" >/dev/null 2>&1 || true
+        btrfs subvolume snapshot -r "/${d}/.clam/scanning" "/${d}/.clam/infected"
+        btrfs subvolume delete "/${d}/.clam/scanning" >/dev/null 2>&1 || true
         ANY_INFECTION=1
         ;;
         *)
         echo "!!! Error trying to scan ${d}!" | tee -a ${LOG_FILE}
-        btrfs subvolume delete "/${d}/.snap/clam-scanning" >/dev/null 2>&1 || true
+        btrfs subvolume delete "/${d}/.clam/scanning" >/dev/null 2>&1 || true
         ANY_ERROR=1
         ;;
     esac

@@ -201,9 +201,6 @@ cat <<EOF >/target/etc/hosts
 127.0.1.1 ${HOSTNAME}.localdomain ${HOSTNAME}
 EOF
 
-echo "### Running further install in the chroot..."
-arch-chroot /target /install/arch/2-install-chroot.sh
-
 cat <<EOF
 #####
 #
@@ -213,9 +210,8 @@ cat <<EOF
 EOF
 passwd --root /target
 
-echo "### Snapshotting..."
-mkdir /target/.snap
-btrfs subvolume snapshot -r /target /target/.snap/pre-boot-install
+echo "### Running further install in the chroot..."
+arch-chroot /target /install/arch/2-install-chroot.sh
 
 echo "### Done installing! Rebooting..."
 reboot

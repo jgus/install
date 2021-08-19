@@ -36,11 +36,12 @@ for f in *
 do
     cd "${SCRIPT_DIR}"/install-postboot
     tag="${f%.*}"
-    if ! btrfs subvolume list -s / | grep .snap/post-boot-install-${tag}
+    if ! snapper -c root list --columns description | grep '^post-boot-install-${tag}\s*$'
     then
         echo "### Post-boot Install: ${tag}..."
+        PRE=$(snapper -c root create -t pre -p)
         source ${f}
-        btrfs subvolume snapshot -r / /.snap/post-boot-install-${tag}
+        snapper -c root create -t post --pre-number ${PRE} --description post-boot-install-${tag}
     fi
 done
 
@@ -51,22 +52,23 @@ then
     do
         cd "${SCRIPT_DIR}"/${HOSTNAME}/install-postboot
         tag="${f%.*}"
-        if ! btrfs subvolume list -s / | grep .snap/post-boot-install-${tag}
+        if ! snapper -c root list --columns description | grep '^post-boot-install-${tag}\s*$'
         then
             echo "### Machine Post-boot Install: ${tag}..."
+            PRE=$(snapper -c root create -t pre -p)
             source ${f}
-            btrfs subvolume snapshot -r / /.snap/post-boot-install-${tag}
+            snapper -c root create -t post --pre-number ${PRE} --description post-boot-install-${tag}
         fi
     done
 fi
 
-if ! btrfs subvolume list -s / | grep .snap/post-boot-cleanup
+if ! snapper -c root list --columns description | grep '^post-boot-cleanup\s*$'
 then
     echo "### Cleaning up..."
     rm /etc/systemd/system/getty@tty1.service.d/override.conf
     rm -rf /install
 
-    btrfs subvolume snapshot -r / /.snap/post-boot-cleanup
+    snapper -c root create --description post-boot-cleanup
 fi
 
 echo "### Done with post-boot install! Rebooting..."
