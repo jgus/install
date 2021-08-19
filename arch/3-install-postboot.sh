@@ -36,7 +36,7 @@ for f in *
 do
     cd "${SCRIPT_DIR}"/install-postboot
     tag="${f%.*}"
-    if ! snapper -c root list --columns description | grep '^post-boot-install-${tag}\s*$'
+    if ! snapper -c root list --columns description | grep "^post-boot-install-${tag}\s*$"
     then
         echo "### Post-boot Install: ${tag}..."
         PRE=$(snapper -c root create -t pre -p)
@@ -52,7 +52,7 @@ then
     do
         cd "${SCRIPT_DIR}"/${HOSTNAME}/install-postboot
         tag="${f%.*}"
-        if ! snapper -c root list --columns description | grep '^post-boot-install-${tag}\s*$'
+        if ! snapper -c root list --columns description | grep "^post-boot-install-${tag}\s*$"
         then
             echo "### Machine Post-boot Install: ${tag}..."
             PRE=$(snapper -c root create -t pre -p)
@@ -62,7 +62,7 @@ then
     done
 fi
 
-if ! snapper -c root list --columns description | grep '^post-boot-cleanup\s*$'
+if ! snapper -c root list --columns description | grep "^post-boot-cleanup\s*$"
 then
     echo "### Cleaning up..."
     rm /etc/systemd/system/getty@tty1.service.d/override.conf
