@@ -115,12 +115,12 @@ then
 fi
 
 echo "### Configuring (buit not starting) Snapper..."
-snapper -c root create-config /
-snapper -c home create-config /home
-snapper -c home-root create-config /root
+snapper --no-dbus -c root create-config /
+snapper --no-dbus -c home create-config /home
+snapper --no-dbus -c home-root create-config /root
 for c in root home home-root
 do
-    snapper -c ${c} set-config "TIMELINE_LIMIT_HOURLY=50 TIMELINE_LIMIT_DAILY=15 TIMELINE_LIMIT_WEEKLY=10 TIMELINE_LIMIT_MONTHLY=15 TIMELINE_LIMIT_YEARLY=0"
+    snapper --no-dbus -c ${c} set-config "TIMELINE_LIMIT_HOURLY=50 TIMELINE_LIMIT_DAILY=15 TIMELINE_LIMIT_WEEKLY=10 TIMELINE_LIMIT_MONTHLY=15 TIMELINE_LIMIT_YEARLY=0"
 done
 
 echo "### Configuring boot image..."
@@ -149,4 +149,4 @@ chmod a+x ~/.runonce.sh
 # zsh
 
 echo "### Snapshotting..."
-snapper -c root create --description pre-boot-install
+snapper --no-dbus -c root create --description pre-boot-install
