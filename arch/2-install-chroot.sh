@@ -145,6 +145,15 @@ echo "### Preparing post-boot install..."
 #/root/.runonce.sh
 chmod a+x ~/.runonce.sh
 
+cat <<EOF
+#####
+#
+# Please enter a root password:
+#
+#####
+EOF
+passwd
+
 # echo "### TEMP!!!"
 # zsh
 

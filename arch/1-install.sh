@@ -201,15 +201,6 @@ cat <<EOF >/target/etc/hosts
 127.0.1.1 ${HOSTNAME}.localdomain ${HOSTNAME}
 EOF
 
-cat <<EOF
-#####
-#
-# Please enter a root password:
-#
-#####
-EOF
-passwd --root /target
-
 echo "### Running further install in the chroot..."
 arch-chroot /target /install/arch/2-install-chroot.sh
 
