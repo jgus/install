@@ -8,7 +8,7 @@ source "$( dirname "${BASH_SOURCE[0]}" )/functions.sh"
 
 mirror_boot
 
-DATASETS=(/ $(btrfs subvolume list / | awk '{print $9}' | grep -v "^." | sort))
+DATASETS=(/ $(btrfs subvolume list / | awk '{print $9}' | grep -v "^\." | sort))
 
 for d in "${DATASETS[@]}"
 do
