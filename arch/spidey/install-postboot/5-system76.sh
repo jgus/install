@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SYSTEM76_PACKAGES+=(
+    firmware-manager
     system76-driver
     system76-dkms
     system76-io-dkms

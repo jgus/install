@@ -1,7 +1,6 @@
 #!/bin/bash
 
 XORG_AUR_PACAKGES+=(
-    firmware-manager
     xbanish
     openscad-mcad-dev-git
 )
