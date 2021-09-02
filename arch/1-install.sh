@@ -7,10 +7,6 @@ source "$(cd "$(dirname "$0")" ; pwd)"/${HOSTNAME}/config.env
 
 BOOT_SIZE=${BOOT_SIZE:-2}
 SWAP_SIZE=${SWAP_SIZE:-$(free --giga | grep \^Mem | awk '{print $2}')}
-ROOT_SIZE=${ROOT_SIZE:-128}
-ROOT_HOME_SIZE=${ROOT_HOME_SIZE:-8}
-HOME_SIZE=${HOME_SIZE:-2048}
-MISC_SIZE=${MISC_SIZE:-8}
 
 if [[ "${KERNELS[@]}" == "" ]]
 then
