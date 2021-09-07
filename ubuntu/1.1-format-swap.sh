@@ -3,6 +3,7 @@
 source "$(cd "$(dirname "$0")" ; pwd)"/common.sh "$@"
 
 echo "### Setting up swap..."
+shopt -s nullglob
 for i in $(swapon --show=NAME --noheadings)
 do
     swapoff "${i}" || true
