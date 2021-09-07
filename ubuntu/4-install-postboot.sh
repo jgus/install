@@ -10,6 +10,7 @@ TIME_ZONE=${TIME_ZONE:-US/Mountain}
 HAS_GUI=${HAS_GUI:-1}
 
 PPAS+=(
+    multiverse
     ppa:mscore-ubuntu/mscore3-stable
 )
 
