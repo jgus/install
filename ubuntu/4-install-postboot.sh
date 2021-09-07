@@ -10,7 +10,6 @@ TIME_ZONE=${TIME_ZONE:-US/Mountain}
 HAS_GUI=${HAS_GUI:-1}
 
 PPAS+=(
-    multiverse
     ppa:mscore-ubuntu/mscore3-stable
 )
 
@@ -35,7 +34,7 @@ PACKAGES+=(
     tigervnc-standalone-server
     gimp
     pycharm-community
-    steam
+    #steam
     musescore3
 )
 PACKAGES+=(
