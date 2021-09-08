@@ -15,7 +15,7 @@ PPAS+=(
 
 PACKAGES+=(
     unattended-upgrades
-    docker.io
+    docker-ce docker-ce-cli containerd.io
     libvirt-daemon libvirt-daemon-system libvirt-clients qemu-system-x86 qemu-utils
     tmux
     gcc gdb cmake ninja-build
@@ -55,6 +55,8 @@ then
     echo "### Installing packages..."
     curl -s https://s3.eu-central-1.amazonaws.com/jetbrains-ppa/0xA6E8698A.pub.asc | apt-key add -
     echo "deb http://jetbrains-ppa.s3-website.eu-central-1.amazonaws.com bionic main" >/etc/apt/sources.list.d/jetbrains-ppa.list
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
     for ppa in "${PPAS[@]}"
     do
         apt-add-repository -y ${ppa}
@@ -156,12 +158,6 @@ then
         do
             loginctl attach seat3 "${d}"
         done
-        
-        echo "### Configuring Printer Driver..."
-        cd /tmp
-        curl -L -O http://gdlp01.c-wss.com/gds/6/0100009236/06/linux-UFRII-drv-v510-usen-09.tar.gz
-        tar xvf linux-UFRII-drv-v510-usen-09.tar.gz
-        { echo y ; echo n ; } | ./linux-UFRII-drv-v510-usen/install.sh
         
         echo "### Configuring Minecraft..."
         cd /tmp

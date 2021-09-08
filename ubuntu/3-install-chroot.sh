@@ -31,6 +31,7 @@ PACKAGES=(
     ntp
     cifs-utils
     smbnetfs sshfs fuseiso hfsprogs
+    apt-transport-https ca-certificates curl gnupg lsb-release
 )
 if ((HAS_UEFI))
 then

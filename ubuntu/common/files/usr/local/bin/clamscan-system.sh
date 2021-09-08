@@ -13,7 +13,7 @@ source "$( dirname "${BASH_SOURCE[0]}" )/functions.sh"
 mirror_boot
 
 #DATASETS=($(zfs list -H -o name -t filesystem | grep -v root/docker))
-DATASETS=($(zfs list -H -o name -t filesystem))
+DATASETS=($(zfs list -H -o name -t filesystem | grep -v \^bpool))
 
 EXCLUDE_ARGS=()
 for f in "${EXCLUDE_FILES[@]}"
