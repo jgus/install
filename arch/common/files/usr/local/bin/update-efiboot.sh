@@ -5,8 +5,11 @@ lscpu | grep AuthenticAMD && HAS_AMD_CPU=1
 lspci | grep NVIDIA && HAS_NVIDIA=1
 ((HAS_NVIDIA)) && which optimus-manager && HAS_OPTIMUS=1
 
-BOOT_DRIVE=$(mount | grep /boot | cut -f 1 -d ' ' | sed "s|p.$||")
-BOOT_PART=$(mount | grep /boot | cut -f 1 -d ' ' | sed "s|^.*p||")
+shopt -s extglob
+BOOT_PART=$(mount | grep /boot | awk '{print $1}')
+BOOT_DRIVE=$(lsblk -no pkname ${BOOT_PART})
+BOOT_BOOT_PART_PRE=${BOOT_PART%%+([0-9])}
+BOOT_PART_NUM=${BOOT_PART#$BOOT_PART_PRE}
 
 for i in $(efibootmgr | grep Arch | sed "s/^Boot//" | sed "s/\*.*//")
 do
@@ -52,13 +55,13 @@ do
                 ALL_KERNEL_PARAMS="${KERNEL_PARAMS_PRE[@]} initrd=/initramfs-${k}${f}.img ${KERNEL_PARAMS_POST[@]} ${GRAPHICS_OPTS[@]}"
                 echo "vmlinuz-${k} ${ALL_KERNEL_PARAMS}" >>/boot/${k}${f}-${g}-startup.nsh
                 echo -n " ${ALL_KERNEL_PARAMS}" >>/boot/${k}${f}-${g}-opts.txt
-                efibootmgr --verbose --disk ${BOOT_DRIVE} --part ${BOOT_PART} --create --label "Arch Linux (${k}${f} w/ ${g} graphics)" --loader /vmlinuz-${k} --unicode "${ALL_KERNEL_PARAMS}"
+                efibootmgr --verbose --disk ${BOOT_DRIVE} --part ${BOOT_PART_NUM} --create --label "Arch Linux (${k}${f} w/ ${g} graphics)" --loader /vmlinuz-${k} --unicode "${ALL_KERNEL_PARAMS}"
             done
         fi
 
         ALL_KERNEL_PARAMS="${KERNEL_PARAMS_PRE[@]} initrd=/initramfs-${k}${f}.img ${KERNEL_PARAMS_POST[@]}"
         echo "vmlinuz-${k} ${ALL_KERNEL_PARAMS}" >>/boot/${k}${f}-startup.nsh
         echo -n " ${ALL_KERNEL_PARAMS}" >>/boot/${k}${f}-opts.txt
-        efibootmgr --verbose --disk ${BOOT_DRIVE} --part ${BOOT_PART} --create --label "Arch Linux (${k}${f})" --loader /vmlinuz-${k} --unicode "${ALL_KERNEL_PARAMS}"
+        efibootmgr --verbose --disk ${BOOT_DRIVE} --part ${BOOT_PART_NUM} --create --label "Arch Linux (${k}${f})" --loader /vmlinuz-${k} --unicode "${ALL_KERNEL_PARAMS}"
     done
 done
