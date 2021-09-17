@@ -8,7 +8,7 @@ lspci | grep NVIDIA && HAS_NVIDIA=1
 shopt -s extglob
 BOOT_PART=$(mount | grep /boot | awk '{print $1}')
 BOOT_DRIVE=$(lsblk -no pkname ${BOOT_PART})
-BOOT_BOOT_PART_PRE=${BOOT_PART%%+([0-9])}
+BOOT_PART_PRE=${BOOT_PART%%+([0-9])}
 BOOT_PART_NUM=${BOOT_PART#$BOOT_PART_PRE}
 
 for i in $(efibootmgr | grep Arch | sed "s/^Boot//" | sed "s/\*.*//")
