@@ -22,7 +22,7 @@ PACKAGES+=(
     python3 python3-pip python3-virtualenv
     speedtest-cli
     ssmtp
-    clamav-daemon
+    clamav clamav-daemon clamdscan
 )
 ((HAS_GUI)) && PACKAGES+=(
     kubuntu-desktop kubuntu-restricted-extras
