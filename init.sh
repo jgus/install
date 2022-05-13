@@ -16,16 +16,16 @@ then
     apt-add-repository -y universe
     apt update
     apt install --yes "${PACKAGES[@]}"
-elif command -v pacman 
-then
-    PACKAGES=(
-        git
-    )
-    pacman -Sy --needed --noconfirm "${PACKAGES[@]}"
-    # if uname -m | grep x86
-    # then
-    #     curl -s https://eoli3n.github.io/archzfs/init | bash
-    # fi
+#elif command -v pacman 
+#then
+#    PACKAGES=(
+#        git
+#    )
+#    pacman -Sy --needed --noconfirm "${PACKAGES[@]}"
+#    # if uname -m | grep x86
+#    # then
+#    #     curl -s https://eoli3n.github.io/archzfs/init | bash
+#    # fi
 fi
 
 echo "### Setting up SSH..."
@@ -38,8 +38,13 @@ chmod 400 ~/.ssh/authorized_keys
 
 systemctl start ssh || systemctl start sshd
 
-echo "### Cloning repo..."
-git clone https://github.com/jgus/install
+# echo "### Cloning repo..."
+# git clone https://github.com/jgus/install
+
+echo "### Downlaoding repo..."
+mkdir /install
+cd /install
+curl -sL https://github.com/jgus/install/archive/master.tar.gz | tar -xz --strip-components=1
 
 echo "### System prep complete; SSH available at:"
 ip a | grep inet
