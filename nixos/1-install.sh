@@ -39,6 +39,7 @@ echo "### Copying configuration"
 rsync -arP ${SCRIPT_DIR}/${HOSTNAME}/ /mnt
 rsync -arP /root/.ssh /mnt/root/
 dd bs=1 count=32 if=/dev/urandom of=/mnt/root/vkey
+chown -R root:root /mnt
 
 echo "### Generating hardware configuration"
 nixos-generate-config --root /mnt

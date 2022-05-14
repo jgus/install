@@ -16,7 +16,7 @@
 
   networking.hostName = "gustafson-backup";
 
-  time.timeZone = "America/LosAngeles";
+  time.timeZone = "America/Los_Angeles";
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
@@ -54,17 +54,71 @@
 
   # List services that you want to enable:
 
-  # Enable the OpenSSH daemon.
-  services.openssh = {
-    enable = true;
-    # permitRootLogin = "yes";
+  nixpkgs.config.allowUnfree = true;
+
+  services = {
+    ntp.enable = true;
+    
+    openssh = {
+      enable = true;
+      openFirewall = true;
+    };
+
+    # plex = {
+    #   enable = true;
+    #   openFirewall = true;
+    #   # dataDir = "/var/lib/plex";
+    # };
+    
+    ### Don't forget smbpasswd -a <user>
+    # samba = {
+    #   enable = true;
+    #   openFirewall = true;
+    #   securityType = "user";
+    #   extraConfig = ''
+    #     workgroup = WORKGROUP
+    #     server string = Gustafson-Backup
+    #     netbios name = Gustafson-Backup
+    #     security = user 
+    #     #use sendfile = yes
+    #     #max protocol = smb2
+    #     # note: localhost is the ipv6 localhost ::1
+    #     # hosts allow = 10. 172. 192.168. 127.0.0.1 localhost
+    #     # hosts deny = 0.0.0.0/0
+    #     guest account = nobody
+    #     map to guest = bad user
+    #   '';
+    #   shares = {
+    #     public = {
+    #       path = "/mnt/Shares/Public";
+    #       browseable = "yes";
+    #       "read only" = "no";
+    #       "guest ok" = "yes";
+    #       "create mask" = "0644";
+    #       "directory mask" = "0755";
+    #       "force user" = "username";
+    #       "force group" = "groupname";
+    #     };
+    #     private = {
+    #       path = "/mnt/Shares/Private";
+    #       browseable = "yes";
+    #       "read only" = "no";
+    #       "guest ok" = "no";
+    #       "create mask" = "0644";
+    #       "directory mask" = "0755";
+    #       "force user" = "username";
+    #       "force group" = "groupname";
+    #     };
+    #   };
+    # };
   };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
-  networking.firewall.enable = false;
+  # networking.firewall.enable = false;
+  networking.firewall.allowPing = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
