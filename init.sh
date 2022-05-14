@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env -S bash -e
 
 # bash <(curl -s https://jgus.github.io/install/init.sh)
 
