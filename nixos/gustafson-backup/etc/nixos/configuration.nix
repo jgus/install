@@ -10,8 +10,15 @@
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
-    extraModulePackages = with config.boot.kernelPackages; [ zfs ];
-    kernelModules = [ "zfs" ];
+    extraModulePackages = with config.boot.kernelPackages; [
+      # it87
+      zfs 
+    ];
+    kernelModules = [
+      "coretemp"
+      # "it87"
+      "zfs"
+    ];
   };
 
   networking.hostName = "gustafson-backup";
@@ -40,6 +47,7 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    lm_sensors
     parted
     zfs
   ];
