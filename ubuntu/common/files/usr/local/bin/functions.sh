@@ -42,9 +42,9 @@ zfs_send_new_snapshots() {
 
     local SOURCE_SNAPSHOTS_FULL
     local TARGET_SNAPSHOTS_FULL
-    echo "Listing source snapshots..."
+    echo "Listing source snapshots from ${SOURCE_DATASET}..."
     SOURCE_SNAPSHOTS_FULL=($(zfs_list_snapshots "${SOURCE_HOST}" | grep ^${SOURCE_DATASET}@ || true))
-    echo "Listing target snapshots..."
+    echo "Listing target snapshots from ${TARGET_DATASET}..."
     TARGET_SNAPSHOTS_FULL=($(zfs_list_snapshots "${TARGET_HOST}" | grep ^${TARGET_DATASET}@ || true))
 
     echo "Processing snapshots..."
@@ -61,6 +61,37 @@ zfs_send_new_snapshots() {
             $(zfs_cmd "${SOURCE_HOST}") send -v ${INCREMENTAL} ${SOURCE_DATASET}@${SNAPSHOT} | $(zfs_cmd "${TARGET_HOST}") receive -F ${TARGET_DATASET}
         fi
         INCREMENTAL="-i ${SOURCE_DATASET}@${SNAPSHOT}"
+    done
+
+    echo "Done sending ${SOURCE_DATASET}"
+}
+
+zfs_rclone_backup() {
+    local SOURCE_DATASET=$1
+
+    local SOURCE_SNAPSHOTS_FULL
+    local TARGET_SNAPSHOTS_FULL
+    echo "Listing source snapshots from ${SOURCE_DATASET}..."
+    SOURCE_SNAPSHOTS_FULL=($(zfs_list_snapshots "${SOURCE_HOST}" | grep ^${SOURCE_DATASET}@ || true))
+    echo "Listing target snapshots from ${SOURCE_DATASET}..."
+    TARGET_SNAPSHOTS_FULL=($(rclone lsf backup-archive:${SOURCE_DATASET}/_/ | sed 's/\.zstd//' | sed 's/~.*$//' | awk "{ print '${SOURCE_DATASET}@' $1 }" || true))
+
+    echo "Processing snapshots..."
+    local INCREMENTAL=""
+    local INCREMENTAL_RCLONE=""
+    for SNAPSHOT_FULL in "${SOURCE_SNAPSHOTS_FULL[@]}"
+    do
+        SNAPSHOT=${SNAPSHOT_FULL#${SOURCE_DATASET}@}
+        if zfs_has_snapshot "${SOURCE_DATASET}" "${SNAPSHOT}" "${TARGET_SNAPSHOTS_FULL[@]}"
+        then
+            echo "Skipping snapshot ${SNAPSHOT}"
+        else
+            echo "Sending snapshot ${SOURCE_DATASET}@${SNAPSHOT}"
+            echo "zfs send -v ${INCREMENTAL} ${SOURCE_DATASET}@${SNAPSHOT} | zstd -19 -T0 | rclone rcat backup-archive:${SOURCE_DATASET}/_/${SNAPSHOT}${INCREMENTAL_RCLONE}.zstd"
+            zfs send -v ${INCREMENTAL} ${SOURCE_DATASET}@${SNAPSHOT} | zstd -19 -T0 | rclone rcat backup-archive:${SOURCE_DATASET}/_/${SNAPSHOT}${INCREMENTAL_RCLONE}.zstd
+        fi
+        INCREMENTAL="-i ${SOURCE_DATASET}@${SNAPSHOT}"
+        INCREMENTAL_RCLONE="~${SNAPSHOT}"
     done
 
     echo "Done sending ${SOURCE_DATASET}"
