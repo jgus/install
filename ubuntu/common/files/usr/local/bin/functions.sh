@@ -74,7 +74,7 @@ zfs_rclone_backup() {
     echo "Listing source snapshots from ${SOURCE_DATASET}..."
     SOURCE_SNAPSHOTS_FULL=($(zfs_list_snapshots "${SOURCE_HOST}" | grep ^${SOURCE_DATASET}@ || true))
     echo "Listing target snapshots from ${SOURCE_DATASET}..."
-    TARGET_SNAPSHOTS_FULL=($(rclone lsf backup-archive:${SOURCE_DATASET}/_/ | sed 's/\.zstd//' | sed 's/~.*$//' | awk "{ print '${SOURCE_DATASET}@' $1 }" || true))
+    TARGET_SNAPSHOTS_FULL=($(rclone lsf backup-archive:${SOURCE_DATASET}/_/ | sed 's/~.*$//' | awk "{ print \"${SOURCE_DATASET}@\" \$1 }" || true))
 
     echo "Processing snapshots..."
     local INCREMENTAL=""
@@ -87,14 +87,47 @@ zfs_rclone_backup() {
             echo "Skipping snapshot ${SNAPSHOT}"
         else
             echo "Sending snapshot ${SOURCE_DATASET}@${SNAPSHOT}"
-            echo "zfs send -v ${INCREMENTAL} ${SOURCE_DATASET}@${SNAPSHOT} | zstd -19 -T0 | rclone rcat backup-archive:${SOURCE_DATASET}/_/${SNAPSHOT}${INCREMENTAL_RCLONE}.zstd"
-            zfs send -v ${INCREMENTAL} ${SOURCE_DATASET}@${SNAPSHOT} | zstd -19 -T0 | rclone rcat backup-archive:${SOURCE_DATASET}/_/${SNAPSHOT}${INCREMENTAL_RCLONE}.zstd
+            echo "zfs send -v ${INCREMENTAL} ${SOURCE_DATASET}@${SNAPSHOT} | rclone rcat backup-archive:${SOURCE_DATASET}/_/${SNAPSHOT}${INCREMENTAL_RCLONE}"
+            zfs send -v ${INCREMENTAL} ${SOURCE_DATASET}@${SNAPSHOT} | rclone rcat backup-archive:${SOURCE_DATASET}/_/${SNAPSHOT}${INCREMENTAL_RCLONE}
         fi
         INCREMENTAL="-i ${SOURCE_DATASET}@${SNAPSHOT}"
         INCREMENTAL_RCLONE="~${SNAPSHOT}"
     done
 
     echo "Done sending ${SOURCE_DATASET}"
+}
+
+zfs_rclone_restore() {
+    local SOURCE_DATASET=$1
+    local SNAPSHOT=$2
+    local TARGET_DATASET=$3
+
+    if zfs list ${TARGET_DATASET}@${SNAPSHOT} >/dev/null 2>&1
+    then
+        echo "${TARGET_DATASET}@${SNAPSHOT} exists"
+        return 0
+    fi
+
+    local SOURCE_SNAPSHOT
+    SOURCE_SNAPSHOTS=($(rclone lsf backup-archive:${SOURCE_DATASET}/_/ | grep "^${SNAPSHOT}" || true))
+
+    if (( ${#SOURCE_SNAPSHOTS[@]} == 0 ))
+    then
+        echo "Couldn't find ${SOURCE_DATASET}@${SNAPSHOT}"
+        return 1
+    fi
+
+    local SOURCE_SNAPSHOT=${SOURCE_SNAPSHOTS[0]}
+
+    if [[ "${SOURCE_SNAPSHOT}" =~ .*\~.* ]]
+    then
+        local BASE=${SOURCE_SNAPSHOT##*~}
+        echo "Need ${BASE} first"
+        zfs_rclone_restore ${SOURCE_DATASET} ${BASE} ${TARGET_DATASET}
+    fi
+
+    echo "Restoring ${SOURCE_SNAPSHOT}"
+    rclone cat backup-archive:${SOURCE_DATASET}/_/${SOURCE_SNAPSHOT} | zfs receive -F ${TARGET_DATASET}
 }
 
 zfs_prune_sent_snapshots() {
