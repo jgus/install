@@ -10,11 +10,15 @@
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
-    extraModulePackages = with config.boot.kernelPackages; [ zfs ];
-    kernelModules = [ "zfs" ];
+    extraModulePackages = with config.boot.kernelPackages; [
+      zfs 
+    ];
+    kernelModules = [
+      "zfs"
+    ];
   };
 
-  networking.hostName = "test";
+  networking.hostName = "nix-test";
 
   time.timeZone = "America/Denver";
 
@@ -40,8 +44,9 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    parted,
-    zfs,
+    parted
+    zfs
+    git
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -54,24 +59,89 @@
 
   # List services that you want to enable:
 
-  # Enable the OpenSSH daemon.
-  services.openssh = {
-    enable = true;
-    # permitRootLogin = "yes";
-  };
+  nixpkgs.config.allowUnfree = true;
+
+  services = {
+    ntp.enable = true;
+    
+    openssh = {
+      enable = true;
+      openFirewall = true;
+    };
+
+    # plex = let
+    #   master = import
+    #       (builtins.fetchTarball https://github.com/nixos/nixpkgs/tarball/master)
+    #       { config = config.nixpkgs.config; };
+    #   in {
+    #     enable = true;
+    #     openFirewall = true;
+    #     package = master.plex;
+    #     # dataDir = "/var/lib/plex";
+    #   };
+    
+    ### Don't forget smbpasswd -a <user>
+  #   samba = {
+  #     enable = true;
+  #     openFirewall = true;
+  #     securityType = "user";
+  #     extraConfig = ''
+  #       workgroup = WORKGROUP
+  #       server string = Gustafson-Backup
+  #       netbios name = Gustafson-Backup
+  #       security = user 
+  #       #use sendfile = yes
+  #       #max protocol = smb2
+  #       # note: localhost is the ipv6 localhost ::1
+  #       # hosts allow = 10. 172. 192.168. 127.0.0.1 localhost
+  #       # hosts deny = 0.0.0.0/0
+  #       guest account = nobody
+  #       map to guest = bad user
+  #     '';
+  #     shares = {
+  #       public = {
+  #         path = "/mnt/Shares/Public";
+  #         browseable = "yes";
+  #         "read only" = "no";
+  #         "guest ok" = "yes";
+  #         "create mask" = "0644";
+  #         "directory mask" = "0755";
+  #         "force user" = "username";
+  #         "force group" = "groupname";
+  #       };
+  #       private = {
+  #         path = "/mnt/Shares/Private";
+  #         browseable = "yes";
+  #         "read only" = "no";
+  #         "guest ok" = "no";
+  #         "create mask" = "0644";
+  #         "directory mask" = "0755";
+  #         "force user" = "username";
+  #         "force group" = "groupname";
+  #       };
+  #     };
+  #   };
+  # };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
-  networking.firewall.enable = false;
+  # networking.firewall.enable = false;
+  networking.firewall.allowPing = true;
 
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "21.11"; # Did you read the comment?
+  system = {
+    # This value determines the NixOS release from which the default
+    # settings for stateful data, like file locations and database versions
+    # on your system were taken. It‘s perfectly fine and recommended to leave
+    # this value at the release version of the first install of this system.
+    # Before changing this value read the documentation for this option
+    # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+    stateVersion = "21.11"; # Did you read the comment?
 
+    autoUpgrade = {
+      enable = true;
+      allowReboot = true;
+    }
+  }
 }
