@@ -36,7 +36,7 @@ mkdir -p /mnt/boot
 mount ${BOOT_PARTITION} /mnt/boot
 
 echo "### Copying configuration"
-rsync -arP common/${HOSTNAME}/ /mnt
+rsync -arP ${SCRIPT_DIR}/common/ /mnt
 rsync -arP ${SCRIPT_DIR}/${HOSTNAME}/ /mnt
 rsync -arP /root/.ssh /mnt/root/
 dd bs=1 count=32 if=/dev/urandom of=/mnt/root/vkey

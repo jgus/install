@@ -45,6 +45,7 @@ echo "### Downlaoding repo..."
 mkdir /install
 cd /install
 curl -sL https://github.com/jgus/install/archive/master.tar.gz | tar -xz --strip-components=1
+find . -iname \*.sh -exec chmod a+x {} \;
 
 echo "### System prep complete; SSH available at:"
 ip a | grep inet
