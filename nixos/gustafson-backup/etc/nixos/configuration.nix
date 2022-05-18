@@ -43,6 +43,9 @@
   #   isNormalUser = true;
   #   extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
   # };
+  users.users.gustafson = {
+    isNormalUser = true;
+  };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -50,6 +53,7 @@
     lm_sensors
     parted
     zfs
+    git
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -84,45 +88,31 @@
     #   };
     
     ### Don't forget smbpasswd -a <user>
+    samba-wsdd.enable = true;
     samba = {
       enable = true;
       openFirewall = true;
       securityType = "user";
       extraConfig = ''
+        server role = standalone server
+        wins support = yes
         workgroup = WORKGROUP
         server string = Gustafson-Backup
-        netbios name = Gustafson-Backup
-        security = user 
-        #use sendfile = yes
-        #max protocol = smb2
-        # note: localhost is the ipv6 localhost ::1
-        # hosts allow = 10. 172. 192.168. 127.0.0.1 localhost
-        # hosts deny = 0.0.0.0/0
-        guest account = nobody
-        map to guest = bad user
       '';
-      shares = {
-        public = {
-          path = "/mnt/Shares/Public";
-          browseable = "yes";
-          "read only" = "no";
-          "guest ok" = "yes";
-          "create mask" = "0644";
-          "directory mask" = "0755";
-          "force user" = "username";
-          "force group" = "groupname";
-        };
-        private = {
-          path = "/mnt/Shares/Private";
-          browseable = "yes";
-          "read only" = "no";
-          "guest ok" = "no";
-          "create mask" = "0644";
-          "directory mask" = "0755";
-          "force user" = "username";
-          "force group" = "groupname";
-        };
-      };
+      # shares = {
+      #   public = {
+      #     path = "/mnt/Shares/Public";
+      #     browseable = "yes";
+      #     "guest ok" = "yes";
+      #     "valid users" = "tester";
+      #   };
+      #   private = {
+      #     path = "/mnt/Shares/Private";
+      #     browseable = "yes";
+      #     "guest ok" = "no";
+      #     "valid users" = "tester";
+      #   };
+      # };
     };
   };
 
@@ -132,6 +122,16 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
   networking.firewall.allowPing = true;
+  networking.firewall.allowedTCPPorts = [
+    445
+    139
+    5357 # wsdd
+  ];
+  networking.firewall.allowedUDPPorts = [
+    137
+    138
+    3702 # wsdd
+  ];
 
   system = {
     # This value determines the NixOS release from which the default
@@ -145,6 +145,6 @@
     autoUpgrade = {
       enable = true;
       allowReboot = true;
-    }
-  }
+    };
+  };
 }
