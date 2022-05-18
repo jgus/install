@@ -121,7 +121,7 @@
   #       };
   #     };
   #   };
-  # };
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -142,6 +142,6 @@
     autoUpgrade = {
       enable = true;
       allowReboot = true;
-    }
-  }
+    };
+  };
 }
