@@ -104,13 +104,13 @@
       #     path = "/mnt/Shares/Public";
       #     browseable = "yes";
       #     "guest ok" = "yes";
-      #     "valid users" = "tester";
+      #     "valid users" = "gustafson";
       #   };
       #   private = {
       #     path = "/mnt/Shares/Private";
       #     browseable = "yes";
       #     "guest ok" = "no";
-      #     "valid users" = "tester";
+      #     "valid users" = "gustafson";
       #   };
       # };
     };
@@ -146,5 +146,11 @@
       enable = true;
       allowReboot = true;
     };
+  };
+
+  nix.gc = {
+    automatic = true;
+    persistent = true;
+    options = "--delete-older-than 30d";
   };
 }

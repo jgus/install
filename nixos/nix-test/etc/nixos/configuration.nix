@@ -143,4 +143,10 @@
       allowReboot = true;
     };
   };
+
+  nix.gc = {
+    automatic = true;
+    persistent = true;
+    options = "--delete-older-than 30d";
+  };
 }
