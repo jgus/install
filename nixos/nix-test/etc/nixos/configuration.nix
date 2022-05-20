@@ -10,15 +10,17 @@
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
-    extraModulePackages = with config.boot.kernelPackages; [
-      zfs
-    ];
-    kernelModules = [
+    supportedFilesystems = [
       "zfs"
     ];
+    zfs = {
+      devNodes = "/dev/disk/by-path";
+      #extraPools = [ "d" ];
+    };
   };
 
   networking.hostName = "nix-test";
+  networking.hostId = "61e46f30"; # head -c4 /dev/urandom | od -A none -t x4
 
   time.timeZone = "America/Denver";
 

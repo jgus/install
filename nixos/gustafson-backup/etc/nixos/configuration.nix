@@ -7,21 +7,24 @@
     ];
 
   # Use the systemd-boot EFI boot loader.
+  # Use the systemd-boot EFI boot loader.
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
-    extraModulePackages = with config.boot.kernelPackages; [
-      # it87
-      zfs 
-    ];
     kernelModules = [
       "coretemp"
-      # "it87"
+    ];
+supportedFilesystems = [
       "zfs"
     ];
+    zfs = {
+      devNodes = "/dev/disk/by-path";
+      #extraPools = [ "d" ];
+    };
   };
 
   networking.hostName = "gustafson-backup";
+  networking.hostId = "98c0a40d"; # head -c4 /dev/urandom | od -A none -t x4
 
   time.timeZone = "America/Los_Angeles";
 
