@@ -19,16 +19,7 @@
     };
   };
 
-  networking.hostName = "nix-test";
-  networking.hostId = "61e46f30"; # head -c4 /dev/urandom | od -A none -t x4
-
   time.timeZone = "America/Denver";
-
-  # The global useDHCP flag is deprecated, therefore explicitly set to false here.
-  # Per-interface useDHCP will be mandatory in the future, so this generated config
-  # replicates the default behaviour.
-  networking.useDHCP = false;
-  networking.interfaces.eth0.useDHCP = true;
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
@@ -44,6 +35,31 @@
   # };
   users.users.tester = {
     isNormalUser = true;
+  };
+
+  networking = {
+    hostName = "nix-test";
+    hostId = "61e46f30"; # head -c4 /dev/urandom | od -A none -t x4
+    
+    firewall = {
+      allowPing = true;
+      allowedTCPPorts = [
+        445
+        139
+        5357 # wsdd
+      ];
+      allowedUDPPorts = [
+        137
+        138
+        3702 # wsdd
+      ];
+    };
+
+    # The global useDHCP flag is deprecated, therefore explicitly set to false here.
+    # Per-interface useDHCP will be mandatory in the future, so this generated config
+    # replicates the default behaviour.
+    useDHCP = false;
+    interfaces.eth0.useDHCP = true;
   };
 
   # List packages installed in system profile. To search, run:
@@ -114,22 +130,19 @@
     };
   };
 
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-  networking.firewall.allowPing = true;
-  networking.firewall.allowedTCPPorts = [
-    445
-    139
-    5357 # wsdd
-  ];
-  networking.firewall.allowedUDPPorts = [
-    137
-    138
-    3702 # wsdd
-  ];
+  systemd = {
+    services = {
+      backup-gateway = {
+        enable = true;
+        description = "Backup Gateway Connection";
+        wantedBy = [ "multi-user.target" ];
+        script = "/run/current-system/sw/bin/ssh -i /root/.ssh/id_rsa-backup -N -R 22023:localhost:22 -p 22022 user@jarvis.gustafson.me";
+        serviceConfig = {
+          Restart = "always";
+        };
+      };
+    };
+  };
 
   system = {
     # This value determines the NixOS release from which the default
