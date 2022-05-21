@@ -38,6 +38,8 @@ mount ${BOOT_PARTITION} /mnt/boot
 echo "### Copying configuration"
 rsync -arP ${SCRIPT_DIR}/common/ /mnt
 rsync -arP ${SCRIPT_DIR}/${HOSTNAME}/ /mnt
+[ -f /root/.ssh/authorized_keys ]
+[ -f /root/.ssh/id_rsa-backup ]
 rsync -arP /root/.ssh /mnt/root/
 dd bs=1 count=32 if=/dev/urandom of=/mnt/root/vkey
 chown -R root:root /mnt
