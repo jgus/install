@@ -4,6 +4,9 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+
+      # For VS Code
+      (fetchTarball "https://github.com/msteen/nixos-vscode-server/tarball/master")
     ];
 
   # Use the systemd-boot EFI boot loader.
@@ -101,7 +104,7 @@
     #     # dataDir = "/var/lib/plex";
     #   };
     
-    ### Don't forget smbpasswd -a <user>
+    ### Don't forget: smbpasswd -a <user>
     samba-wsdd.enable = true;
     samba = {
       enable = true;
@@ -128,6 +131,9 @@
       #   };
       # };
     };
+
+    ### Don't forget: systemctl --user enable --now auto-fix-vscode-server.service
+    vscode-server.enable = true;
   };
 
   systemd = {
@@ -137,8 +143,12 @@
         description = "Backup Gateway Connection";
         wantedBy = [ "multi-user.target" ];
         script = "/run/current-system/sw/bin/ssh -i /root/.ssh/id_rsa-backup -N -R 22023:localhost:22 -p 22022 user@jarvis.gustafson.me";
+        unitConfig = {
+          StartLimitIntervalSec = 0;
+        };
         serviceConfig = {
           Restart = "always";
+          RestartSec = 10;
         };
       };
     };
