@@ -71,6 +71,7 @@
     parted
     zfs
     git
+    dyndnsc
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -142,13 +143,32 @@
         enable = true;
         description = "Backup Gateway Connection";
         wantedBy = [ "multi-user.target" ];
-        script = "/run/current-system/sw/bin/ssh -i /root/.ssh/id_rsa-backup -N -R 22023:localhost:22 -p 22022 user@jarvis.gustafson.me";
+        path = [ pkgs.openssh ];
+        script = "ssh -i /root/.ssh/id_rsa-backup -N -R 22023:localhost:22 -p 22022 user@jarvis.gustafson.me";
         unitConfig = {
           StartLimitIntervalSec = 0;
         };
         serviceConfig = {
           Restart = "always";
           RestartSec = 10;
+        };
+      };
+      update-ddns = {
+        path = [ pkgs.dyndnsc ];
+        script = "dyndnsc --config /root/.secrets/dyndnsc.conf";
+        serviceConfig = {
+          Type = "oneshot";
+        };
+      };
+    };
+    timers = {
+      update-ddns = {
+        wantedBy = [ "timers.target" ];
+        partOf = [ "update-ddns.service" ];
+        timerConfig = {
+          OnCalendar = "hourly";
+          Persistent = true;
+          Unit = "update-ddns.service";
         };
       };
     };
