@@ -15,4 +15,4 @@ apt update
 apt upgrade --yes --allow-downgrades
 apt install --yes "${PACKAGES[@]}"
 
-bash <(curl -fsSL https://get.docker.com)
+bash <(curl -sSL https://install.pi-hole.net)
