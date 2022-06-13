@@ -9,7 +9,7 @@
     services = {
       update-ddns = {
         path = [ pkgs.dyndnsc ];
-        script = "dyndnsc --config /root/.secrets/dyndnsc.conf";
+        script = "dyndnsc -v --config /root/.secrets/dyndnsc.conf";
         serviceConfig = {
           Type = "oneshot";
         };
