@@ -7,3 +7,4 @@ cd /etc/nixos
 git init
 git add .
 git commit -m init
+rm /root/postinstall.sh

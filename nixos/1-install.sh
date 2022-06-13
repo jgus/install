@@ -11,6 +11,11 @@ parted ${DEVICE} -- mkpart primary 512MiB 100%
 parted ${DEVICE} -- mkpart ESP fat32 1MiB 512MiB
 parted ${DEVICE} -- set 2 esp on
 
+while [ ! -b ${DEVICE}-part1 && ! -b ${DEVICE}1 ]
+do
+    sleep 1
+done
+
 if [ -b ${DEVICE}-part1 ]
 then
     ROOT_PARTITION=${DEVICE}-part1
