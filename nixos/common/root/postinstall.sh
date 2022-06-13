@@ -7,4 +7,7 @@ cd /etc/nixos
 git init
 git add .
 git commit -m init
+
+systemctl --user enable --now auto-fix-vscode-server.service
+
 rm /root/postinstall.sh
