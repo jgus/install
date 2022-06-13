@@ -86,6 +86,15 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  virtualisation = {
+    docker = {
+      enable = true;
+      #enableNvidia = true;
+      enableOnBoot = true;
+      autoPrune.enable = true;
+    };
+  };
+
   services = {
     ntp.enable = true;
     
@@ -153,6 +162,31 @@
           RestartSec = 10;
         };
       };
+      syncthing = {
+        enable = false;
+        description = "Syncthing";
+        wantedBy = [ "multi-user.target" ];
+        path = [ pkgs.docker ];
+        script = ''
+          /bin/sh -c "docker run --rm --name syncthing \
+          -p 8384:8384 \
+          -p 22000:22000 \
+          -p 21027:21027/udp \
+          -e PUID=$(id -u josh) \
+          -e PGID=$(id -g josh) \
+          -e TZ=$(timedatectl show -p Timezone --value) \
+          -e UMASK_SET=002 \
+          -v /var/lib/syncthing/config:/config \
+          lscr.io/linuxserver/syncthing"
+          '';
+        unitConfig = {
+          StartLimitIntervalSec = 0;
+        };
+        serviceConfig = {
+          Restart = "always";
+          RestartSec = 10;
+        };
+      };
       update-ddns = {
         path = [ pkgs.dyndnsc ];
         script = "dyndnsc --config /root/.secrets/dyndnsc.conf";
@@ -181,7 +215,7 @@
     # this value at the release version of the first install of this system.
     # Before changing this value read the documentation for this option
     # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-    stateVersion = "22.05"; # Did you read the comment?
+    stateVersion = "21.11"; # Did you read the comment?
 
     autoUpgrade = {
       enable = true;
