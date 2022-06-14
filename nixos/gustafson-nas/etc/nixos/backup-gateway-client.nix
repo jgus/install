@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
-{
+let
+  gateway_port = "22023";
+in {
   systemd = {
     services = {
       backup-gateway = {
@@ -8,7 +10,7 @@
         description = "Backup Gateway Connection";
         wantedBy = [ "multi-user.target" ];
         path = [ pkgs.openssh ];
-        script = "ssh -i /root/.ssh/id_rsa-backup -N -R 22023:localhost:22 -p 22022 user@jarvis.gustafson.me";
+        script = "ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa-backup -N -R ${gateway_port}:localhost:22 -p 22022 user@shell.gustafson.me";
         unitConfig = {
           StartLimitIntervalSec = 0;
         };

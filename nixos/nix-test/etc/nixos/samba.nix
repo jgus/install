@@ -25,7 +25,7 @@
         server role = standalone server
         wins support = yes
         workgroup = WORKGROUP
-        server string = Nix-Test
+        server string = Gustafson-NAS
       '';
       # shares = {
       #   public = {
