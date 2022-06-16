@@ -34,22 +34,22 @@
           "valid users" = "gustafson";
           "read only" = "no";
         };
-        Files-Snapshots = {
-          path = "/d/Files/.zfs/snapshot";
-          browseable = "yes";
-          "valid users" = "gustafson";
-        };
+        # Files-Snapshots = {
+        #   path = "/d/Files/.zfs/snapshot";
+        #   browseable = "yes";
+        #   "valid users" = "gustafson";
+        # };
         Music = {
           path = "/d/Music";
           browseable = "yes";
           "valid users" = "gustafson";
           "read only" = "no";
         };
-        Music-Snapshots = {
-          path = "/d/Music/.zfs/snapshot";
-          browseable = "yes";
-          "valid users" = "gustafson";
-        };
+        # Music-Snapshots = {
+        #   path = "/d/Music/.zfs/snapshot";
+        #   browseable = "yes";
+        #   "valid users" = "gustafson";
+        # };
         Movies = {
           path = "/d/Movies";
           browseable = "yes";
