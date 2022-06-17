@@ -1,20 +1,5 @@
 #!/usr/bin/env -S bash -e
 
-KEY_GUID=77fa9abd-0359-4d32-bd60-28f4e78f784b
-if [ ! -f /sys/firmware/efi/vars/keyfile32-${KEY_GUID}/data ] && [ ! -f /sys/firmware/efi/efivars/keyfile28-${KEY_GUID} ]
-then
-    TMPFILE=$(mktemp)
-    dd bs=1 count=32 if=/dev/urandom of="${TMPFILE}"
-    efivar -n 77fa9abd-0359-4d32-bd60-28f4e78f784b-keyfile32 -t 7 -w -f "${TMPFILE}"
-    rm "${TMPFILE}"
-    dd bs=1 count=28 if=/dev/urandom of="${TMPFILE}"
-    efivar -n 77fa9abd-0359-4d32-bd60-28f4e78f784b-keyfile28 -t 7 -w -f "${TMPFILE}"
-    rm "${TMPFILE}"
-fi
-VKEY_FILE=/sys/firmware/efi/vars/keyfile32-${KEY_GUID}/data
-[ -f "${VKEY_FILE}" ] || VKEY_FILE=/sys/firmware/efi/efivars/keyfile28-${KEY_GUID}
-[ -f "${VKEY_FILE}" ] || (echo "!!! Could not find KVEY_FILE"; exit 1)
-
 echo "### Formatting root as zfs"
 ZPOOL_OPTS=(
     -o ashift=12
@@ -27,9 +12,6 @@ ZPOOL_OPTS=(
     -O xattr=sa
     -O mountpoint=/
     -O com.sun:auto-snapshot=true
-    -O encryption=aes-256-gcm
-    -O keyformat=raw
-    -O keylocation=file://${VKEY_FILE}
     -R /mnt
 )
 

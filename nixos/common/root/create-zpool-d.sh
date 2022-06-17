@@ -1,17 +1,27 @@
 #!/usr/bin/env -S bash -e
 
-SWAP_SIZE="8GiB"
+SWAP_SIZE="0%"
 Z_DEVS=()
+
+[ -f /root/vkey ] || dd bs=1 count=32 if=/dev/urandom of=/root/vkey
 
 for d in "$@"
 do
     parted ${d} -- mklabel gpt
-    parted ${d} -- mkpart primary linux-swap 0% ${SWAP_SIZE}
+    Z_DEV_N=1
+    if [[ "${SWAP_SIZE}" != "0%" ]]
+    then
+        parted ${d} -- mkpart primary linux-swap 0% ${SWAP_SIZE}
+        Z_DEV_N=2
+    fi
     parted ${d} -- mkpart primary ${SWAP_SIZE} 100%
     sleep 2
-    Z_DEVS+=("${d}-part2")
-    mkswap "${d}-part1"
-    swapon "${d}-part1"
+    Z_DEVS+=("${d}-part${Z_DEV_N}")
+    if [[ "${SWAP_SIZE}" != "0%" ]]
+    then
+        mkswap "${d}-part1"
+        swapon "${d}-part1"
+    fi
 done
 
 nixos-generate-config
