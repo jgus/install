@@ -41,10 +41,12 @@ systemctl start ssh || systemctl start sshd
 # echo "### Cloning repo..."
 # git clone https://github.com/jgus/install
 
-echo "### Downlaoding repo..."
+BRANCH=${BRANCH:-master}
+
+echo "### Downlaoding repo (${BRANCH})..."
 mkdir /install
 cd /install
-curl -sL https://github.com/jgus/install/archive/master.tar.gz | tar -xz --strip-components=1
+curl -sL https://github.com/jgus/install/archive/${BRANCH}.tar.gz | tar -xz --strip-components=1
 find . -iname \*.sh -exec chmod a+x {} \;
 
 echo "### System prep complete; SSH available at:"
