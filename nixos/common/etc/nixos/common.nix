@@ -5,6 +5,7 @@
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
     tmpOnTmpfs = true;
+    loader.timeout = 1;
   };
 
   # Select internationalisation properties.
