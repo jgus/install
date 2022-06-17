@@ -1,12 +1,19 @@
 #!/usr/bin/env -S bash -e
 
-VKEY_FILE="${VKEY_FILE:-/boot/vkey}"
-
-if [ ! -f "${VKEY_FILE}" ]
+KEY_GUID=77fa9abd-0359-4d32-bd60-28f4e78f784b
+if [ ! -f /sys/firmware/efi/vars/keyfile32-${KEY_GUID}/data ] && [ ! -f /sys/firmware/efi/efivars/keyfile28-${KEY_GUID} ]
 then
-    mkdir -p "$(dirname "${VKEY_FILE}")"
-    dd bs=1 count=32 if=/dev/urandom of="${VKEY_FILE}"
+    TMPFILE=$(mktemp)
+    dd bs=1 count=32 if=/dev/urandom of="${TMPFILE}"
+    efivar -n 77fa9abd-0359-4d32-bd60-28f4e78f784b-keyfile32 -t 7 -w -f "${TMPFILE}"
+    rm "${TMPFILE}"
+    dd bs=1 count=28 if=/dev/urandom of="${TMPFILE}"
+    efivar -n 77fa9abd-0359-4d32-bd60-28f4e78f784b-keyfile28 -t 7 -w -f "${TMPFILE}"
+    rm "${TMPFILE}"
 fi
+VKEY_FILE=/sys/firmware/efi/vars/keyfile32-${KEY_GUID}/data
+[ -f "${VKEY_FILE}"] || VKEY_FILE=/sys/firmware/efi/efivars/keyfile28-${KEY_GUID}
+[ -f "${VKEY_FILE}"] || (echo "!!! Could not find KVEY_FILE"; exit 1)
 
 echo "### Formatting root as zfs"
 ZPOOL_OPTS=(
@@ -33,9 +40,9 @@ zfs create                                                                      
 zfs create                                                                          rpool/var/log
 zfs create                                                                          rpool/var/spool
 zfs create                                                                          rpool/var/tmp
-zfs create -o com.sun:auto-snapshot=false   -o mountpoint=/var/lib/docker           rpool/docker
-zfs create                                  -o mountpoint=/var/volumes              rpool/volumes
-zfs create -o com.sun:auto-snapshot=false                                           rpool/volumes/scratch
-zfs create                                  -o mountpoint=/var/lib/libvirt/images   rpool/images
-zfs create -o com.sun:auto-snapshot=false                                           rpool/images/scratch
+#zfs create -o com.sun:auto-snapshot=false   -o mountpoint=/var/lib/docker           rpool/docker
+#zfs create                                  -o mountpoint=/var/volumes              rpool/volumes
+#zfs create -o com.sun:auto-snapshot=false                                           rpool/volumes/scratch
+#zfs create                                  -o mountpoint=/var/lib/libvirt/images   rpool/images
+#zfs create -o com.sun:auto-snapshot=false                                           rpool/images/scratch
 zfs create                                                                          rpool/home
