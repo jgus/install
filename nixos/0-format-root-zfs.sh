@@ -12,8 +12,8 @@ then
     rm "${TMPFILE}"
 fi
 VKEY_FILE=/sys/firmware/efi/vars/keyfile32-${KEY_GUID}/data
-[ -f "${VKEY_FILE}"] || VKEY_FILE=/sys/firmware/efi/efivars/keyfile28-${KEY_GUID}
-[ -f "${VKEY_FILE}"] || (echo "!!! Could not find KVEY_FILE"; exit 1)
+[ -f "${VKEY_FILE}" ] || VKEY_FILE=/sys/firmware/efi/efivars/keyfile28-${KEY_GUID}
+[ -f "${VKEY_FILE}" ] || (echo "!!! Could not find KVEY_FILE"; exit 1)
 
 echo "### Formatting root as zfs"
 ZPOOL_OPTS=(
