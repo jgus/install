@@ -4,7 +4,7 @@
   imports = [ ./msmtp.nix ];
 
   environment.etc = {
-    "clamav/clamav-scan-d.sh".source = ./clamav/clamav-scan-d.sh;
+    "clamav/clamav-scan-zfs.sh".source = ./clamav/clamav-scan-zfs.sh;
   };
 
   services = {
@@ -16,17 +16,7 @@
 
   systemd = {
     services = {
-      clamav-scan-system = {
-        path = with pkgs; [ clamav ];
-        script = ''
-          clamscan -r --cross-fs=no -i --move=/boot/INFECTED /boot/
-          clamscan -r --cross-fs=no -i --move=/INFECTED /
-        '';
-        serviceConfig = {
-          Type = "oneshot";
-        };
-      };
-      clamav-scan-d = {
+      clamav-scan-all = {
         path = with pkgs; [
           bash
           clamav
@@ -37,29 +27,24 @@
           umount
           zfs
         ];
-        script = "/etc/clamav/clamav-scan-d.sh";
+        script = ''
+          clamscan -r --cross-fs=no -i --move=/boot/INFECTED /boot/
+          /etc/clamav/clamav-scan-zfs.sh
+        '';
         serviceConfig = {
           Type = "oneshot";
         };
       };
     };
     timers = {
-      clamav-scan-system = {
+      clamav-scan-all = {
+        enable = true;
         wantedBy = [ "timers.target" ];
-        partOf = [ "clamav-scan-system.service" ];
-        timerConfig = {
-          OnCalendar = "weekly";
-          Persistent = true;
-          Unit = "clamav-scan-system.service";
-        };
-      };
-      clamav-scan-d = {
-        wantedBy = [ "timers.target" ];
-        partOf = [ "clamav-scan-d.service" ];
+        partOf = [ "clamav-scan-all.service" ];
         timerConfig = {
           OnCalendar = "daily";
           Persistent = true;
-          Unit = "clamav-scan-d.service";
+          Unit = "clamav-scan-all.service";
         };
       };
     };
