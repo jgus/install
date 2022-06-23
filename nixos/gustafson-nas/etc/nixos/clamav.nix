@@ -49,4 +49,10 @@
       };
     };
   };
+
+  system.activationScripts = {
+    freshclam.text = ''
+      [ -d /var/lib/clamav ] || ${pkgs.systemd}/bin/systemctl start clamav-freshclam.service
+    '';
+  };
 }
