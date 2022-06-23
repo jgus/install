@@ -6,13 +6,4 @@
   services = {
     vscode-server.enable = true;
   };
-
-  system.activationScripts = {
-    vscode = {
-      text = ''
-        ${pkgs.systemd}/bin/systemctl --user enable --now auto-fix-vscode-server.service 2>/dev/null
-      '';
-      deps = [];
-    };
-  };
 }
