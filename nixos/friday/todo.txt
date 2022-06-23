@@ -1,0 +1,22 @@
+backup gateway (server)
+backup
+    gustafson-nas
+    pihole
+    sync-to-cloud
+minecraft server
+sonarr / transmission
+syncthing
+web
+    proxy
+    db
+    db-admin
+
+
+wireguard?
+libvirt?
+
+
+Tweaks?
+clamav
+plex
+samba
