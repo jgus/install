@@ -2,7 +2,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" ; pwd)"
 
-HOSTNAME=$1
+[ "${HOSTNAME}x" != "x" ] || ( echo "!!! HOSTNAME not specified"; exit 1 )
 
 mountpoint -q /mnt || ( echo "!!! Root not mounted at /mnt"; exit 1 )
 mountpoint -q /mnt/boot || ( echo "!!! Boot not mounted at /mnt/boot"; exit 1 )

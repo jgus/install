@@ -15,7 +15,13 @@ ZPOOL_OPTS=(
     -R /mnt
 )
 
-zpool create -f "${ZPOOL_OPTS[@]}" rpool /dev/disk/by-partlabel/root
+DEVS=()
+for d in /dev/disk/by-partlabel/root*
+do
+    DEVS+=(/dev/disk/by-partuuid/$(blkid -o value -s PARTUUID "${d}"))
+done
+
+zpool create -f "${ZPOOL_OPTS[@]}" rpool mirror "${DEVS[@]}"
 
 # zfs create -o com.sun:auto-snapshot=false   -o canmount=off                         rpool/var
 # zfs create                                                                          rpool/var/cache

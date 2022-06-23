@@ -13,15 +13,36 @@ ROOT_END="-${SWAP_SIZE}"
 SWAP_START="-${SWAP_SIZE}"
 SWAP_END="100%"
 
+i=0
+while [ -b /dev/disk/by-partlabel/boot${i} ]
+do
+    ((i+=1))
+done
+BOOT_LABEL="boot${i}"
+
+i=0
+while [ -b /dev/disk/by-partlabel/root${i} ]
+do
+    ((i+=1))
+done
+ROOT_LABEL="root${i}"
+
+i=0
+while [ -b /dev/disk/by-partlabel/swap${i} ]
+do
+    ((i+=1))
+done
+SWAP_LABEL="swap${i}"
+
 if [[ "${BOOT_SIZE}" == "100%" ]]
 then
     echo "### Partitioning ${DEVICE} with boot partion only"
     parted ${DEVICE} -- mklabel gpt
     parted ${DEVICE} -- mkpart ESP fat32 1MiB 100%
     parted ${DEVICE} -- set 1 esp on
-    parted ${DEVICE} -- name 1 boot
+    parted ${DEVICE} -- name 1 ${BOOT_LABEL}
 
-    while [ ! -b /dev/disk/by-partlabel/boot ]
+    while [ ! -b /dev/disk/by-partlabel/${BOOT_LABEL} ]
     do
         sleep 1
     done
@@ -34,9 +55,9 @@ then
     echo "### Partitioning ${DEVICE} with swap partion only"
     parted ${DEVICE} -- mklabel gpt
     parted ${DEVICE} -- mkpart primary linux-swap 0% 100%
-    parted ${DEVICE} -- name 1 swap
+    parted ${DEVICE} -- name 1 ${SWAP_LABEL}
 
-    while [ ! -b /dev/disk/by-partlabel/swap ]
+    while [ ! -b /dev/disk/by-partlabel/${SWAP_LABEL} ]
     do
         sleep 1
     done
@@ -67,21 +88,21 @@ then
     echo "# Creating boot partition"
     parted ${DEVICE} -- mkpart ESP fat32 "${BOOT_START}" "${BOOT_END}"
     parted ${DEVICE} -- set "${BOOT_N}" esp on
-    parted ${DEVICE} -- name "${BOOT_N}" boot
+    parted ${DEVICE} -- name "${BOOT_N}" ${BOOT_LABEL}
 fi
 
 echo "# Creating root partition"
 parted ${DEVICE} -- mkpart primary "${ROOT_START}" "${ROOT_END}"
-parted ${DEVICE} -- name "${ROOT_N}" root
+parted ${DEVICE} -- name "${ROOT_N}" ${ROOT_LABEL}
 
 if [[ "${SWAP_SIZE}x" != "x" ]]
 then
     echo "# Creating swap partition"
     parted ${DEVICE} -- mkpart primary linux-swap "${SWAP_START}" "${SWAP_END}"
-    parted ${DEVICE} -- name "${SWAP_N}" swap
+    parted ${DEVICE} -- name "${SWAP_N}" ${SWAP_LABEL}
 fi
 
-while [ ! -b /dev/disk/by-partlabel/root ]
+while [ ! -b /dev/disk/by-partlabel/${ROOT_LABEL} ]
 do
     sleep 1
 done
