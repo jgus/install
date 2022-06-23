@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   imports = [ (fetchTarball "https://github.com/msteen/nixos-vscode-server/tarball/master") ];
@@ -10,7 +10,7 @@
   system.activationScripts = {
     vscode = {
       text = ''
-        systemctl --user enable --now auto-fix-vscode-server.service
+        ${pkgs.systemd}/bin/systemctl --user enable --now auto-fix-vscode-server.service 2>/dev/null
       '';
       deps = [];
     };
