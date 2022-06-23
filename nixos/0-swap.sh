@@ -1,4 +1,8 @@
-#!/usr/bin/env -S bash -e
+#!/usr/bin/env -S bash
 
-mkswap $1
-swapon $1
+for d in $(ls /dev/disk/by-partlabel/swap*)
+do
+    mkswap "${d}"
+    swapon "${d}"
+done
+free -h

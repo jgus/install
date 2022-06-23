@@ -15,6 +15,10 @@ rsync -arP ${SCRIPT_DIR}/${HOSTNAME}/ /mnt
 rsync -arP /root/.ssh /mnt/root/
 chown -R root:root /mnt
 
+echo "### Generating hardware configuration"
+nixos-generate-config --root /mnt
+sed -i 's/fsType = "zfs"/fsType = "zfs"; options = [ "zfsutil" ]/' /mnt/etc/nixos/hardware-configuration.nix
+
 echo "### Git initialization"
 nix-shell -p git --run "
 git config --global init.defaultBranch main
@@ -26,10 +30,6 @@ git init
 git add .
 git commit -m init
 "
-
-echo "### Generating hardware configuration"
-nixos-generate-config --root /mnt
-sed -i 's/fsType = "zfs"/fsType = "zfs"; options = [ "zfsutil" ]/' /mnt/etc/nixos/hardware-configuration.nix
 
 echo "### Installing"
 nixos-install --no-root-passwd
