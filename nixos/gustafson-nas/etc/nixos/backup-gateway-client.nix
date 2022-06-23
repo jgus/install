@@ -10,7 +10,7 @@ in {
         description = "Backup Gateway Connection";
         wantedBy = [ "multi-user.target" ];
         path = [ pkgs.openssh ];
-        script = "ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa-backup -N -R ${gateway_port}:localhost:22 -p 22022 user@shell.gustafson.me";
+        script = "ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa-backup -N -R ${gateway_port}:localhost:22 -p 22022 user@landing.gustafson.me";
         unitConfig = {
           StartLimitIntervalSec = 0;
         };
