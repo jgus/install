@@ -1,6 +1,7 @@
 #!/usr/bin/env -S bash -e
 
-SWAP_SIZE="0%"
+SWAP_SIZE_="${SWAP_SIZE:-0%}"
+
 Z_DEVS=()
 
 [ -f /root/vkey ] || dd bs=1 count=32 if=/dev/urandom of=/root/vkey
