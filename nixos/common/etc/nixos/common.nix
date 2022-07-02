@@ -22,7 +22,6 @@
     # Per-interface useDHCP will be mandatory in the future, so this generated config
     # replicates the default behaviour.
     useDHCP = false;
-    interfaces.eth0.useDHCP = true;
   };
 
   # List packages installed in system profile. To search, run:

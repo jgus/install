@@ -6,6 +6,7 @@
       ./hardware-configuration.nix
 
       ./common.nix
+      ./interfaces.nix
       ./host.nix
       ./users.nix
 
