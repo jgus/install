@@ -19,6 +19,15 @@ echo "### Generating hardware configuration"
 nixos-generate-config --root /mnt
 sed -i 's/fsType = "zfs"/fsType = "zfs"; options = [ "zfsutil" ]/' /mnt/etc/nixos/hardware-configuration.nix
 
+(
+    echo "{ ... }: {"
+    for i in $(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2;getline}')
+    do
+        echo "  networking.interfaces.${i}.useDHCP = true;"
+    done
+    echo "}"
+) >/mnt/etc/nixos/interfaces.nix
+
 echo "### Git initialization"
 nix-shell -p git --run "
 git config --global init.defaultBranch main
