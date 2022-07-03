@@ -11,7 +11,6 @@ ZPOOL_OPTS=(
     -O relatime=on
     -O xattr=sa
     -O mountpoint=/
-    -O com.sun:auto-snapshot=true
     -R /mnt
 )
 
@@ -23,16 +22,6 @@ done
 
 zpool create -f "${ZPOOL_OPTS[@]}" rpool mirror "${DEVS[@]}"
 
-# zfs create -o com.sun:auto-snapshot=false   -o canmount=off                         rpool/var
-# zfs create                                                                          rpool/var/cache
-# zfs create                                                                          rpool/var/log
-# zfs create                                                                          rpool/var/spool
-# zfs create                                                                          rpool/var/tmp
-# zfs create -o com.sun:auto-snapshot=false   -o mountpoint=/var/lib/docker           rpool/docker
-# zfs create                                  -o mountpoint=/var/volumes              rpool/volumes
-# zfs create -o com.sun:auto-snapshot=false                                           rpool/volumes/scratch
-# zfs create                                  -o mountpoint=/var/lib/libvirt/images   rpool/images
-# zfs create -o com.sun:auto-snapshot=false                                           rpool/images/scratch
 zfs create                                   -o mountpoint=/etc/nixos               rpool/nixos
 zfs create                                                                          rpool/home
 zfs create                                   -o mountpoint=/root                    rpool/home/root
