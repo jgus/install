@@ -10,10 +10,10 @@
       ./host.nix
       ./users.nix
 
-      #./backup-gateway-client.nix
-      #./docker.nix
-      #./dyndns.nix
-      #./plex.nix
+      #./nvidia.nix
+
+      ./docker.nix
+      ./plex.nix
       ./vscode.nix
       ./zfs.nix
     ];
