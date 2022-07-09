@@ -30,6 +30,7 @@
   environment.systemPackages = with pkgs; [
     parted
     git
+    tmux
   ];
 
   services = {
