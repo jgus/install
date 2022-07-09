@@ -23,9 +23,11 @@ SCAN_MOUNT=/mnt/clam-scan
 BASE_MOUNT=/mnt/clam-base
 
 DATASETS=()
-for p in rpool d
+for f in $(zfs list -H -o name -t filesystem)
 do
-    DATASETS+=($(zfs list -H -o name -t filesystem -r ${p}))
+    [[ "$(zfs get -H -o value clamav:scan ${f})" != "false" ]] || continue
+    [[ "$(zfs get -H -o value canmount ${f})" != "off" ]] || continue
+    DATASETS+=(${f})
 done
 
 EXCLUDE_ARGS=()
@@ -94,7 +96,7 @@ do
     else
         echo "# Scanning ${d} completely as of $(zfs get -H -o value creation ${d}@clam-scanning)..." | tee -a ${LOG_FILE}
         set +e
-        clamdscan -m --fdpass -i "${SCAN_MOUNT}" 2>&1 | tee -a ${LOG_FILE} ${CURRENT_LOG_FILE}
+        clamscan -i -r --cross-fs=no "${SCAN_MOUNT}" 2>&1 | tee -a ${LOG_FILE} ${CURRENT_LOG_FILE}
         RESULT=$?
         set -e
     fi
